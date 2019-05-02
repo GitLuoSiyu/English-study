@@ -1,0 +1,140 @@
+
+###基本布局
+LinearLayout 
+线性布局
+是将子控件以水平或垂直方式排列。可以设置android:orientation，vertical 表示垂直排列，horizontal表示水平排列。
+```
+android:gravity有 很多属性
+center 表示水平垂直居中
+center_vertical 表示垂直居中
+center_horizontal 水平居中
+right 表示最右
+left 表示最左
+bottom 表示最下
+可以只有 | 符号多级连用，比如
+android:gravity="bottom | right"
+
+android:layout_gravity表示 子控件相对于父容器的位置，就像JS里的子绝父相的用法一样。
+```
+
+
+RelativeLayout
+相对布局
+是指控件之间的相对位置or子控件相对于父容器的位置，所以子控件可以通过两个参考系来定位（父容器、某控件）。
+```
+// 相对于父容器
+android：layout_alignParentBottom（在父容器底部，true或false）
+android: layout_alignParentTop
+android: layout_alignParentRight
+android: layout_alignParentLeft
+
+android: layout_marginTop（距离父容器顶部）
+android: layout_marginBottom
+android: layout_marginLeft
+android: layout_marginRight
+
+android: layout_margin (4)
+android: layout_centerVertical(在父容器的垂直方向居中，true或false)
+android: layout_centerHoriontal（父容器的水平方向居中,）
+android: laytou_centerParent（在父容器的水平垂直方向居中）
+
+// 相对于其他容器
+android: layout_below （位于某个控件下方，用id标记）
+android: layout_above
+android: layout_toLeftOf
+android: layout_toRightOf
+android: layout_alignBottom （和某控件底部对齐）
+android: layout_alignTop
+android: layout_alignLeft
+android: layout_alignRight
+android: layout_alignBaseline （与某控件的文本内容的基线对齐）
+
+```
+注意相对局部中没有layout_weight这一属性。
+
+
+
+
+FrameLayout
+帧布局
+帧布局是将所有控件均放在左上角并且后面元素直接“覆盖”在前面元素上，仿佛整个页面只有一个层级，并且层级默认，后面覆盖前面。
+这里有两个常用属性：android:foreground（设置改帧布局容器的前景图像，前景图像是永远处于帧布局最上面的图像，就是不会被覆盖的图片）
+android:foregroundGravity（设置前景图像显示的位置）
+有什么作用呢？ 结合图片、渐变，可以做层级特效。
+// 图
+
+
+
+
+AbsoluteLayout
+绝对布局
+绝对布局就是相当于定义整个布局内都是父容器，所有的子控件都是绝对定义，用x,y确定它的位置。整个页面的绝对定位并不常见，因为适配上会有一些麻烦。
+
+
+
+
+
+TableLayout
+表格布局
+在前端页面上曾经也出现过表格布局，主要通过行、列的形式管理子控件，每一行是一个TableRow对象或View对象，注意列是从0开始的。
+有几个常用的全局属性:
+```
+android:stretchColumns （让第几列补充一行多余的空白，如果多列一起补充空白）
+android:shrinkColumns （列表收缩防止文本内容溢出）
+android:collapseColumns（隐藏某列表）
+
+常用的局部属性：
+android:layout_column 让该控件显示在第几列
+android:layout_span（让该控件占据几列）
+
+```
+举个例子：
+```
+
+```
+// 图
+
+
+
+
+
+
+
+GridLayout
+网格布局
+也叫栅格布局
+网格布局是在Android 4.0以后引入的一个新的布局，和表格布局有点类似，但比表格布局功能更强大一些。
+
+
+
+
+
+
+
+
+
+
+ConstrainLayout
+约束布局
+AS2.2之后新增的约束布局，和之前出现的集中布局不同的是，它非常适合使用可视化的方式来编写界面，但并不太适合使用XML的方式来进行编写。
+
+
+
+
+
+
+
+file name:布局名称
+Root element:布局类型
+
+使用方法是 布局将控件包裹起来。此外，布局和布局之间是可以嵌套的，就像float嵌套flex布局一样，注意每个布局的作用区域。
+
+
+
+布局原则：
+（1）尽量多使用线性布局和相对布局，不用绝对布局。
+（2）在布局层次一样下，线性布局比相对布局的性能要高。
+（3）使用include标签增加UI的复用效率：可把重复使用的控件抽取出来放在一个xml文件里，并在需要它的xml文件里通过include标签引用。这样做也保证了UI布局的规整和易维护性。
+
+
+

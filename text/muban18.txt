@@ -1,0 +1,519 @@
+###游戏中的显示对象
+#####1.图片对象
+```javascript
+// 图片对象身上有5个属性 Phaser.Game.add.image(x,y,key,frame,group)
+
+function preload(){
+    game.load.image('bg',"./img/bg.png");
+}
+
+function create(){
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    // 开启物理引擎
+
+    var bgImage = game.add.image(0,0,'bg');
+    // 创建图片对象
+
+    game.physics.arcade.enable(bgImage);
+    // 给这个图片 启用物理引擎
+
+    bgImage.body.bounce.y = 0.2;
+    // 弹性系数
+
+    bgImage.body.gravity.y = 300;
+    // 重力
+
+    bgImage.scale.setTo(0.5);
+    // 缩放
+
+    bgImage.inputEnabled = true;
+    // 启用事件
+
+    bgImage.input.enableDrag();
+    // 启动对象拖拽
+}
+```
+
+#####2.精灵对象
+
+```javascript
+// 精灵对象身上有5个属性 Phaser.Game.add.sprite(x,y,key,frame,group)
+function preload(){
+    game.add.image('player',"./img/player.png");
+}
+
+function create(){
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    // 开启物理引擎
+
+    var player = game.add.sprite(0,0,'player');
+    // 创建图片对象
+
+    game.physics.arcade.enable(player);
+    // 启动对象物理引擎
+
+    player.body.bounce.y = 0.2;
+    // 弹性系数
+
+    player.body.gravity.y = 300;
+    // 重力
+
+    player.scale.setTo(0.5);
+    // 缩放
+
+    player.inputEnabled = true;
+    // 启用事件
+
+    player.input.enableDrag();
+    // 启动对象拖拽
+}
+```
+
+#####3.精灵图的使用
+```javascript
+// 我们会很多相同或类似的 角色图片放在一张精灵图（雪碧图）里，使用的时候提取其中一个角色
+function preload(){
+    game.load.spritesheet('player', './img/player.png', 32, 32, 16);
+    // 32,32是指 精灵图的帧宽高，以左上角为基点，宽高32位第一帧图即frame = 0的图
+    // 16 是帧长度，16帧对应 0-15
+}
+function create(){
+    var player = game.add.sprite(0,0,'player')
+}
+```
+
+#####4.按钮对象
+```javascript
+function preload(){
+    game.load.spritesheet('button','./img/button_sprite.png', 180, 60);
+}
+
+function create(){
+    this.button = game.add.button(0,0,'button', btnOnClick, this, 2, 1, 0);
+    this.button.onInputOver.add(function(){
+        // after over to do ...
+    }, this);
+
+    this.button.onInputOut.add(function(){
+        // after out to do ...
+    }, this);
+
+    this.button.onInputUp.add(function(){
+        // after up to do ...
+    }, this);
+}
+
+function btnOnClick(){
+    // 点击后的回调函数
+    document.title = 'onDown';
+}
+```
+
+#####5.图片对象之Bitmapdata对象
+1.用canvas方法作图并作为精灵图纹
+```javascript
+// 参数有 Phaser.Game.add.bitmapData(width, height, key, )
+function create(){
+    var width = 100,height = 100;
+    var bmd = game.add.bitmapData(width, height);
+    bmd.ctx.benginPath();
+    bmd.ctx.rect(0,0,width,height);
+    bmd.ctx.strokeStyle = "#000";
+    bmd.ctx.strokeRect(0,0,width,height);
+    bmd.ctx.fillStyle = "#FFF";
+    bmd.ctx.fill();
+    bmd.ctx.stroke();
+    var block = game.add.sprite(0,0,bmd);
+    block.inputEnabled = true;
+    block.tint = 0xffffff;
+}
+```
+2.使用Phaser提供的方法
+```javascript
+function create(){
+    var ob = game.add.bitmapData(50,50);
+    ob.circle(25,25,25,"gray");
+    ob = game.add.sprite(0,0,ob)
+}
+```
+
+#####6.图形对象之graphics对象
+根据坐标绘制几何图形
+```javascript
+function create(){
+    circle = new Phaser.Circle(game.world.centerX, game.world.centerY, 500);
+    var graphics = game.add.graphics(0,0);
+    graphics.lineStyle(1, 0xffffff, 1);
+    graphics.drawCircle(circle.x, circle.y, circle.diameter);
+}
+```
+
+#####7.文本对象
+```javascript
+// Phaser.Game.add.text(x, y, text, style, group);
+function create(){
+    var text = game.add.text(0,0,"demo",[]);
+    text.fill = "#FFF";
+    text.font = "微软雅黑";
+    text.fontSize = 16;
+    text.fontWeight = "normal";
+    text.style.backgroundColor = "#F00";
+    text.worldWrap = true;
+    // 自动换行
+    text.worldWrapWidth = 150;
+}
+```
+
+#####8.Atlas贴图纹理集合
+Atlas特点就是能够把大小不一、位置不一的多个图像集中在一个集合图里面,可以大大减少图片请求,并且atlas也是可以用精灵动画的，准备贴图集合文件及其描述json文件即可。
+```javascript
+function preload(){
+    // 第n次提醒，加载音视频、json文件需要开服务器环境
+    game.load.atlas('demo','./assets/img/atlas.png','./assets/img/atlas.json')
+}
+
+function create(){
+    demo = game.add.sprite(64, 64, 'atlas');
+    demo.frameName = "demo_click.png";
+    demo.inputEnabled = true;
+    demo.events.onInputDown.add(function(){
+        demo.frame+;
+    },this)
+}
+```
+
+#####9.Group对象集合
+一些重复或者具有相同功能的对象，比如场景物体和NPC，都可以使用group对象集合。
+```javascript
+// 创建组并添加对象
+var group;
+
+function preload(){
+    game.load.image("npc","./assets/img/npc.png");
+}
+function create(){
+    group = game.add.group();
+    // 创建组
+    group.create(game.world.randomX-100, game.world.randomY-100, 'npc')
+    // 组内创建子元素
+    npc1 = game.add.image(0,0,'npc');
+    // 创建精灵
+    npc2 = game.add.image(0,20,'npc',group);
+    // 创建精灵2并添加到组
+    npc3 = game.add.image(0,40,'npc',group);
+    // 创建精灵3并添加到组
+    group.add(npc1);
+    // 将精灵1 加入组
+    document.title = group.length;
+    // 标题显示组内的元素个数
+}
+// Group的其他方法：
+// group.setAll('属性','值')     设置组内子元素属性
+// group.callAll('方法')         所有组内子元素调用方法
+// group.world.bringToTop(组)    将组置顶
+// group.remove(子元素)          移除子元素
+```
+
+###创建游戏的基本技能
+
+#####10.精灵动画
+原理是利用精灵图的帧序列进行播放的逐帧动画。
+```javascript
+// 1.先创建一个精灵对象
+var player;
+
+function preload(){
+    game.load.spritesheet('player','./assets/img/player.png', 32, 32, 16);
+}
+function create(){
+    player = game.add.sprite(0,0,'player')
+
+    // 2.为精灵添加动画
+    player.animation.add('up',[0,1,2,3], 10, true);
+    player.animation.add('down',[12,13,14,15], 10, true);
+    player.animation.add('left', [4,5,6,7], 10, true);
+    player.animation.add('right', [8,9,10,11], 10, true);
+    
+    player.animation.play('right'); 
+    // 播放 right 动画，这里只是播放帧动画，真正移动还要加上坐标移动。
+}
+```
+#####11.补间动画
+最早补间动画出现在flash，在一段时间轴内的几个节点，设置图片，比如在1秒内的开头结尾添加人物图形，然后设置补间动画，就可以实现状态A-B的改变。
+// 图
+简单来说补间动画，就是给定两个前后关键帧,而后由系统计算处理.也即是表示从一个状态A向状态B变化的一个过程,英文名也叫Tween.在这里,只讲平移动画、透明度动画、旋转动画。
+```javascript
+var player;
+
+function preload(){
+    game.load.spritesheet('player', './assets/img/player.png', 32, 32, 16);
+}
+function create(){
+    player = game.add.sprite(0,0,'player');
+    player.animations.add('right', [8,9,10,11], 10, true);
+    // 添加动画
+    player.animations.play('right');
+    // 播放动画
+    player.add.tween(this.player).to({x:game.width - this.player.width}, 500, 'Linear', true)
+    // 补间动画为线性
+
+    // 透明度动画
+    game.add.tween(this.player).from({alpha:0}, 2000, 'Linear', true).repeat(10,1000);
+
+    // 旋转动画
+    var tween = game.add.tween(this.player);
+    tween.from({ angle:360 }, 2000, Phaser.Fasing.Bounce.Out, true, 0, -1);
+    // 0延迟，循环播放，缓动动画
+    tween.yoyo(true, 3000);
+    // yoyo将会再重新开始新的循环时将动画属性设置为上一轮的值，即本来从360-45，新一轮是从45到360
+}
+```
+
+#####13.瓦片精灵
+最初看见这个应用实在魔塔游戏里
+```javascript
+var player;
+
+function preload(){
+    game.load.image('player', './assets/img/player.png');
+}
+
+function create(){
+    player = game.add.tileSprite(0,0,32 * 4, 32 * 4, 'player');
+    player.autoScroll(100,0);
+}
+// 此处可以应用滚动条和字幕
+```
+
+#####14.音视频
+之前已经介绍了音频的加载，不再赘述，今天介绍视频的使用
+Phaser支持的音频格式有ogg、wav、map3，视频支持的格式有
+```javascript
+// 加载视频资源并循环播放
+function preload(){
+    game.load.video('video','demo.webm');
+}
+
+function create(){
+    var video = game.add.video('video');
+    // 创建视频
+    video.play(true);
+    // 循环播放
+    video.addToWorld(400, 300, 0.5, 0.5, 2, 2);
+    // 添加到游戏中 坐标xy 锚点anchor 缩放scale
+}
+```
+显示当前视频的播放进度(video.progress):
+```javascript
+function preload(){
+    game.load.video('video', 'demo.webm');
+}
+
+function create(){
+    var video = game.add.video('video')
+    video.play(video);
+    video.addToWorld(400, 300, 0.5, 0.5, 2, 2);
+}
+
+function update(){
+    document.title = Math.round(video.progress * 100) + '%';
+    // 显示当前视频的播放进度
+}
+
+// 如果要更换视频则可以 video.changeSource('视频资源地址');
+```
+适合特效的精灵共享视频
+```javascript
+var video;
+var group;
+
+function preload(){
+    game.load.video('video', 'demo.webm');
+}
+
+function create(){
+    group = game.add.group(); 
+    // 创建视频组
+    video = game.add.video('video');
+    for(var i = 3; i >= 0; i--){
+        var sprite = group.create(game.world.randomX, game.world.randomY, video);
+        sprite.width = 100;
+        sprite.height = 100;
+    }
+    video.play(true);
+}   
+```
+#####15.游戏中的摄像头
+游戏中的摄像机不仅使能够跟随角色,还能够根据不同的参数切换场景.在使用摄像机之前需要先设置游戏世界的范围。
+```javascript
+// 摄像头跟随目标
+var plane;
+var dialog;
+
+function preload(){
+    game.load.image('bg', './assets/img/bg.png');
+    game.load.image('plane', './assets/img/plane.png');
+    game.load.image('dialog', './assets/img/dialog.png');
+}
+function create(){
+    game.world.setBounds(0, 0, 2000, 480);   // 设置游戏世界的范围
+    game.add.image(0,0,'bg');
+
+    plane = game.add.image(50,50,'plane');
+    plane.angle = 90;   // 战斗机旋转90度
+    
+    dialog = game.add.image(0,0,'dialog');
+    dialog.y = game.height - this.dialog.height;
+    dialog.width = game.width;
+}
+function update(){
+    game.camera.follow(this.plane);
+    plane.x++
+}
+// 这边能看到摄像机一直定位在player对象身上,而对话框则是慢慢消失.
+// 如果若想使对话框dialog也固定在游戏下方，可以添加一句 dialog.fixedToCamera = true
+```
+如果想使游戏舞台不移动，移动摄像机，可以这样做
+```javascript
+var plane;
+
+function preload(){
+    game.load.image('bg','./assets/img/bg.png');
+    game.load.image('plane', './assets/img/plane.png');
+}
+function create(){
+    game.world.setBounds(0, 0, 2000, 1000); //设置游戏世界的范围 
+    game.add.image(0, 0, 'bg');
+    plane = game.add.image(50, 50, 'plane');
+    plane.angle = 90;  // 战斗机旋转90度
+
+    // 摄像机在目标对象上聚焦，点击屏幕会回到焦点
+    game.input.onDown.add(function(){
+        game.camera.focusOn(plane)
+    })
+}
+function update(){
+    game.camera.x++;
+    game.camera.y++;
+
+    // 摄像机镜头抖动，数字越小则频率越快、幅度越小
+    if(game.camera.x%5 == 0 ){
+        game.camera.x = this.x;
+        game.camera.y = this.y;
+    } 
+}
+```
+#####16.粒子效果
+这是游戏场景中最常见的效果，比如樱花飘落、流星划过、发射飞行子弹、NPC飞动等等。
+```javascript
+var emitter;
+
+function preload(){
+    game.load.image('bullet', './assets/img/bullet.png')
+}
+function create(){
+    emitter = game.add.emitter(100,200);
+    // 创建粒子发射器， 参数：坐标、粒子最大数量
+
+    emitter.makeParticles('bullet');
+    // 创建粒子，参数：资源名称、帧数、数量、粒子间是否碰撞、是否与边界产生碰撞
+
+    emitter.setXSpeed(500,1000);
+    // 速度控制 限定水平速度 X左负右正 Y负上正下
+
+    // emitter.setScale(minX,maxX,minY,maxY,rate)
+    // 缩放控制 限定缩放 rate过渡时间
+
+    // emitter.setAlpha(min,max,rate,ease)
+    // 透明度控制 透明度 最小 最大 过渡 过渡的缓动
+
+    // emitter.setRotation(min,max)
+    // 角度控制 角速度 发射出来的粒子的旋转速度 不旋转0，0
+
+    emitter.start(false, 3000, 1000, 50)
+
+    // emitter.bounce.y = 0.8
+    // 弹力系数
+
+    // emitter.flow(0,1000,1,100)
+    // 粒子发射 生存周期0则永不小时 发射时间间隔 发射数量 粒子总数
+
+    // 用帧作为粒子图像，但是需要注意，同一时间屏幕上最多出现50个粒子，越多越卡，烟花效果慎用
+    var demo = game.add.emitter(game.width/2, game.height/2, 10)
+    demo.makeParticles('demo', [0,1,2,3,4,5,6,7]);  // 用帧 作为粒子的图像
+    demo.flow(3000, 10, 50, -1); // 生命周期，发生间隔，发射数量，粒子总数，方向
+}
+```
+###游戏的设置
+游戏中的缩放主要包括4种：ScaleManager、EXACT_FIT、SHOW_ALL、USER_SCALE
+- Phaser.ScaleManager 对象
+可以使用ScaleMode属性来改变缩放模式
+- EXACT_FIL 父元素的大小
+game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT
+- SHOW_ALL 保持长宽比缩放到可用的最大空间
+game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL
+- USER_SCALE 自定义缩放
+game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE
+game.scale.setUserScale(0.5)
+
+游戏页游不是客户端，一般不由用户设定窗口大小，canvas游戏界面的带下是固定的，那么就会有横版、竖版之分，
+这个时候需要判断用户的设备，来调整播放浏览器的播放方向。
+```javascript
+// 判断设备是pc或手机
+if (game.device.desktop) {
+    //code for desktop devices
+} else {
+    //code for mobile devices
+}
+
+// 判断设备是竖屏或横屏
+if(game.scale.isLandscape){
+    game.scale.correct = true
+    console.log('横屏')
+} else {
+    game.scale.correct = false
+    console.log('竖屏')
+}
+```
+适配方案：使用ScaleManager来解决Phaser屏幕适配问题，主要是用来解决2大问题：不变形但能充满整个屏幕、让浏览器横屏。
+
+1.问题一：游戏不变形但能充满整个屏幕
+这个问题的本质是，两个宽高比不想等的矩形，有没有办法通过等比缩放让它们完全重叠？答案是：不可能。
+解决思路：动态设置游戏区域，拿到屏幕大小之后再等比缩放成一个游戏区域大小。
+解决方法：①.html中做一些背景，可以让游戏融入到背景中，而不是出现两边的黑边或者白边；②.固定世界大小，然后元素按照世界大小来定位。
+
+
+2.问题二：让浏览器横屏
+因为浏览器是html的环境，html是没有权利去改变它外在的环境的，所以在phaser内部设置浏览器横屏无效。
+在用户的手机或平板没有设置强制竖屏的情况下，当屏幕横过来的时候，游戏仍然完美呈现，做法就是
+把游戏世界旋转90度，世界旋转了之后，坐标的调整如下：
+```javascript
+// 调整坐标的时候，加入了camera的修正，这是因为在世界大小比游戏区域大小大的时候
+// camera就不一定在(0,0)点了，所以要考虑进去。
+Phaser.World.prototype.displayObjectUpdateTransform = function() {
+  if(!game.scale.correct) {
+    this.x = game.camera.y + game.width;
+    this.y = -game.camera.x;
+    this.rotation = Phaser.Math.degToRad(Phaser.Math.wrapAngle(90));
+  } else {
+    this.x = -game.camera.x;
+    this.y = -game.camera.y;
+    this.rotation = 0;
+  }
+
+  PIXI.DisplayObject.prototype.updateTransform.call(this);
+}
+
+// 此外横竖屏变化的时候，我们需要实时切换游戏的宽高
+game.scale.onOrientationChange.add(function() {
+  if(game.scale.isLandscape) {
+    game.scale.correct = true;
+    game.scale.setGameSize(WIDTH, HEIGHT);
+  } else {
+    game.scale.correct = false;
+    game.scale.setGameSize(HEIGHT, WIDTH);
+  }
+}, this)
+```
+在游戏的BootState里面加入这些代码就行，其余的事情和之前的做法一样，这里需要注意你之前的game.width和game.height是多少呢？已经不一定了，所以在元素定位的时候不要用它们去定位。按照官网的建议是在tacit中的做法是，全局定义好游戏宽高，后面所有定位按照它来做，就不会有误差了。
+官网的适配方案地址：https://www.phaser-china.com/tutorial-detail-16.html

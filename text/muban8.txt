@@ -1,0 +1,523 @@
+###前言
+###### React背景
+由Facebook在2013年推出的一款前端框架，框架的提出也是在业务的困扰下诞生的，传统业务出现的根源是 传统UI操作关注太多细节、应用程序状态分散在各处，难以追踪和维护。
+#####问题一
+传统DOM API关注太多细节，在以前我们去做web开发的时候，经常需要局部更新页面的状态，这时候需要去操作DOM的节点，这时候就需要用DOM API，当时，一般都是用Jquery 来完成这些操作，同时jqery api也非常多，掌握众多的jquery api你才能操作界面上的一些局部更新。这也说明了一个问题，你需要做很复杂的界面操作，需要关注很多的细节。所以，针对这个问题，react提出了一个全新的思想：使用整体刷新整个页面（可以让你无需关心细节）。
+比如说，在一个web聊天应用中，当你接收到一条新消息时，需要把这条消息显示到界面中，传统的局部刷新方法中，我们需要知道哪条消息是新的，哪些是旧的，同时针对新消息，需要创建DOM节点，并且把这个节点更新到UI上，这个过程就是完全掌控整个节点操作的细节。而react在这个业务中的思路，是始终整体刷新，前后是两个状态，一个是旧聊天状态，一个新聊天状态，它并不关心哪条聊天消息是新的，它的逻辑就是说把整个消息展现到UI上，所以它的逻辑无论是两条还是三条，前后始终是一致的，你不需要关心前后的细节，当react发现前后的状态变了，前后的UI也会发生变化，react会自动帮你更新UI的操作，这样就把你从细节操作的复杂度中解放出来，你只需要关心状态、最终的UI长什么样就行了。
+#####react的优点
+①引入了组件的概念，用组件去描述你的UI（这也是为什么有人说react本身就是一个UI库）、②4个必须API即可web开发、③单向数据流、④完善的错误提示。
+#####数据模型如何解决
+传统的MVC难以拓展和维护，传统的MVC由一个controller对于多个model，而众多model与众多view的关系又是错综复杂，而且是双向绑定的，这将导致一个问题，当你的业务复杂之后，出现了问题会很难追踪到底是model方面出现错误、还是view出现了错误，针对这个问题，react最初提出了Flux架构，Flux架构并不是完整的技术实现，而是一个数据模式，它的核心思想就是单向数据流，从这张图上可以看到它的数据流向是单向的，首先下面有个React Views，也就是你的UI，当Views上发生了用户操作，它会产生一个Action，这个Action会通过Dispatcher，dispatcher出去之后，然后由Store进行处理，Store根据这个Action来更新自己，我们的Views是绑定在Store上的，当Store有任何变化，我们的View也会发生更新。所以说这个Flux架构完全是建立在react始终以状态为基础来展示UI的，你不需要关心细节，你就可以把你的View creators 到Store上。这就是FB用于解决数据模型的一个思路，用单向数据流的Flux架构。
+#####Flux架构的衍生
+#######Redux
+状态管理框架之一，同时也是状态管理早期的一个标准。
+#######MobX
+状态管理之一，轻量化、高效。
+###Redux
+#####JS状态管理框架
+Redux是JS的一个状态管理框架，它也是被认为是 React 生态圈中最为困难的一部分。它同时也是基于Flux的设计模式，提出的一款完整的、前端的状态管理框架，最早由 @dan_abramov 大师在2015年中提出的，在提出之后，短时间内迅速被社区认可采纳，流行程度远远超过Flux，虽然两者很像，但是具体的实现细节有很多区别。
+React组件模式就是把一个 state 转换成DOM结构，state 转换成DOM如果是在组件内，那么 Redux 其实是把状态移到了组件之外，这样的话，你全局所有的状态都放在一个全局的 Store 中，这也是 React 最核心的一个概念。它全局只有一个唯一的store，这个 Store 负责提供整个应用程序所有的状态，所有组件的状态都可以放在外部的 store 中，这样的话，当store 有任何变化，组件也会自动更新，页面不同的部分来源于 store 不同的节点， store 里的结构基本也是 tree 的结构，和组件的 tree 结构可以说是一种映射的关系。
+ 、、图
+Redux核心出发点是让组件通信更加容易
+传统的组件传值都是通过一层一层props传递下去，一个子组件当它的状态发生变化，要让父组件知道，那他必须暴露一个事件出去才能通信，它的组件通信非常依赖于组件之间的层次结构，如果兄弟组件进行通信，一般通过父节点中转的方式进行通信。
+######特性1.单向数据流
+而Redux就提出了一个解决方案，把状态管理放在了组件之外，所有组件与store通信，组件之间的直接通信就会变的少一点。状态的改变通过store来触发，也是单向数据流的一个过程。同时这也解决了数据模型的一个问题，当业务出现问题后，我们只需要检查当前的状态就很容易追踪问题的来源，方便解决。
+
+######特性2.可预测性
+state + action = new state
+一个旧状态，通过用户操作变化之后，旧的状态就会销毁，产生一个新的状态，绝不是在原来的 state 上做一个修改（DIFF算法本质）。
+######特性3.纯函数更新Store
+```
+function todos(state = [],action) {
+  switch (action.type) {
+     case 'ADD_TODO':
+       return state.concat([{ text: action.text, completed: false }])
+     case 'TOGGLE_TODO':
+       return state.map(
+         (todo, index) =>
+            action.index === index
+               ? { text: todo.text, completed: !todo.completed }
+               : todo
+          )
+       default:
+          return state
+   }
+}
+```
+比如这个例子，虽然说是更新store，本质是旧state的销毁和新state的产生，更新 store 的函数就是一个纯函数。在这里，纯函数的含义就是 输出结果完全取决于它的输入参数，函数的内部不依赖于任何的外部函数和外部资源。
+这样的话，整个函数是容易预测和容易测试，你只要给定参数，你的输出结果一定是某个确定的值。继续看这个例子，在这里有两种值，一个ADD_TODO，一个TOGGLE_TODO，不同的参数对应不同的结果，这其实是个redux，也是一个纯函数。
+
+------------
+
+####Redux中的三个核心概念：
+#####Store
+Store，一个外部的全局状态仓库，创建方法也很简洁
+```
+const store = createStore(reducer)
+// 创建一个createStore，传入一个参数reducer
+// 这个reducer也是一个纯函数
+```
+Store有三个方法：
+①.getState()
+②.dispatch(action)
+③.subscribe(listener)
+getState方法可以获得当前的数据；UI上如果用户点击了一个button或者其他触发事件，那么就会产生一个action，Store可以把它dispatch出去，dispatch给所有的reducer；Subscribe是用来监听Store的变化，当Store有任何的变化，它都会callback listener。
+Store主要包含了三个部分：Dispatcher、Reducer、State。
+State是真正的数据，Dispacher是用来dispatch一个action方法，Reducer是用来真正处理action，也是真正去更新Store。
+#####Action
+一个action事实是描述了一个行为的数据结构，比如
+```
+{
+   type: ADD_TODO,
+   text: 'Build my first Redux app'
+}
+```
+比如用户触发了一个todolist 的增加按钮，那么就会产品一个action，那么如何去触发store的更新呢。就是通过reducer去进行的
+```
+function todoApp(state = initialState, action) {
+  switch (action.type) {
+    case ADD_TODO:
+      return Object.assign({}, state, {
+        todos: [
+          ...state.todos,
+         ｛
+            text: action.text,
+            completed: false
+          }
+        ]
+      })
+     default:
+       return state
+  }
+}
+```
+reducer其实是一个函数，它的函数接收2个参数，一个state，这个函数是接收之前的状态，一个是action，如果没有传入initialState，我们一般会初始化一个初始状态，也就是store的初始值。比如，在这个函数中，它会判断这个action如何去处理，需要注意的是，所有reducer会接收到所有的action。一个action通过dispatcher 然后dispatch出去，所有系统中定义的reducer都能接收到，那如何判断自己能不能执行呢，这里是通过action.type去判断的，这个return返回一个新的store，这里包含了旧store的数据和需要更新的部分。
+```
+  Object.assign({}, state, {});
+//  Object.assign({}) 定义一个新的对象
+//  第二个state是旧的数据复制进去
+//  第三个对象是需要更新的数据也复制进去
+//  这里就完整了数据的更新
+```
+在实际的项目中，我们会常用到一些工具函数，比如
+#######combineReducer。
+在实际项目中，你可能会有很多个reducer，比如有sodolist，有商品计价器等等，多个reducer如何组合到一起，这里就可以使用redux 提供的工具函数combineReducer，这个函数可以接收多个reducer作为参数，最终会生成一个封装过的函数，当然也是reducer，一个聚合后的reducer，它会把接收到的action分发到不同的子reducer。
+```
+// 举个例子
+export default function todos(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return state.concat([action.text])
+    default:
+      return state
+  }
+}
+
+export default function counter(state = 0, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+}
+
+import { combineReducers } from 'redux'
+import todos from './todos'
+import counter from './counter'
+
+export default combineReducer({
+  todos,
+  counter
+})
+```
+#######bindActionCreators
+除了combineReducer之外，常用工具函数还有bindActionCreators，可以帮助我们更方便使用action。
+```
+// action的同时dispatch
+function addTodoWithDispatch(test) {
+  const action = {
+    type: ADD_TODO
+    text
+  }
+  dispatch(action)
+}
+
+// 或者 分两步dispatch
+dispatch(addTodo(test))
+dispatch(completeTodo(index))
+
+// bindActionCreators
+const bound
+```
+一个action被dispatch出去之后才能被store接收并处理，所以业务中可以像第一种方法一样，创建的同时dispatch；还有第二种写法就是，在外面dispatch这个action的返回值，每产生一个listener都把它dispatch出去，所以是两步；可以简化这个流程，按照第三种方法，就是进行封装，就是把addTodo进行封装，形成新的函数并让它自动去dispatch，所以定义的这个boundAddTodo我们调用它的时候就会自动dispatch。
+这就是bindActionCreators可以帮你做的事情。
+下面一起来看下源码：
+```
+function bindActionCreator(actionCreator, dispatch) {
+  return function() {
+    return dispatch(actionCreator.apply(this, arguments))
+  }
+}
+
+function bindActionCreators(actionCreators, dispatch) {
+  const keys = Object.keys(actionCreators)
+  const boundActionCreators = {}
+  for(let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    const actionCreator = actionCreators[key]
+    if (typeof actionCreator === 'function') {
+      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch)
+    }
+  }
+  return boundActionCreators
+}
+```
+#####备注：Redux是JS状态管理工具，只不过搭配react使用的情况比较多，也可以集成在除了react之外的框架中，包括node中也可以，也可以独立运行。举个例子：
+```
+import React from "react";
+import {
+  createStore,
+  combineReducers,
+  bindActionCreators
+} from "redux";
+
+function run() {
+  // Store initial state
+  const initialState = { count: 0 };
+
+  // reducer
+  const counter = (state = initialState, action) => {
+    switch (action.type) {
+      case "PLUS_ONE":
+        return { count: state.count + 1 };
+      case "MINUS_ONE":
+        return { count: state.count - 1 };
+      case "CUSTOM_COUNT":
+        return {
+          count: state.count + action.payload.count
+        };
+      default:
+        break;
+    }
+    return state;
+  };
+
+  const todos = (state = {}) => state;
+
+  // Create store
+  const store = createStore(
+    combineReducers({
+      todos,
+      counter
+    })
+  );
+
+  // Action creator
+  function plusOne() {
+    // action
+    return { type: "PLUS_ONE" };
+  }
+
+  function minusOne() {
+    return { type: "MINUS_ONE" };
+  }
+
+  function customCount(count) {
+    return { type: "CUSTOM_COUNT", payload: { count } };
+  }
+  store.subscribe(() => console.log(store.getState()));
+  store.dispatch(plusOne());
+  store.dispatch(minusOne());
+  store.dispatch(customCount(5));
+}
+export default () => (
+  <div>
+    <button onClick={run}>Run</button>
+    <p>* 请打开控制台查看运行结果</p>
+  </div>
+);
+// 运行结果是打印3个console.log，1、0、5
+// 和预期的结果一样
+```
+刚刚说了可以用bindActionCreator封装action并及时dispatch，那么就针对这个例子改一下:
+```
+// 这里使用工具函数bindActionCreator
+// 之前的写法
+store.subscribe(() => console.log(store.getState()));
+  store.dispatch(plusOne());
+  store.dispatch(minusOne());
+  store.dispatch(customCount(5));
+
+// 用bindActionCreator包装后
+plusOne = bindActionCreators(plusOne, store.dispatch);
+store.subscribe(() => console.log(store.getState()));
+  plusOne();
+  store.dispatch(minusOne());
+  store.dispatch(customCount(5));
+```
+这样看似多此一举的动作所带来的好处是：在使用这些action的地方非常简单，它不需要知道store在哪，也不需要知道dispatch，它只需要调用plusOne()，就像它名字含有一样，它就能更新一个store。
+
+#####Reducer
+
+###React中的Redux
+Component和Store之间的关系，是通过connect来连接的，就是把component的state更新到store上。
+```
+import { connect } from 'react-redux'
+
+class SidePanel extends Component {
+  // ...
+}
+
+function mapStateToProps(state) {
+  return {
+    nextgen: state.nextgen,
+    router: state.router,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({ ...actions }, dispatch).
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sidepanel);
+```
+这个例子中，我们首先定义一个sidepanel组件，这个组件可能需要用到store上的一些节点，首先mapStateToProps定义了state需要用到哪两个节点，其次mapDispatchToProps就是把actions绑定到组件上面，这样组件上就可以用actions去访问reducer上的action。最后用一个高阶组件的方式，去connect一个已有的组件，connect首先去接收2个参数，然后形成一个函数，这个函数再去调用这个sidePanel，形成一个高阶组件，这也是reducer实现的一个原理，如何connect一个已有的组件到store上。
+简单来说，connect的工作原理：高阶组件
+// 图
+如图所示，从左边来看，首先是组件树的状态，connect之后，它会在这个数据逻辑里面访问store，以及访问actions，右边是redux自身的一个逻辑。这整体数据流向清晰明了，connect这个高阶组件帮助组件去访问store。
+
+------------
+
+###异步Action
+前面简单介绍了action，不过前面介绍的action都是同步的，action发出之后，redux的内部机制会同步地更新store，然后store再去更新UI。
+异步action，一般用于发送api请求。比如用户点击一个按钮，获取某个api的数据，这时我们会发送一个api请求，这是一个异步的过程。
+// 图
+如图，在View上用户可能点了一个button，随即发送了一个actions，这个action不是一个标准的javascript对象，可能描述了你是如何发送ajax请求的以及如何处理它的结果的。这样的action发出去之后，它会到dispatch这一层，如图所示，dispatch那里多了一个middlewares中间件，这样一个中间件的作用是它可以截获某些特定的actions，比如对于ajax请求的这类actions，会有一个叫做redux-thunk中间件会进行处理，它接收到之后不是dispatch到reducer，而是去访问一个ajax，ajax请求如果返回的是成功就发送一个成功action出去，如果失败就发送一个失败的actions出去。因此，一个ajax请求的action到中间件之后，它会进行一个预处理，预处理完之后它才会把结果的actions dispatch给reducer，然后更新store。
+整个流程简单来说就是，view上的一次ajax请求，生成一个action，并不会直接对store作出修改，而是由中间件先截获，截获并处理完之后再形成最终的action，才会dispatch 结果的action到store。对比之前的同步action，这里多一个minddlewares中间件，帮助你完成异步action的流程。
+这里强调一点，所谓异步action，并不是redux独有的概念，而是一个action的设计模式，这边view发出的action，它的靶向还是store，但到了中间件这一层，它会做一个特殊的处理，然后再去dispatch不同的action出去，所有的这些不同action，本质还是同步的action，只不过异步action把这些同步action的dispatch分成了不同的阶段，从整体上来看，我们完成了一次异步的action操作。
+Redux中间件（Middleware）的作用：
+①截获action
+截获某种特殊的action，对于ajax请求这种类型，由redux-thunk去截获，它判断是否截获一个action的机制是 判断这个action是不是一个promise函数。如果是一个函数便会执行它，因为这个函数内部会真正去发ajax请求。
+②发出action
+它截获完action会做一些处理，处理完成之后还是要把结果的action发出去。典型的应用场景就是log，可以用log把所有的action打印到控制台，这样你就可以在控制台看到整个页面发生变化的action，方便调试开发中的应用程序。
+```
+// 源码
+import axios from 'axios';
+import {
+  CONFIG_FETCH_DEPS_REMOTE_BEGIN,
+  CONFIG_FETCH_DEPS_REMOTE_SUCCESS,
+  CONFIG_FETCH_DEPS_REMOTE_FAILURE,
+  CONFIG_FETCH_DEPS_REMOTE_DISMISS_ERROR,
+} from './constants';
+
+export function fetchDepsRemote(args = {}) {
+  return (dispatch) => { 
+    dispatch({
+      type: CONFIG_FETCH_DEPS_REMOTE_BEGIN,
+    });
+
+    const promise = new Promise((resolve, reject) => {
+
+      const doRequest = axios.get('/api/fetchDepsRemote');
+      doRequest.then(
+        (res) => {
+          dispatch({
+            type: CONFIG_FETCH_DEPS_REMOTE_SUCCESS,
+            data: res.data,
+          });
+          resolve(res);
+        },
+        // Use rejectHandler as the second argument so that render errors won't be caught.
+        (err) => {
+          dispatch({
+            type: CONFIG_FETCH_DEPS_REMOTE_FAILURE,
+            data: { error: err },
+          });
+          reject(err);
+        },
+      );
+    });
+
+    return promise;
+  };
+}
+
+// Async action saves request error by default, this method is used to dismiss the error info.
+// If you don't want errors to be saved in Redux store, just ignore this method.
+export function dismissFetchDepsRemoteError() {
+  return {
+    type: CONFIG_FETCH_DEPS_REMOTE_DISMISS_ERROR,
+  };
+}
+
+export function reducer(state, action) {
+  switch (action.type) {
+    case CONFIG_FETCH_DEPS_REMOTE_BEGIN:
+      // Just after a request is sent
+      return {
+        ...state,
+        fetchDepsRemotePending: true,
+        fetchDepsRemoteError: null,
+      };
+
+    case CONFIG_FETCH_DEPS_REMOTE_SUCCESS:
+      // The request is success
+      return {
+        ...state,
+        fetchDepsRemotePending: false,
+        fetchDepsRemoteError: null,
+        deps: action.data,
+      };
+
+    case CONFIG_FETCH_DEPS_REMOTE_FAILURE:
+      // The request is failed
+      return {
+        ...state,
+        fetchDepsRemotePending: false,
+        fetchDepsRemoteError: action.data.error,
+      };
+
+    case CONFIG_FETCH_DEPS_REMOTE_DISMISS_ERROR:
+      // Dismiss the request failure error
+      return {
+        ...state,
+        fetchDepsRemoteError: null,
+      };
+
+    default:
+      return state;
+  }
+}
+```
+从中可以看到，fetchDepsRemote在这里是一个actionCreator，它返回的是action的描述，但是之前写的todolist或counter那种同步action，然而它返回是一个函数，这个函数的返回值是一个promise。这就是在告诉redux-thunk中间件，我这个请求是做异步操作的，这时候中间件就会截获action，等待它的promise返回，如果是fulfilled，就dispatch一个SUCCESS，相反如果是rejected就dispatch一个FAILURE。所以说这一个异步的action，它可能产生三种类型的同步action：BEGIN、SUCCESS、FAILURE。
+所以对应的，我们在reducer中进行处理的时候，需要处理BEGIN，BEGIN的时候把padding设置为true；当SUCCESS的时候把实际的数据放入store中，而不是把padding设置为false；FAILURE的时候把padding设置为false，并且把错误信息放入store中，如果ajax地址错误就会显示Failed to load:Error:Network Error。
+从上面这段源码就可以看出，异步的action不是特殊的action，本质上是多个同步action组合使用。
+
+------------
+###如何组织Action和Reducer
+按照redux官网文档给出的例子，它是把action分一个文件，reducer分一个文件。而我们在项目开发中应该以什么方式组织这些文件呢？
+”标准“形式Redux Action的问题：
+①.所有Action放一个文件，会无线拓展
+②.Action,Reducer分开，实现业务逻辑时需要来回切换
+③.系统中有哪些Action不够直观
+######推荐方法：单个action和reducer放在同一个文件
+这种方式并不是对redux api进行一个封装，而仅仅是代码的存放做一个重新的组织。在系统中，同样的是由action和reducer这两个文件，但是来源是一个个小文件，比如addTodo的action和addTodo的reducer放在同一个文件（这种做法类似我在前几天写的web项目的api管理），deleteTodo、updateTodo等等又是一个个单独的小文件。这样的话我们就能够更直观的、更简单的去开发我们的代码。
+```
+// 写个栗子 cpimterPlusOne.js
+import {
+  COUNTER_PLUS_ONE,
+} from './constants';
+
+// action
+export function counterPlusOne() {
+  return {
+    type: COUNTER_PLUS_ONE,
+  };
+}
+
+// reducer
+export function reducer(state, action) {
+  switch (action.type) {
+    case COUNTER_PLUS_ONE;
+      return {
+        ...state,
+        count: state.count + 1,
+      };
+    default:
+      return state;
+  }
+}
+```
+简单来说：每个文件一个action。优点如下：
+①.易于开发：不用在action和reducer文件间来回切换
+②.易于维护：每个action文件都很小，容易理解
+③.易于测试：每个业务逻辑只需对应一个测试文件
+④.易于理解：文件名就是action名字，文件列表就是action列表
+```
+// action.js
+export { addTodo } from './addTodo';
+export { counterPlusOne } from './counterPlusOne'; 
+
+// reducer.js
+import initialState from './initialState';
+import { reducer as addTodoReducer } from './addTodo';
+import { reducer as counterPlusOneReducer } from './counterPlusOne'; 
+
+const reducers = [
+  addTodoReducer,
+  counterPlusOneReducer,
+];
+
+export default function reducer(state = initialState, action) {
+  let newState;
+  switch (action.type) {
+    default:
+      newState = state;
+      break;
+  }
+  return reducers.reducer((s, r) => r(s, action), newState);
+}
+```
+最终再由redux文件夹下的action.js和reducer.js里，将这些单独的小文件引进来然后一起导出去。这种方式保障它们的可拓展性。
+###不可变数据
+// 如图
+reudx不可以像jquery一样直接更改组件的数据，如果我们要更新某个节点上的值，首先要产生一个完全全新的对象，比如图中的节点，在路径上所有的对象都处理更新过的状态，其他节点没有更新变化，由上至下，逐层比较。react节点的数据是不能直接修改的，若想修改就必须先进行复制，无论是浅复制还是深复制，然后去包含你要修改的部分，就像图中绿色部分。（重申一下，react只有新树的创建和旧树的销毁，没有局部更新的概念）
+React为何需要不可变数据？
+原因主要是：
+①.性能优化
+因为当一个store发生变化，我们需要通知所有的组件需要更新了。所有的变化都是由action触发，触发在原来旧的state上，形成一个新的state，新旧state是两个完全不同的对象，所以当新旧state不是同一个对象的时候，我们就知道store发生了变化，我们不需要比较它其中的值是否发生变化，我们只需要比较两个引用的状态是不是一样即可，这样就可以达到一个性能优化的目的。
+同时也表明了redux中的store都是不可变数据，每个节点都是不可变数据。这样当一个组件绑定在一个节点上，这样我只要判断一个组件前后的引用状态是否相等，就可以知道当前的store有没有变，从而决定是否要更新你的组件，省去了深层次的遍历每个值是否相等，只比较引用即可。
+②.易于调试和跟踪
+当你的store发生变化的时候，任何时候你都可以去记录之前的状态和之后的状态，并且可以计算得到它们diff的值，这样在调试的时候就可以看前后的状态，便于追踪问题。
+③.易于推测
+在任何时刻你都可以推测你的store是由什么引起的变化，store变化一定由action触发，那么action之前的状态、和action之后的状态，可以通过值的比较很容易的去判断action是否被正确的处理了。
+
+#####如何操作不可变数据
+①.原生写法：｛...｝，Object.assign
+```
+const state = { filter: 'completed', todos: [
+  'Learn React'
+]};
+
+// 方法1
+const newState = { ...state, todos: [
+  ...state.todos,
+  'Learn Redux'
+]};
+
+// 方法2
+const newState2 = Object.assign({}, state, { todos:
+  [
+    ...state.todos,
+    'Learn Redux'
+]}); 
+```
+②.immutability-helper
+如果我们更新的节点非常深，建议使用这种方法，可以借助一些工具类。
+```
+import update from 'immutability-helper';
+
+const state = { filter: 'completed', todos: [
+  'Learn React'
+]};
+
+const newState = update(state, { todos: {$push: ['Learn Redux']}});
+```
+③.immer
+```
+import produce from 'immer';
+
+const state = { filter: 'completed', todos: [
+  'Learn React'
+]};
+
+const newState = produce(state, drafState => {
+  draftState.todos.push('Learn Redux.');
+})
+```
+

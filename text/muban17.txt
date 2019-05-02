@@ -1,0 +1,361 @@
+###前言
+前面说道Phaser是H5 2D游戏开发的开源免费框架，支持JS和TS，基于Pixi.js引擎，内置游戏对象的物理属性，渲染模式同时支持Canvas和WebGL，基于浏览器支持可自由切换。
+鉴于Phaser轻量便捷、免费的特点，使用Phaser来开发小型也有的优势显而易见，可以直接在支持Canvas的浏览器中直接引用或安装Phaser来进行游戏开发。
+
+上一篇说到Phaser的生命周期，以及Phaser资源引用、不同主函数的模块，
+
+###音视频的导入
+```
+function preload(){
+  game.load.audio("bgmap3","./assets/audio/bg.ogg");
+}
+function create(){
+  var bgmusic = game.add.audio("bgmap3");
+  bgmusic.play();
+}
+```
+创建了一个音频对象bgmusic,可以对其播放,暂停,调节音量
+
+注:因为跨域，音频文件的加载需要搭建本地服务器。
+
+```
+// 音频常用的api有播放、暂停、恢复、停止、分段标注、淡入淡出
+  this.preload = function(){
+        
+    game.load.audio('music', 'asset/sound/1.mp3');
+
+        
+    game.load.image('btn_play', 'asset/sound/btn_play.png');
+        
+    game.load.image('btn_pause', 'asset/sound/btn_pause.png');
+        
+    game.load.image('btn_resume', 'asset/sound/btn_resume.png');
+        
+    game.load.image('btn_stop', 'asset/sound/btn_stop.png');
+    
+  }
+
+    
+
+  this.create = function(){
+        
+    var sound = game.add.audio('music', 0.1);
+
+ 
+       
+    var btn_play = game.add.button(260, 20, 'btn_play', function(){
+            
+      sound.play(); //播放
+        
+    });
+   
+    var btn_pause = game.add.button(260,145, 'btn_pause', function(){
+            
+      sound.pause(); //暂停
+        
+    });
+        
+    var btn_resume = game.add.button(260, 280, 'btn_resume', function(){
+            
+      sound.resume(); //恢复
+        
+    });
+        
+    var btn_stop = game.add.button(260, 415, 'btn_stop', function(){
+            
+      sound.stop(); //停止
+        
+    });
+
+    
+	
+    //  标注声音 sound.addMarker(name, start, duration, volume?, loop?); 
+    //  移除标注 sound.removeMarker(name);
+    sound.addMarker('marker1', 5, 1);
+
+ // 标注       
+    var btn_play = game.add.button(260, 20, 'btn_play', function(){
+            
+      sound.play('marker1'); //播放
+        
+    });
+
+    var sound = game.add.audio('music');
+
+            
+    var btn_play = game.add.button(260, 20, 'btn_play', function(){
+                
+      sound.fadeIn(3000); //淡入
+            
+    });
+            
+    var btn_pause = game.add.button(260,145, 'btn_pause', function(){
+                
+      sound.fadeOut(3000); //淡出
+            
+    });
+
+```
+
+
+
+###phaser基本事件
+game.onblur 
+//失去焦点
+
+game.onFocus
+// 获取焦点
+
+game.onPause
+// 暂停焦点
+
+game.onResume
+// 恢复事件
+
+game.scale.onFullScreenChange
+// 进入、退出全屏
+
+game.scale.onOrientationChange
+// 设备横竖屏切换
+
+game.scale.onSizeChange
+// 游戏尺寸改变
+
+game.load.onFileComplete
+// 单个资源加载完成
+
+game.load.onFileError 
+// 当文件加载失败
+
+game.load.onFileStart
+// 当文件开始加载
+
+game.load.onLoadComplete
+// 当所有资源加载完成
+
+var tween = game.add.tween();
+tween.onStart  // 动画开始
+tween.onComplete // 动画完成
+tween.onLoop   // 动画循环
+tween.onRepeat   // 动画重复
+
+var animation = new Phaser.Animation()
+animation.onStart //动画开始
+animation.onComplete // 动画完成
+animation.onLoop  // 动画循环
+animation.onUpdate  // 动画的帧变化时
+
+
+#####Phaser.Input对象
+
+它包括鼠标事件、键盘事件以及触摸事件等等。
+```
+function create(){
+  game.input.onDown.addOnce(function(){
+    // 按下后的回调事件
+  })
+	
+  game.input.onUp.addOnce(function(){
+    // 按下离开后的回调事件
+  })
+
+  game.input.onTap.addOnce(function(){
+    // 轻击后的回调事件
+  })
+
+  game.input.onHold.addOnce(function(){
+    // 长按后的回调事件
+  })
+
+  game.input.addMoveCallback(move,this);
+    // 鼠标/手指移动监听
+  
+  game.input.deleteMoveCallback(move,this);
+    // 移除鼠标/手指移动监听
+}
+
+function move(){
+  document.title = game.rnd.between(0,100)
+}
+
+```
+
+
+
+
+
+#####Phaser.Pointer对象
+
+Pointer对象即指针对象,可以是鼠标、手指或其他的输入设备。
+```
+function create(){
+  this.pointer = game.input.activePointer;
+  // 获取Pointer对象
+}
+
+function update(){
+  document.title = this.pointer.clientX;
+  // this.pointer.clientY
+  // this.pointer.x / this.pointer.y
+  // 指针事件发生时的x、y坐标
+  if(this.pointer.isDown){
+    // 指针按下后的回调
+  }
+  if(this.pointer.isUp){
+    // 指针弹起后的回调
+  }
+}
+
+```
+
+
+
+#####Phaser.Keyboard对象
+```
+function create(){
+  // 获取键盘对象
+  this.keyboard = game.input.keyboard;
+
+  // 添加一个键对象
+  this.keyA = this.keyboard.addKey(Phaser.Keyboard.A);
+
+  // 创建一个方向键对象
+  this.cursor = this.keyboard.createCursorKeys();
+
+  // 监听所有按键的回调，包括onDown,onUp...
+
+  this.keyA.onDown.addOnce(function(){
+    // 按下自定义键对象后的回调函数
+  })
+
+  this.keyA.onUp.addOnce(function(){
+    // 释放自定义键后的回调函数
+    // 如果这个自定义键还处于按下状态或其他状态，则暂不执行
+  })
+}
+
+function update(){
+  if(this.keyA.isDown){
+    // 按下自定义键的状态
+  }
+  if(this.cursor.left.isDown){
+    // 按下了 left 键
+  }
+  if(this.cursor.right.isDown){
+    // 按下了 right 键
+  }
+}
+
+```
+
+比如一个常见的业务场景，游戏中点击某个按钮或点击游戏特定区域实现暂停，这里可以根据游戏情况给定游戏暂停的条件用事件。
+
+```
+function create(){
+  game.onPause.add(function(){
+    console.log("游戏已暂停")
+  })
+}
+
+function update(){
+  game.paused = true;
+}
+
+```
+
+
+
+###游戏对象的交互
+######Phaser.Events对象
+事件集合体,挂靠在宿主(游戏中的显示对象)身上,也有部分是系统事件。
+```
+function create(){
+  game.state.backgroundColor = "#F20";
+  this.oBtext = game.add.text(0,0,"测试对象");
+
+  // 开启对象的输入事件（可以接收回调事件）
+  this.oBtext.inputEnabled = true; 
+  
+  // onInputDown、onInputUp、onInputOver、onInputOut 按下、释放、经过、离开
+  this.oBtext.events.onInputDown.addOnce(testOnDown);
+}
+
+function testOnDown(){
+  // 点击 舞台中的“测试对象”后的回调函数
+}
+```
+
+######Phaser.InputHandler对象
+封装了一些与宿主相关的用户交互方法和用户输入属性。
+```
+function create(){
+  game.state.background = "#F20";
+  
+  this.oBtext1 = game.add.text(0,0,"测试对象")
+  this.oBtext2 = game.add.text(0,0,"文本对象")
+
+  this.oBtext2.inputEnabled = true;
+  // 开启对象的 输入事件（不是点击输入，是允许事件）
+
+  this.inputHandler = this.oBtext2.input;
+  // 获取文本对象的 inputHandler 对象
+
+  this.inputHandler.disableDrag();
+  // 禁止拖拽
+
+  this.inputHandler.enableDrag();
+  // 运行拖拽对象
+
+  this.inputHandler.boundsSprite = this.oBtext1;
+  // 限制 oBtext2 的拖拽范围 是 oBtext1的文本大小
+
+  this.inputHandler.useHandCursor = true;
+  // 是否使用鼠标手形图标
+
+  inputHandler.pointerOver();
+  // 判断指针是否在对象内
+
+  inputHandler.pointerOut();
+  // 判断指针是否在对象之外
+
+  inputHandler.pointerX;
+  // 当指针在对象内部时，相对于对象的 x 坐标
+
+  inputHandler.pointerY;
+  // 当指针在对象内部时，相对于对象的 y 坐标
+
+  inputHandler.bringToTop;
+  // 当点击或拖动该对象时是否把该对象 置顶显示（一般是true）
+}
+
+```
+Phaser的交互事件远不止这些，但我不是官网API的搬运工过，这些是我觉得平常最常用的，足以开发小型页游的一些基本交互事件，也是学习Phaser最先应当掌握的东西。具体的PAI后续将以表格的形式总结出来，方便我自己还有大家一起学习。
+
+###游戏就绪之前
+一般游戏舞台，一般都是由背景、精灵、舞台其他无关建筑构成。前面说过，这些资源在boot函数阶段或loading阶段分步加载，当资源加载完之后，我们一般会用指示条或其他形式来告知用户游戏目前状态，当全部加载完之后，可以直接进入游戏主函数，也可以显示一张图片or文件，由用户点击触发事件进入游戏，比如
+```
+function Menu(game) {
+  this.preload=function () {
+    game.gameData = {
+    maps:[
+      {name:"map-0",entries:[[7,14,1,1]]},
+      {name:"map-1",entries:[[0,8,2,1],[7,0,0,0],[15,12,3,0]]},
+      {name:"map-2",entries:[[10,0,2,0],[15,7,1,0],[11,15,4,1]]},
+      {name:"map-3",entries:[[0,8,1,2],[9,0,3,1],[13,15,3,2]]}, 
+      {name:"map-4",entries:[[0,11,5,0],[5,0,2,2],[7,15,4,2]]},
+      {name:"map-5",entries:[[15,4,4,0]]}
+    ],
+    currMap:0,
+    currPos:[7,5],
+    currFace:"DOWN",
+    items:[]
+    };
+  };
+
+  this.create = function() {
+    var txt = game.add.text((game.width)/2, 200, "点击屏幕即开始游戏", {fontSize: "16px", fill: "#FFFFFF" });
+    txt.anchor.setTo(0.5);  
+    game.input.onDown.add(function(){game.state.start("main");}, this);
+  };
+}
+```

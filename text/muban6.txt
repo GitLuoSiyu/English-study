@@ -1,0 +1,161 @@
+###前言
+###### Flutter
+Flutter 是最近移动端比较火的一种解决方案，目前 flutter 的生态圈也在不断完善，如果安装和使用fultter，大家可以参考 flutter 中文站。在使用 flutter 之前，我将简单梳理一下 Dart 语言的语言基础。
+编辑器用IDEA或者webStorm都可以的，使用之前别忘了下载Dart SDK。
+###语法碎片
+#####1、HelloWorld
+```
+// 新建dart项目，会生成一些默认配置
+HelloWorld
+  - .dart_tool
+  - .idea
+  - bin
+  - lib
+  - test
+  .gitignore
+  .packages
+  .analysis_options.yaml
+  .CHANGELOG.md
+  .HelloWorld.iml
+  .pubspec.lock
+  .pubspec.yaml
+  .README.md
+
+// 主要函数在bin/main.dart,与C++类似，程序从主函数main()开始，与代码顺序无关
+import 'package:HelloWorld/HelloWorld.dart' as HelloWorld;
+
+main(List<String> arguments) {
+  print('Hello world: ${HelloWorld.calculate()}!');
+}
+// 编译结果是
+Hello world: 42!
+Process finished with exit code 0
+
+// 在默认项目文件中，lib/HelloWorld写了一个
+int calculate() {
+  return 6 * 7;
+}
+// 这一点和C++很类似，在lib里写入多个dart类文件，在main.dart主函数按需调用
+```
+需要注意2点，一是别忘了加分号(JS后遗症)，二是dart有两种运行模式：检查模式和生产模式。检查模式（checked）：进行类型检查，如果发现实际类型与声明或期望的类型不匹配就报错生产模式（production）：不进行类型检查，忽略声明的类型信息，忽略 assert 语句。
+------------
+#####2、数据类型
+```
+// 数据类型有：Booleans、Numbers、Strings、List、Maps
+void main()
+{
+  // dart可以沿用 var 声明变量，也可以使用类型来声明变量
+  var test1 = "Ok?";
+  String test2 = ‘It\’s ok!’;
+
+  // assert 是断言函数，仅在检查模式下有效
+  // 如果断言失败则程序立刻终止，与 debug 有点区别
+  assert(name == "HelloWorld");
+  
+  // 字符串拼接，可以使用“+”操作符或$符，如str1 + str2
+  // 此外$ 符可以用于拼接如果要链接字符串、还可以插入变量的值
+  print("Name：$name");
+  
+  // 声明原始字符串，直接在字符串前加字符“r”
+  // 可以避免“\”的转义作用，在正则表达式里特别有用
+  print(r"换行符：\n");
+  
+  // Dart中数值是 Numbers，它有两个子类型：int 和 double
+  // int 是整形，double是双精度浮点数(32)
+  var hex = 0xDEADBEEF;
+      
+  // 转换进制，$字符串插值，还可以插入表达式：${}
+  print("整型转换为16进制：$hex —> 0x${hex.toRadixString(16).toUpperCase()}");
+
+  // js里有const定义常量，java及其它语言有final，
+  const var a = 123;(停止支持)
+  final var a = 123;（停止支持）
+  static const a = 123;(目前用法)
+  
+  // const定义的是编译时常量，只能用编译时常量来初始化
+  // final定义的常量可以用变量来初始化
+  const list = const[1,2,3];                   //Ok
+  const list = [1,2,3];                        //ok
+  final list = [1,2,3];                        //Ok
+  final list = const[1,2,3];                   //Ok
+  final list = const[new DateTime.now(),2,3];  //ok
+}
+```
+------------
+#####3、函数
+```
+// 函数也是对象，当没有指定返回值的时候，函数返回null
+String sayHello(String name){
+  return 'Hello $name!';
+}
+//is  is!操作符判断对象是否为指定类型，如num、String等，类似typeOf
+assert(sayHello is Function);
+
+// 因为Dart中的类型是可选的，也可以直接
+sayHello(name){
+  return 'Hello $name!';
+}
+
+// 还可以使用箭头函数
+sayHello(name) => 'Hello $name!';
+var  sayHello = (name) => 'Hello $name!';
+
+// 定义函数别名，可以使用typedef，千万要和typeof区分开
+typedef int Add(int a, int b);
+int Subtract(int a, int b) => a - b;
+void main(){
+  print(Substract is Function);
+  print(Substract is Add);
+}
+
+// dart闭包的用法，在这个栗子中，
+// 初始化变量的时候，参数对应的是函数的参数num n
+// 调用函数类型变量的时候，参数对应的是返回值中的参数num i
+Function makeSubstract(num n){
+  return (num i) => n - i;
+}
+void main(){
+  var x = makeSubstract(5);
+  print(x(2));
+}
+
+// 按照官方文档的说法，dart中函数也是对象
+var callbacks = [];
+for (var i = 0; i < 3; i++) {
+  callbacks.add(() => print('Save $i')); 
+}
+callbacks.forEach((c) => c() ); // 分别输出 0 1 2
+```
+------------
+6、pc.js
+```
+// PC Browser中间件
+
+```
+------------
+6、shdv.js
+```
+// SHDV中间件
+
+```
+------------
+7、msg.js
+```
+// STB NGB-H消息处理
+
+```
+------------
+8、stb.js
+```
+// 依赖 ngb_h.js, ipanel.js, shdv.js, pc.js 之后引用
+
+```
+------------
+9、utils.js
+```
+// Utils 工具类
+
+```
+------------
+###参考文档
+kotlin官方文档（https://www.kotlincn.net/docs/kotlin-docs.pdf）

@@ -1,0 +1,184 @@
+###phaser基本事件
+game.onblur 
+//失去焦点
+
+game.onFocus
+// 获取焦点
+
+game.onPause
+// 暂停焦点
+
+game.onResume
+// 恢复事件
+
+game.scale.onFullScreenChange
+// 进入、退出全屏
+
+game.scale.onOrientationChange
+// 设备横竖屏切换
+
+game.scale.onSizeChange
+// 游戏尺寸改变
+
+game.load.onFileComplete
+// 单个资源加载完成
+
+game.load.onFileError 
+// 当文件加载失败
+
+game.load.onFileStart
+// 当文件开始加载
+
+game.load.onLoadComplete
+// 当所有资源加载完成
+
+var tween = game.add.tween();
+tween.onStart  // 动画开始
+tween.onComplete // 动画完成
+tween.onLoop   // 动画循环
+tween.onRepeat   // 动画重复
+
+var animation = new Phaser.Animation()
+animation.onStart //动画开始
+animation.onComplete // 动画完成
+animation.onLoop  // 动画循环
+animation.onUpdate  // 动画的帧变化时
+
+
+Phaser.Input对象
+
+它包括鼠标事件、键盘事件以及触摸事件等等.
+
+Phaser.Pointer对象
+
+Pointer对象即指针对象,可以是鼠标、手指或其他的输入设备.
+
+Phaser.Keyboard对象
+
+
+
+
+
+
+
+###前言
+开发网页游戏，很久之前用AS3做合金弹头，现在Flash慢慢没落之后，新一代的H5游戏引擎崛起，比较知名的有coco2d.js、Unity-2D、laya，以及老东家的 Egret2D、Egret3D，这些主流引擎都非常强，如果你对TS比较熟练的话，这里推荐你用egret，如果是你是原生JS的爱好者（其实本文的主角也支持TS，不过既然你都用TS了，何不尝试egret呢），今天我将带你一起领略一款轻量高效又免费的H5引擎：Phaser。
+
+###Phaser.js背景
+Phaser是一个HTML5游戏框架，致力于帮助开发者快速制作强大的跨浏览器HTML5游戏。不像有些框架，Phaser已完全调配手机浏览器。Phaser唯一的浏览器要求是支持canvas标签，Phaser支持两种渲染模式:canvas和webgl，基于浏览器支持可自由切换，其实它也是基于pixi来实现的，可以在支持Canvas的浏览器中直接安装Phaser来进行游戏开发，仅仅在html文件中引入一个phaser.min.js即可上手开发游戏。
+
+###黑马编辑器
+工欲善其事必先利其器，一个好的开发工具，可以解放你的双手，更快更高效的完成开发工作，如果你是一位大牛，用记事本作为工具相信也没人拦着你。
+黑马编辑器，可以说是为phaser量身定制的工具，可以快速设计地图等等游戏所需要的素材，在黑马编辑器里你可以实现素材和代码的联调，不必再依赖于PS切图，同时支持输出安卓设置和webapp的应用。具体功能不多提，放个链接大家亲自去尝试一下：
+```
+http://mightyeditor.mightyfingers.com
+```
+
+###Phaser生命周期
+创建一个phaser游戏世界，首先需要 new 一个Phaser.Game实例
+```
+Phaser.Game(width, height, renderer, parent, state, transparent, antialias, physicsConfig)
+// width: 游戏的宽度，单位为px
+// height: 游戏的高度，单位为px
+// renderer: 使用哪种渲染方式，分别有Phaser.CANVAS、Phaser.WEBGL 、Phaser.AUTO
+// parent: 用来放置canvas元素的父元素，可以是一个元素id，也可以是dom元素本身
+// state: state可以理解游戏首先加载的场景（选填）
+// transparent: 是否使用透明的canvas背景（选填）
+// antialias: 是否启用抗锯齿（选填）
+// physicsConfig: 游戏物理系统配置参数（选填）
+
+// 举个例子
+window.onload = function() {
+  var game = new Phaser.Game(600,400,Phaser.CANVAS,'root');
+  this.init = function(){
+    // 初始化
+  }
+  this.preload= function(){
+    // 资源加载
+  }
+  this.create = function(){
+    // 创建游戏场景
+  }
+  this.update = function(){
+    // 更新周期
+  }
+  this.render = function(){
+    // 渲染完毕后执行的方法
+  }
+}
+// 这段代码的意思就是在id为root的dom上创建一个宽600高400的canvas区域作为游戏世界
+```
+Phaser最常用的四个生命周期是：preload（加载）、create（准备就绪）、update（更新周期）、render（渲染完成）。
+
+#####init
+预加载时期，这个阶段，一般会预加载一些必要的资源图片，比如loading图、背景音乐以及少量其他资源，因为在某个阶段加载过多资源，会造成用户等待时间过长，如果用户当时的网络状态不佳，那就更糟糕了，所以这个时候一般优先加载必要的资源，以及loading图，不能以黑屏的形式展现给用户，告诉用户游戏正在加载中，将其他多余的资源放在不同的函数里的preload里加载，类似负载均衡的效果。
+
+#####preload
+游戏中有很多资源，比如图片、精灵、音频、视频、纹理、JSON文件等等，尽管我们有预加载的场景，但是为了缩短进入页面时加载的时间，可以分摊一些到其他场景，也就是其他场景的preload方法里。
+
+#####create
+如果存在preload方法，则会在加载完毕后执行此方法；否则将在进入该场景时直接执行此方法。这个create方法相当于react里的componentDidMount，是在资源获取之后加载，并且只会加载一次。
+
+#####update
+update是更新周期自动执行的方法，方法里的内容会不断支持和更新，相当于vue里的watch函数，例如在 play 场景的 update 方法中可以去检测两个物体是否有接触。
+
+#####render
+在create方法渲染完毕后执行，一般在这个方法中渲染物体的边缘，观察物体的碰撞区域，以及一些其他的自定义函数。
+
+#####其他的生命周期方法
+loadRender()、loadUpdate()、paused()、pausedUpdate()、preRender()、resize()、resumed()、shutdown()。这些生命周期函数并非不常用，根据项目的业务需求适当增添。
+
+###Phaser场景管理
+在正常的页游项目中，一般会有若干个游戏分支、游戏场景、关卡地图等等。那么只写一个主函数往往会代码的整洁性不好，可迭代性低。常见的场景管理一般以模块、游戏对象来划分js文件和函数，比如：
+```
+    window.onload = function(){
+      var game = new Phaser.Game(800, 450, Phaser.CANVAS, "gamebox");
+      game.state.add('boot', Boot);
+      game.state.add('loading', Loading);
+      game.state.add('menu', Menu);
+      game.state.add('main', GameMain);
+      game.state.start('boot')
+    }
+
+    function Boot(game){
+      this.preload = function() {
+        game.load.spritesheet('loading', './img/tap-to-play.png', 330, 40);
+
+      }
+
+      this.create = function() {
+        if(!game.device.desktop){
+          this.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+        }
+        game.state.start("loading")
+      }
+    }
+```
+在页面加载完成之后，实例化一个Phaser.Game，然后给game增加4个函数Boot、Loading、Menu、GameMain。并在游戏实例化完成时即执行Boot函数。我们可以在Boot函数里加载loading图和必要的先行文件，然后在资源加载并渲染完之后，执行Loading函数，一次类推。当然这里的Boot函数，你也可以给loading增加事件，只有用户点击之后才会进入下一个环节，这个根据业务功能随意发挥。
+###资源的加载
+在各个模块函数的proload方法里，一般加载本模块需要的资源素材，比如
+```
+function preload(){
+  // game.load.image(key,url);
+  // 加载图片       key是资源名称（自定义），url是资源的相对路径
+  game.load.image("maptiles", "img/maptiles.png");  
+  
+  // game.load.spritesheet(key,url,frameWidth,frameHeight,frameMax)；
+  // 加载精灵图     key是资源名称（自定义），url是资源相对路径，frameWidth是帧宽，frameHeight是帧高，frameMax是帧总数（选填）
+  game.load.spritesheet("npc-no1", "img/npc-2.png", 64, 64);
+
+  // game.load.atlas(key,textureURL,atlasURL,atlasData,format)
+  // 加载贴图纹理集  key是资源名称（自定义），textureURL是资源路径，atlasURL是描述文件路径，atlasData是数据对象，format是数据格式（JSON或XML）
+
+
+  // game.load.audio(key,urls);
+  // 加载音频   key是资源名称（自定义），urls（资源路径，可以多个）
+  game.load.audio('bullet','./img/load.ogg');
+
+  // game.load.audiosprite(key,urls,jsonURL,jsonData)；
+  // 加载声音集  key是资源名称（自定义），urls是资源路径，jsonURL是描述分段信息的文件路径，jsonData是分段数据
+
+  // 以上只是常见的api，并未全部列举。
+} 
+```
+资源在preload方法里加载之后，便

@@ -1,0 +1,84 @@
+###TypeScript
+TypeScript 是 JavaScript 的类型的超集，它可以编译成纯 JavaScript。编译出来的 JavaScript 可以运行在任何浏览器上。TypeScript 编译工具可以运行在任何服务器和任何系统上。TypeScript 是开源的。
+
+###基本数据类型
+TypeScript数据类型有number（数值），string（字符串），boolean（布尔值），Array,Tuple（元组），Enum（枚举），any(任意值)，void（空值）
+```
+// number （数值类型）
+
+var a:number = 10;
+
+// number （数值类型）
+[代码]
+
+var str:string = "Hello TypeScript";
+
+// boolean（布尔类型）
+var bool:boolean = true;
+
+// Array（数组）
+var array:Array<number> = [10, 20];
+var nums:number[] = [1,2];
+
+// Tuple (元组)
+var tupe:[string, number] = ["Unity", 2000];
+var num:[number, number, number] = [100, 200, 300];
+
+// Enum （枚举）
+enum DIR {UP, DOWN, LEFT, RIGHT};
+var dir = DIR.UP;
+
+// 注意let,const,var 用法的不同
+
+```
+任意值（Any）用来表示允许赋值为任意类型。如果是一个普通类型，在赋值过程中改变类型是不被允许的;但如果是 any 类型，则允许被赋值为任意类型。
+```
+let myFavoriteNumber: any = 'seven';
+myFavoriteNumber = 7;
+```
+在任意值上访问任何属性都是允许的,也允许调用任何方法：
+```
+let anyThing: any = 'hello';
+console.log(anyThing.myName);
+console.log(anyThing.myName.firstName);
+
+let anyThing: any = 'Tom';
+anyThing.setName('Jerry');
+anyThing.setName('Jerry').sayHello();
+anyThing.myName.setFirstName('Cat');
+```
+变量如果在声明的时候，未指定其类型，那么它会被识别为任意值类型。
+```
+let something;
+something = 'seven';
+something = 7;
+// 这里something 默认就是 any
+something.setName('Tom');
+```
+
+###数据转换
+
+
+
+###元组
+
+
+
+###枚举
+
+
+
+###类
+
+
+###接口
+
+
+
+###泛型
+
+
+###声明合并
+
+
+###TS代码检查

@@ -1,0 +1,69 @@
+###前言
+###### 今天分享的主题灵感来源
+JS
+
+###vue小问题汇总
+1、vue导出Excel表格
+```
+// 声明：用的Element-UI
+// 先下载依赖
+npm install file-saver
+npm install xlsx 
+
+// 引入
+import FileSaver from 'file-saver'
+import XLSX from 'xlsx'
+
+// template 在el-table中 加个id选择器
+<el-table id="export-excle" @click="exportExcel" .....>
+
+// js
+exportExcel(){
+
+}
+
+
+```
+------------
+6、ipanel.js
+```
+// iPanel中间件
+
+```
+------------
+6、ngb_h.js
+```
+// NGB-H中间件
+
+```
+------------
+6、pc.js
+```
+// PC Browser中间件
+
+```
+------------
+6、shdv.js
+```
+// SHDV中间件
+
+```
+------------
+7、msg.js
+```
+// STB NGB-H消息处理
+
+```
+------------
+8、stb.js
+```
+// 依赖 ngb_h.js, ipanel.js, shdv.js, pc.js 之后引用
+
+```
+------------
+9、utils.js
+```
+// Utils 工具类
+
+```
+------------

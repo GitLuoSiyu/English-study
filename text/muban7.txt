@@ -1,0 +1,643 @@
+###前言
+###### Flutter
+Flutter 是最近移动端比较火的一种解决方案，目前 flutter 的生态圈也在不断完善，如果安装和使用fultter，大家可以参考 flutter 中文站。在使用 flutter 之前，我将简单梳理一下 Dart 语言的语言基础。
+编辑器用IDEA或者webStorm都可以的，使用之前别忘了下载Dart SDK。
+上一篇总结简单介绍了dart项目目录、数据类型、函数、流程控制语句、类和对象、StringBuffer。今天继续总结dart的语法基础。
+###语法碎片
+#####7、引用第三方库
+```
+// 引用方式与 js 相同
+// 1.引用math库、io库，C++也有。方式如下 
+import 'dart:math';
+import 'dart:io';
+
+// 2.引用项目内的dart文件，使用相对、绝对路径
+import 'lib/helloWorld/test.dart';
+
+// 3.引入依赖包里的dart文件，类似node_modules，
+import 'package:args/args.dart';
+
+// 引入多种文件可能会出现库名冲突，可以使用 as 命名空间
+import 'lib/helloWorld/test.dart' as Stu;
+Stu.Student s = new Stu.Student();
+
+// show/hide 关键字可以显示/隐藏某个成员（屏蔽/显示其他）
+import 'lib/helloWorld/test.dart' show Student, Person;
+import 'lib/helloWorld/test.dart' hide Person;
+
+// 库的导出
+library math;  // 定义库名
+export 'test1.dart';
+export 'test2.dart';
+export 'test3.dart' show Random;
+export 'test4.dart' hide Sin;
+```
+------------
+#####8、DOM操作
+```
+// dart:html库包含了操作DOM所需的类和方法
+// 比如 querySelector、querySelectorAll
+import "dart:html";
+void main() {
+    var text = querySelector("#box");
+    text
+        ..text = "Welcome to Dart  World!"
+        ..style.backgroundColor = 'skybule'
+        ..lang = 'EN'
+        ..attributes.forEach((k, v) => print('$k: $v'));
+}
+// 此时会输出一个天蓝色块元素，里面居左写了几个字，此处脑补，不上图了。
+// 有querySelector，那么getElementById、getElementByClassName等等都有
+
+// 创建 HTML 节点元素，比如 BodyElement、DivElement、ParagraphElement
+// HtmlElement包含了所有元素通用的方法和属性，比如:innerHtml、id、click等
+var div = new DivElement() //实例化一个Element并设置属性
+    ..id='div_id'
+    ..text = ' Replacement element';
+text.replaceWith(div);//替换元素
+// 如果想删除 节点元素：text.remove();
+var myp = new ParagraphElement();
+myp..id = 'mypId'
+    ..text = 'Paragraph Element!'
+    ..title = 'ParagraphElement'
+    ..lang = 'EN';
+document.body.nodes.add(myp);
+
+// 节点的 父子级关系，Parent和Child
+// children 和 childNodes 都可以得到子元素，
+// children 返回的是 List<Element>，childNodes 返回的是 Node 列表
+var divId = querySelector("#div_id");
+print(divId.parent.tagName); // DIV
+print(divId.parent.id); // textContainerId
+
+var body = document.querySelector('body');
+body.children.forEach((el) => print(el.tagName));
+body.childNodes.forEach((el) => print(el));
+```
+------------
+#####9、元素通用的属性和方法
+比如其中键盘事件就有很多。onMouseLeave、onFocus、onInput、onKeyUp、onTouchMove等等。
+```
+// 监听输入框的KeyUp Event
+input.onKeyUp.listen((KeyboardEvent e) {
+    print(e.keyCode);
+});
+// listen()函数返回的是StreamSubscription
+// 可以调用pause、resume、cancel函数暂停、重新开始、取消监听
+```
+listen()函数返回的是StreamSubscription。可以调用pause、resume、cancel函数暂停、重新开始、取消监听
+```
+// 论坛的完整例子
+// main.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script type="application/dart" src="main.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <h1>Note 11</h1>
+    <p>Hello world from Dart!</p>
+    <div id="sample_container_id">
+      <p id="sample_text_id">Click me!</p>
+    </div>
+</body>
+</html>
+
+// main.dart
+import 'dart:html';
+import 'dart:math' as Math;
+
+void main() {
+  // 不同使用querySelector的方法，这里是常见的用法
+  var body = document.querySelector('body');
+  print(body.innerHtml);
+  
+  //Element中的querySelector函数表示仅在该Element中查找
+  var h1 = body.querySelector('h1');
+  var p = body.querySelector('p');
+  var sc = body.querySelector('#sample_container_id');
+  var sp = sc.querySelector('#sample_text_id');
+  
+  // 改变 h1 text
+  h1.text = 'Integrating Dart and HTML';
+  // 改变 p text
+  p.text = 'This is an example of using DOM elements from DART';
+  // 清空 #sample_text_id 的文本
+  sp.text = '';
+  
+  // 新建一个输入框
+  var input = new InputElement()
+    ..id = 'autocomplete'
+    ..name = 'autocomplete'
+    ..type = 'text'
+    ..placeholder = 'Type to search'
+    ..width = 40;
+  
+//新建“搜索”按钮
+  var btnSearch = new ButtonElement()
+    ..id = 'btn_search'
+    ..name = 'btn_search'
+    ..text = '搜索!';
+  
+//新建“清空”按钮
+  var btnClear = new ButtonElement()
+    ..id = 'btn_clear'
+    ..name = 'btn_clear'
+    ..text = '清空';
+  
+//新建“打开/关闭事件监听”按钮
+  var btnEvents = new ButtonElement()
+    ..id = 'btnEvents'
+    ..name = 'btnEvents'
+    ..text = '事件监听 Off';
+  
+  var br = new BRElement();
+  
+//新建显示结果Div
+  var display = new DivElement()
+    ..id = 'display'
+    ..classes = ['terminal'];
+  
+  // 添加事件处理程序
+  var ss_keyup = input.onKeyUp.listen((KeyboardEvent e) {
+    var keyCode = e.keyCode;
+    showText(display, 'KeyCode: ${keyCode}');
+    if(keyCode == KeyCode.ENTER) {
+      btnSearch.click();
+    }
+    
+    if(keyCode == KeyCode.ESC) {
+      btnClear.click();
+    }
+  });
+  
+  var ss_cs = btnSearch.onClick.listen((e) {
+    if(input.value.trim() == '') {
+      showText(display, 'Nothing to search !');
+    } else {
+      showText(display, 'Searching: ${input.value.toString()} ...');
+    }
+  });
+  
+  var ss_cc = btnClear.onClick.listen((e) {
+    input.value = '';
+    display.nodes.clear();
+  });
+  
+  // On/Off 事件监听.
+  btnEvents.onClick.listen((e) {
+    if(btnEvents.text.toLowerCase().contains('off')) {
+      btnEvents.text = '事件监听 On';
+      ss_keyup.pause();
+      ss_cs.pause();
+      ss_cc.pause();
+    } else {
+      btnEvents.text = '事件监听 Off';
+      ss_keyup.resume();
+      ss_cs.resume();
+      ss_cc.resume();
+    }
+  });
+  
+  // 将新建的Element添加到DOM中
+  sp.nodes.addAll([ input, btnSearch, btnClear, btnEvents, br, display]);
+}
+
+showText(display, value) {
+  // 在display DIV中添加ParagraphElement
+  display.nodes.add(new ParagraphElement()..text=value);
+  
+  //移动display DIV的滚动条到最下方
+  var scrollHeight = Math.max(display.scrollHeight, window.innerHeight);
+  display.scrollTop = scrollHeight - display.clientHeight;
+}
+```
+当运行程序后，输入框和按钮的事件监听程序会被激活，可以通过“事件监听 Off”来暂停所有的监听事件，如果你点击“事件监听 On”按钮，将恢复所有事件处理程序。
+------------
+#####10、CSS
+CSS没什么介绍的，支持CSS1.0-CSS3.0，比如transition，同时支持H5新特性，不过如果你想使用webgl之类的，需要额外引入dart:web_gl，还有常用的dart:web_audio、dart:svg、dart:indexed_db、dart:web_sql，平常写法没有区别，在创建元素节点的添加样式，也和jquery类似,常规用法.classes.toggle()、.text等等。
+```
+// 举个栗子
+// dart.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script type="application/dart" src="main.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <h1>Note 12</h1>
+    <p>Hello world from Dart!</p>
+    <div id="sample_container_id">
+      <p id="sample_text_id">Click Button!</p>
+    </div>
+</body>
+</html>
+
+// main.dart
+import 'dart:html';
+
+void main() {
+  // 获取用于显示框的DIV元素和显示文字的P元素
+  var container = document.querySelector('#sample_container_id');
+  var p = document.querySelector('#sample_text_id');
+  
+  // 新建按钮，并添加onClick的事件处理程序
+  var btn1 = new ButtonElement()
+  ..id = 'btn1'
+  ..text = ' ERROR '
+  ..onClick.listen((event){
+    container.classes
+    //清空样式
+    ..clear()
+    //添加样式
+    ..add('error');
+    p.text = 'This is an error message !';
+  });
+  
+  var btn2 = new ButtonElement()
+  ..id = 'btn2'
+  ..text = 'ALERT'
+  ..onClick.listen((event) {
+    container.classes
+    ..clear()
+    ..add('warning');
+    p.text = 'This is an alert message !';
+  });
+  
+  var btn3 = new ButtonElement()
+  ..id = 'btn3'
+  ..text = 'OK'
+  ..onClick.listen((event) {
+    container.classes
+    ..clear()
+    ..add('success');
+    p.text = 'This is an OK message';
+  });
+  
+  var btn4 = new ButtonElement()
+  ..id = 'btn4'
+  ..text = 'Toggle'
+  ..onClick.listen((event) {
+    //切换样式
+    container.classes.toggle('toggle');
+    p.text = ' Toggle !';
+  });
+
+  // 将所有的按钮添加到document中
+  document.body.nodes.addAll([btn1, btn2, btn3, btn4]);
+}
+// 运行程序，点击按钮，切换样式，over。
+```
+------------
+#####11、正则表达式
+正则表达式最初用于解决统计学的问题，现在几乎所有的语言都支持正则表达式，用法一致，dart也不例外。跟if判断相比，正则会造成大量的回溯，计算机运行性能的严重下降，这里先只看看它的应用，具体业务具体抉择。
+```
+// 上个代码，举个栗子
+void main() {
+  String str = "1A 2B 11Q 12J #004488";
+  
+  //字符串前加字母"r"，字符串不会解析转义""
+  RegExp reg = new RegExp(r"((\d)+)([A-Z])");
+  
+  //调用allMatches函数，对字符串应用正则表达式
+  //返回包含所有匹配的迭代器
+  Iterable<Match> matches = reg.allMatches(str);
+
+  for (Match m in matches) {
+    //groupCount返回正则表达式的分组数
+    //由于group(0)保存了匹配信息，因此字符串的总长度为：分组数+1
+    for(int i=0; i<m.groupCount+1; i++) {
+      String match = m.group(i);
+      print("Group[$i]: $match");
+    }
+    print("\n");
+  }
+}
+
+// 运行结果
+Group[0]: 1A
+Group[1]: 1
+Group[2]: 1
+Group[3]: A
+
+Group[0]: 2B
+Group[1]: 2
+Group[2]: 2
+Group[3]: B
+
+Group[0]: 11Q
+Group[1]: 11
+Group[2]: 1
+Group[3]: Q
+
+Group[0]: 12J
+Group[1]: 12
+Group[2]: 2
+Group[3]: J
+```
+关于dart对于正则表达式的支持度，我相信在今后的版本中会越来越完善。
+// 图
+------------
+#####12、IO文件操作
+```
+// 如果要等待函数执行完毕后，再执行之后的代码
+import 'dart:io';
+
+void main(){
+  fun1();
+  fun2();
+  fun3();
+}
+
+// 方式一：直接调用同步模式函数，如：Directory.createSync
+void fun1() {
+  var directory = new Directory("temp1");
+  directory.createSync();
+  //absolute返回path为绝对路径的Directory对象
+  print(directory.absolute.path);
+}
+
+// 方式二：将执行的之后的代码放到then函数中
+void fun2() {
+  new Directory("temp2").create().then(
+      (dir) => print(dir.absolute.path)
+  );
+}
+
+// 使用关键字await，外层函数用async声明返回值为Future
+fun3() async {
+  var directory = await new Directory("temp3").create();
+  print(directory.absolute.path);
+}
+
+// 运行结果：
+F:\Dart\demos\temp1
+F:\Dart\demos\temp2
+F:\Dart\demos\temp3
+
+// 捕获 io操作过程中的异常，写法没有区别，举个栗子
+final filePath = r"E:\back.txt";
+try {
+  File file = new File(filePath);
+  file.writeAsString("$file");
+} catch(e) {
+  print(e);
+}
+```
+备注：由于默认路径与使用dart命令的目录相关，建议在new Directory、File、Link或create link的时候使用绝对路径，特别是项目中含有子目录的时候。
+```
+// 文件操作，创建、修改、读取、删除
+import 'dart:io';
+import 'dart:convert';
+import 'dart:async';
+
+void main() {
+  //文件操作演示
+  handleFile();
+}
+
+handleFile() async {
+  //提示：pub中有ini库可以方便的对ini文件进行解析
+  File file = new File("default.ini");
+
+  //如果文件存在，删除
+  if(!await file.exists()) {
+    //创建文件
+    file = await file.create();
+  }
+
+  print(file);
+
+  //直接调用File的writeAs函数时
+  //默认文件打开方式为WRITE:如果文件存在，会将原来的内容覆盖
+  //如果不存在，则创建文件
+
+  //写入String，默认将字符串以UTF8进行编码
+  file = await file.writeAsString("[General]\nCode=UTF8");
+  //readAsString读取文件，并返回字符串
+  //默认返回的String编码为UTF8
+  //相关的编解码器在dart:convert包中
+  //包括以下编解码器：ASCII、LANTI1、BASE64、UTF8、SYSTEM_ENCODING
+  //SYSTEM_ENCODING可以自动检测并返回当前系统编码
+  print("\nRead Strings:\n${await file.readAsString()}");
+
+  //以行为单位读取文件到List<String>，默认为UTF8编码
+  print("\nRead Lines:");
+  List<String> lines = await file.readAsLines();
+  lines.forEach(
+      (String line) => print(line)
+  );
+
+  //如果是以字节方式写入文件
+  //建议设置好编码，避免汉字、特殊符号等字符出现乱码、或无法读取
+  //将字符串编码为Utf8格式，然后写入字节
+  file = await file.writeAsBytes(UTF8.encode("编码=UTF8"));
+  //读取字节，并用Utf8解码
+  print("\nRead Bytes:");
+  print(UTF8.decode(await file.readAsBytes()));
+
+//  //删除文件
+//  await file.delete();
+}
+
+// 运行结果
+File: 'default.ini'
+
+Read Strings:
+[General]
+Code=UTF8
+
+Read Lines:
+[General]
+Code=UTF8
+
+Read Bytes:
+编码=UTF8
+// 读写文件的话，常用的函数就是readAs和writeAs
+// 如果我们要对某个字符进行处理，用open函数
+// open和openSync一样，不过一个是异步、一个同步，可以返回RandomAccessFile类
+// openRead用于打开数据流，openWrite用于打开数据缓冲池。
+```
+数据流（读写文件实例：复制文件）。Stream是dart:async库中的类，并非dart:io，从它的位置可以看出，Stream是一个异步数据事件的提供者，它提供了一种接收事件序列（数据或错误信息）的方式。可以通过listen来监听并开始产生事件，当我们开始监听Stream的时候，会接收到一个StreamSubscription对象，通过该对象可以控制Stream进行暂停、取消等操作。
+数据流Stream有两种类型：Single-subscription单一订阅数据流、broadcast广播数据流。
+Stream默认关闭广播数据流，可以通过isBroadcast测试。如果要打开，需在Stream子类中重写 isBroadcast返回true或调用asBroadcastStream。
+```
+// File.copy常用来复制文件到某路径，
+// Stream来实现复制文件的功能，并添加进度显示的功能
+import 'dart:io';
+import 'dart:convert';
+import 'dart:async';
+
+void main() {
+  //复制文件演示
+  copyFileByStream();
+}
+
+copyFileByStream() async {
+  //电子书文件大小：10.9 MB (11,431,697 字节)
+  File file = new File(r"E:\全职高手.txt");
+  assert(await file.exists() == true);
+  print("源文件：${file.path}");
+
+  //以只读方式打开源文件数据流
+  Stream<List<int>> inputStream = file.openRead();
+  //数据流监听事件，这里onData是null
+  //会在后面通过StreamSubscription来修改监听函数
+  StreamSubscription subscription = inputStream.listen(null);
+
+  File target = new File(r"E:\全职高手.back.txt");
+  print("目标文件：${target.path}");
+  //以WRITE方式打开文件，创建缓存IOSink
+  IOSink sink = target.openWrite();
+
+  //常用两种复制文件的方法，就速度来说，File.copy最高效
+//  //经测试，用时21毫秒
+//  await file.copy(target.path);
+//  //输入流连接缓存，用时79毫秒，比想象中高很多
+//  //也许是数据流存IOSink缓存中之后，再转存到文件中的原因吧！
+//  await sink.addStream(inputStream);
+
+  //手动处理输入流
+  //接收数据流的时候，涉及一些简单的计算
+  //如：当前进度、当前时间、构造字符串
+  //但是最后测试下来，仅用时68毫秒，有些不可思议
+
+  //文件大小
+  int fileLength = await file.length();
+  //已读取文件大小
+  int count = 0;
+  //模拟进度条
+  String progress = "*";
+
+  //当输入流传来数据时，设置当前时间、进度条，输出信息等
+  subscription.onData((List<int> list) {
+    count = count + list.length;
+    //进度百分比
+    double num = (count*100)/fileLength;
+    DateTime time = new DateTime.now();
+
+    //输出样式：[1:19:197]**********[20.06%]
+    //进度每传输2%，多一个"*"
+    //复制结束进度为100%，共50个"*"
+    print("[${time.hour}:${time.second}:${time.millisecond}]${progress*(num ~/ 2)}[${num.toStringAsFixed(2)}%]");
+
+    //将数据添加到缓存池
+    sink.add(list);
+  });
+
+  //数据流传输结束时，触发onDone事件
+  subscription.onDone(() {
+    print("复制文件结束！");
+    //关闭缓存释放系统资源
+    sink.close();
+  });
+}
+
+// 运行结果
+源文件：E:\全职高手.txt
+目标文件：E:\全职高手.back.txt
+[1:19:177][0.57%]
+[1:19:185][1.15%]
+[1:19:186][1.72%]
+[1:19:187]*[2.29%]
+[1:19:187]*[2.87%]
+……
+[1:19:245]*************************************************[99.75%]
+[1:19:245]**************************************************[100.00%]
+复制文件结束！
+```
+------------
+#####13、函数
+```
+// 依赖 ngb_h.js, ipanel.js, shdv.js, pc.js 之后引用
+
+```
+------------
+#####14、函数
+```
+// Utils 工具类
+
+```
+------------
+#####15、函数
+```
+// Utils 工具类
+
+```
+------------
+#####16、函数
+```
+// Utils 工具类
+
+```
+------------
+#####17、函数
+```
+// Utils 工具类
+
+```
+------------
+#####18、函数
+```
+// Utils 工具类
+
+```
+------------
+#####19、函数
+```
+// Utils 工具类
+
+```
+------------
+#####20、函数
+```
+// Utils 工具类
+
+```
+------------
+#####21、函数
+```
+// Utils 工具类
+
+```
+------------
+#####22、函数
+```
+// Utils 工具类
+
+```
+------------
+#####23、函数
+```
+// Utils 工具类
+
+```
+------------
+#####24、函数
+```
+// Utils 工具类
+
+```
+------------
+#####25、函数
+```
+// Utils 工具类
+
+```
+------------
+###参考文档
+Flutter中文网( https://flutterchina.club )
+
+cnDART( http://www.cndartlang.com)

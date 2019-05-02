@@ -1,0 +1,380 @@
+###前端安全
+在这一个大众用私隐换便利的时代，信息安全问题越来越成为企业最为关注的焦点之一，而前端也是引发安全问题的高危据点之一，仅次运维。所以，在浏览器不断进化和发展的过程中，也在引入一些CSP等技术强化安全性，此外，也需要前端同学不断学习预防并查缺补漏。
+前端安全，一直是前端工程师的最头疼的问题之一，因为移动端有比较成熟的混淆、加密方法，当然也有对应的反编译工具（比如jadx 就很好用）。前端方面常用的小手段比如JS混淆、密码加盐、URL转义等等，但是这些都不是安全防御措施，在介绍防御之前，我们一起来了解一下常见前端攻击方式。
+
+###XSS
+######XSS攻击的简介
+XSS，Cross-site scripting，跨网站指令码，通常简称为：XSS。
+XSS是一种网站应用程序的安全漏洞攻击，是代码注入的一种。它允许恶意使用者将程序代码注入到网页上，其他使用者在观看网页时就会受到影响。此类攻击通常包括HTML以及使用者端脚本语言。
+
+举个例子：某天某企某部的小新同学正在做一个搜索页面，要求根据 URL 参数决定关键词的内容，小新很快把页面写好并且上线。代码如下：
+```
+<input type="text" value="<%= getParameter("keyword") %>">
+<button>搜索</button>
+<div>
+  您搜索的关键词是：<%= getParameter("keyword") %>
+</div>
+```
+然而，在上线后不久，小新就接到了安全组发来的一个神秘链接：
+```
+http://xxx/search?keyword="><script>alert('XSS');</script>
+```
+小新带着一种不祥的预感点开了这个链接[请勿模仿，确认安全的链接才能点开]。果然，页面中弹出了写着”XSS”的对话框。
+```
+/*
+ * 当浏览器请求 
+ * http://xxx/search?keyword="><script>alert('XSS');</script> 
+ * 服务端会解析出请求参数 keyword，得到 "><script>alert('XSS');</script>
+ * 拼接到 HTML 中返回给浏览器。形成了如下的 HTML：
+ */
+
+<input type="text" value=""><script>alert('XSS');</script>">
+<button>搜索</button>
+<div>
+  您搜索的关键词是："><script>alert('XSS');</script>
+</div>
+
+// 原因：
+/*
+ * 浏览器无法分辨出 <script>alert('XSS');</script> 
+ * 是恶意代码，因而将其执行。
+ * 这里不仅仅 div 的内容被注入了，而且 input 的 value 属性也被注入，
+ * 这里 alert 会弹出两次。
+ */
+```
+针对这个业务场景，只是浏览器把用户的输入当成了脚本进行了执行。
+```
+// 告诉浏览器这段内容是文本就行了
+// 其中一种方式：
+<input type="text" value="<%= escapeHTML(getParameter("keyword")) %>">
+<button>搜索</button>
+<div>
+  您搜索的关键词是：<%= escapeHTML(getParameter("keyword")) %>
+</div>
+
+// escapeHTML() 按照如下规则进行转义：
+|字符|转义后的字符| |-|-| |&|&amp;| |<|&lt;| |>|&gt;| |"|&quot;| |'|&#x27;| |/|&#x2F;|
+```
+经过了转义函数的处理后，最终浏览器接收到的响应为：
+```
+// 思路：将恶意代码转义，不会被浏览器执行
+// 小新的业务，搜索词能够完美的在页面显示出来
+<input type="text" value="&quot;&gt;&lt;script&gt;alert(&#x27;XSS&#x27;);&lt;&#x2F;script&gt;">
+<button>搜索</button>
+<div>
+  您搜索的关键词是：&quot;&gt;&lt;script&gt;alert(&#x27;XSS&#x27;);&lt;&#x2F;script&gt;
+</div>
+
+// 总结：
+/* 1.通常页面中包含的用户输入内容都在固定的容器或者属性内，以文本的形式展示；
+ * 2.攻击者利用这些页面的用户输入片段，拼接特殊格式的字符串，突破原有位置的限制，形成了代码片段；
+ * 3.攻击者通过在目标网站上注入脚本，使之在用户的浏览器上运行，从而引发潜在风险；
+ * 4.针对这个小业务，通过 HTML 转义，可以防止 XSS 攻击；
+ */
+```
+事情当然没有这么简单。
+自从上次事件之后，小新会小心的把插入到页面中的数据进行转义。而且他还发现了大部分模板都带有的转义配置，让所有插入到页面中的数据都默认进行转义。
+```
+// 不久，小新又收到安全组的神秘链接：
+http://xxx/?redirect_to=javascript:alert('XSS')
+// 小明不敢大意，赶忙点开页面。然而，页面并没有自动弹出万恶的“XSS”。
+
+// 小明打开对应页面的源码，发现有以下内容：
+<a href="<%= escapeHTML(getParameter("redirect_to")) %>">跳转...</a>
+
+// 这段代码，当攻击 URL 为 
+http://xxx/?redirect_to=javascript:alert('XSS')
+
+// 服务端响应就成了：
+<a href="javascript:alert(&#x27;XSS&#x27;)">跳转...</a>
+
+// 虽然代码不会立即执行，但一旦用户点击 a 标签时，浏览器会就会弹出“XSS”。
+```
+在这里，用户的数据并没有在位置上突破我们的限制，仍然是正确的 href 属性。但其内容并不是我们所预期的类型。原来不仅仅是特殊字符，连 javascript: 这样的字符串如果出现在特定的位置也会引发 XSS 攻击。小新眉头一皱，想到了解决办法：
+```
+// 禁止 URL 以 "javascript:" 开头
+xss = getParameter("redirect_to").startsWith('javascript:');
+if (!xss) {
+  <a href="<%= escapeHTML(getParameter("redirect_to"))%>">
+    跳转...
+  </a>
+} else {
+  <a href="/404">
+    跳转...
+  </a>
+}
+
+// 但是并不是 URL 的开头不是 javascript: 就能解决问题
+// 安全组随手又扔了一个连接：
+http://xxx/?redirect_to=jAvascRipt:alert('XSS')
+
+// 在这里，仅仅判断URL开头是不是javascript: 并不能解决问题
+http://xxx/?redirect_to=%20javascript:alert('XSS')%20javascript:alert('XSS') 
+// 经过 URL 解析后变成：
+javascript:alert('XSS')
+// 这个字符串以空格开头。这样攻击者可以绕过后端的关键词规则，又成功的完成了注入
+```
+最终，小新选择了白名单的方法，彻底解决了这个漏洞：
+```
+// 针对这个问题，根据项目情况进行过滤
+// 禁止掉 "javascript:" 链接、非法 scheme 等
+allowSchemes = ["http", "https"];
+
+valid = isValid(getParameter("redirect_to"), allowSchemes);
+
+if (valid) {
+  <a href="<%= escapeHTML(getParameter("redirect_to"))%>">
+    跳转...
+  </a>
+} else {
+  <a href="/404">
+    跳转...
+  </a>
+}
+// 总结：
+// 1.做了 HTML 转义，并不等于高枕无忧。
+// 2.对于链接跳转，如 <a href="xxx" 或 location.href="xxx" 要检验其内容，
+//   禁止以 javascript: 开头的链接，和其他非法的 scheme。
+
+```
+某天，小新为了加快网页的加载速度，把一个数据通过 JSON 的方式内联到 HTML 中：
+```
+<script>
+  var initData = <%= data.toJSON() %>
+</script>
+```
+插入 JSON 的地方不能使用 escapeHTML()，因为转义 " 后，JSON 格式会被破坏。但安全组又发现有漏洞，原来这样内联 JSON 也是不安全的：
+①. 当 JSON 中包含 U+2028 或 U+2029 这两个字符时，不能作为 JavaScript 的字面量使用，否则会抛出语法错误。
+②. 当 JSON 中包含字符串 </script> 时，当前的 script 标签将会被闭合，后面的字符串内容浏览器会按照 HTML 进行解析；通过增加下一个 <script> 标签等方法就可以完成注入。
+
+在这里，我们又要实现一个 escapeEmbedJSON() 函数，对内联 JSON 进行转义。
+######转义规则如下：
+|字符|转义后的字符| |-|-| |U+2028|\u2028| |U+2029|\u2029| |<|\u003c|
+######修复后的代码如下：
+```
+<script>
+  var initData = <%= escapeEmbedJSON(data.toJSON()) %>
+</script>
+```
+通过这个事件，(这个完整的来源于美团技术团队https://tech.meituan.com)小新同学学习到了如下知识：
+①. HTML 转义是非常复杂的，在不同的情况下要采用不同的转义规则。如果采用了错误的转义规则，很有可能会埋下 XSS 隐患。
+②. 应当尽量避免自己写转义库，而应当采用成熟的、业界通用的转义库。
+###XSS漏洞总结
+1. 在 HTML 中内嵌的文本中，恶意内容以 script 标签形成注入。
+2. 在内联的 JavaScript 中，拼接的数据突破了原本的限制（字符串，变量，方法名等）。
+3. 在标签属性中，恶意内容包含引号，从而突破属性值的限制，注入其他属性或者标签。
+4. 在标签的 href、src 等属性中，包含 javascript: 等可执行代码。
+5. 在 onload、onerror、onclick 等事件中，注入不受控制代码。
+6. 在 style 属性和标签中，包含类似 background-image:url("javascript:..."); 的代码（新版本浏览器已经可以防范）。
+7. 在 style 属性和标签中，包含类似 expression(...) 的 CSS 表达式代码（新版本浏览器已经可以防范）。
+######特别说明
+如果开发者没有将用户输入的文本进行合适的过滤，就贸然插入到 HTML 中，这很容易造成注入漏洞。攻击者可以利用漏洞，构造出恶意的代码指令，进而利用恶意代码危害数据安全。
+###XSS攻击的分类
+XSS主要分为三种：反射型，存储型，DOM-based
+类型     存储区       插入点
+- 反射型   后端数据库    HTML
+- 存储型   URL         HTML
+- DOM-based  后端数据库/前端存储/URL   前端 JavaScript
+说明：存储区：恶意代码存放的位置；插入点：由谁取得恶意代码，并插入到网页上。
+#####反射型XSS  
+攻击过程:
+①. 攻击者构造出特殊的 URL，其中包含恶意代码。
+②. 用户打开带有恶意代码的 URL 时，网站服务端将恶意代码从 URL 中取出，拼接在 HTML 中返回给浏览器。
+③. 用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行。
+④. 恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。
+
+常见应用场景：
+反射型 XSS 漏洞常见于通过 URL 传递参数的功能，如网站搜索、跳转等。
+
+#####存储型XSS
+攻击过程:
+①. 攻击者将恶意代码提交到目标网站的数据库中。
+②. 用户打开目标网站时，网站服务端将恶意代码从数据库取出，拼接在 HTML 中返回给浏览器。
+③. 用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行。
+④. 恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。
+
+常见应用场景：
+这种攻击常见于带有用户保存数据的网站功能，如论坛发帖、商品评论、用户私信等。
+
+#####DOM-based
+攻击过程:
+①. 攻击者构造出特殊的 URL，其中包含恶意代码。
+②. 用户打开带有恶意代码的 URL。
+③. 用户浏览器接收到响应后解析执行，前端 JavaScript 取出 URL 中的恶意代码并执行。
+④. 恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。
+
+常见应用场景：
+DOM-based 型 XSS 攻击中，取出和执行恶意代码由浏览器端完成，属于前端 JavaScript 自身的安全漏洞。
+
+###XSS攻击的检测
+XSS 攻击有两大要素：攻击者提交恶意代码、浏览器执行恶意代码。
+预防思路：过滤用户输入的数据，比如案例中小新的转义、白名单方法；针对无法通过过滤输入来防范的XSS攻击，需要针对第二个因素预防并阻止浏览器执行恶意JS代码。
+
+
+
+####方式一：预防存储型和反射型XSS
+存储型和反射型 XSS 都是在服务端取出恶意代码后，插入到响应 HTML 里的，攻击者刻意编写的“数据”被内嵌到“代码”中，被浏览器所执行。改成纯前端渲染，把代码和数据分隔开、或者对 HTML 做充分转义。
+
+######纯前端渲染
+浏览器先加载一个静态 HTML，此 HTML 中不包含任何跟业务相关的数据；然后浏览器执行 HTML 中的 JS；JS 通过 Ajax 加载业务数据，调用 DOM API 更新到页面上。这样就会明确告诉浏览器设置的是文本还是属性，保证浏览器不会随意执行预期外的代码。
+
+######转义 HTML
+在很多内部、管理系统中，采用纯前端渲染是非常合适的。但对于性能要求高，或有 SEO 需求的页面，我们仍然要面对拼接 HTML 的问题。
+
+如果拼接 HTML 是必要的，就需要采用合适的转义库，对 HTML 模板各处插入点进行充分的转义。常用的模板引擎，如 doT.js、ejs、FreeMarker 等，对于 HTML 转义通常只有一个规则，就是把 & < > " ' / 这几个字符转义掉，确实能起到一定的 XSS 防护作用，但并不完善。这里具体方法可以采用一些成熟的转移库，比org.owasp.encoder。
+
+####方式二：预防 DOM 型 XSS
+DOM 型 XSS 攻击，实际上就是网站前端 JavaScript 代码本身不够严谨，把不可信的数据当作代码执行了。在使用 .innerHTML、.outerHTML、document.write() 时要特别小心，不要把不可信的数据作为 HTML 插到页面上，而应尽量使用 .textContent、.setAttribute() 等。
+
+如果用 Vue/React 技术栈，并且不使用 v-html/dangerouslySetInnerHTML 功能，就在前端 render 阶段避免 innerHTML、outerHTML 的 XSS 隐患。
+
+DOM 中的内联事件监听器，如 location、onclick、onerror、onload、onmouseover 等，<a> 标签的 href 属性，JavaScript 的 eval()、setTimeout()、setInterval() 等，都能把字符串作为代码运行。如果不可信的数据拼接到字符串中传递给这些 API，很容易产生安全隐患，请务必避免。
+```
+<!-- 内联事件监听器中包含恶意代码 -->
+![](https://awps-assets.meituan.net/mit-x/blog-images-bundle-2018b/3e724ce0.data:image/png,)
+
+<!-- 链接内包含恶意代码 -->
+<a href="UNTRUSTED">1</a>
+
+<script>
+// setTimeout()/setInterval() 中调用恶意代码
+setTimeout("UNTRUSTED")
+setInterval("UNTRUSTED")
+
+// location 调用恶意代码
+location.href = 'UNTRUSTED'
+
+// eval() 中调用恶意代码
+eval("UNTRUSTED")
+</script>
+
+// 如果项目中有用到这些的话，一定要避免在字符串中拼接不可信数据
+```
+
+######XSS攻击的总结
+
+
+######XSS攻击
+
+###XSS如何攻击
+XSS主要通过执行JS代码或修改HTML节点达到攻击网站的目的。
+例如通过 URL 获取某些参数
+```
+<!-- http://www.domain.com?name=<script>alert(1)</script> -->
+<div>{{name}}</div> 
+```
+上述 URL 输入可能会将 HTML 改为 
+```
+<div><script>alert(1)</script></div> 
+```
+这样页面中就凭空多了一段可执行脚本，这种攻击类型是反射型攻击，也可以说是DOM-based 攻击。
+也有另一种场景，比如写了一篇包含攻击代码
+```
+<script>alert(1)</script> 
+```
+的文章，那么可能浏览文章的用户都会被攻击到。这种攻击类型是存储型攻击，也可以说是DOM-based 攻击，并且这种攻击打击面更广。（我在写这篇软文的时候就深受其害）。
+
+###XSS如何防御
+1.最普遍的做法是转义输入输出的内容，对于引号，尖括号，斜杠进行转义
+```
+function escape(str) {
+  str = str.replace(/&/g, "&amp;");
+  str = str.replace(/</g, "&lt;");
+  str = str.replace(/>/g, "&gt;");
+  str = str.replace(/"/g, "&quto;");
+  str = str.replace(/'/g, "&##39;");
+  str = str.replace(/`/g, "&##96;");
+  str = str.replace(/\//g, "&##x2F;");
+  return str
+}
+
+// 通过转义可以将攻击代码 <script>alert(1)</script> 变成
+
+// -> &lt;script&gt;alert(1)&lt;&##x2F;script&gt;
+escape('<script>alert(1)</script>')
+```
+对于显示富文本来说，不能通过上面的办法来转义所有字符，因为这样会把需要的格式也过滤掉。这种情况通常采用白名单过滤的办法，当然也可以通过黑名单过滤，但是考虑到需要过滤的标签和标签属性实在太多，更加推荐使用白名单的方式。
+```
+// filter
+var xss = require("xss");
+var html = xss('<h1 id="title">XSS Demo</h1><script>alert("xss");</script>');
+// js-xss
+// -> <h1>XSS Demo</h1>&lt;script&gt;alert("xss");&lt;/script&gt;
+console.log(html);
+```
+以上示例使用了 js-xss 来实现。可以看到在输出中保留了 h1 标签且过滤了script 标签。
+
+2.CSP
+CSP，内容安全策略，是一个额外的安全层，用于检测并削弱某些特定类型的攻击，包括跨站脚本 (XSS) 和数据注入攻击等。无论是数据盗取、网站内容污染还是散发恶意软件，这些攻击都是主要的手段。
+可以通过 CSP 来尽量减少 XSS 攻击。CSP 本质上也是建立白名单，规定了浏览器只能够执行特定来源的代码。
+
+CSP 的作用：
+①. 禁止加载外域代码，防止复杂的攻击逻辑。
+②. 禁止外域提交，网站被攻击后，用户的数据不会泄露到外域。
+③. 禁止内联脚本执行（规则较严格，目前发现 GitHub 使用）。
+④. 禁止未授权的脚本执行（新特性，Google Map 移动版在使用）。
+⑤. 合理使用上报可以及时发现 XSS，利于尽快修复问题。
+
+通常可以通过 HTTP Header 中的 Content-Security-Policy 来开启 CSP。比如：
+```
+// 只允许加载本站资源
+Content-Security-Policy: default-src ‘self’
+
+// 只允许加载 HTTPS 协议图片
+Content-Security-Policy: img-src https://*
+
+// 允许加载任何来源框架
+Content-Security-Policy: child-src 'none'
+```
+
+###XSS攻击的检测
+方法一：使用通用 XSS 攻击字符串手动检测 XSS 漏洞。
+方法二: 使用扫描工具自动检测 XSS 漏洞。
+```
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert()//>\x3e
+```
+它能够检测到存在于 HTML 属性、HTML 文字内容、HTML 注释、跳转链接、内联 JavaScript 字符串、内联 CSS 样式表等多种上下文中的 XSS 漏洞，也能检测 eval()、setTimeout()、setInterval()、Function()、innerHTML、document.write() 等 DOM 型 XSS 漏洞，并且能绕过一些 XSS 过滤器。
+
+小明只要在网站的各输入框中提交这个字符串，或者把它拼接到 URL 参数上，就可以进行检测了。
+
+```
+http://xxx/search?keyword=jaVasCript%3A%2F*-%2F*%60%2F*%60%2F*%27%2F*%22%2F**%2F(%2F*%20*%2FoNcliCk%3Dalert()%20)%2F%2F%250D%250A%250d%250a%2F%2F%3C%2FstYle%2F%3C%2FtitLe%2F%3C%2FteXtarEa%2F%3C%2FscRipt%2F--!%3E%3CsVg%2F%3CsVg%2FoNloAd%3Dalert()%2F%2F%3E%3E
+```
+除了手动检测之外，还可以使用自动扫描工具寻找 XSS 漏洞，例如 Arachni、Mozilla HTTP Observatory、w3af 等。
+
+###XSS预防总结
+1. 利用模板引擎 
+开启模板引擎自带的 HTML 转义功能。例如： 在 ejs 中，尽量使用 <%= data %> 而不是 <%- data %>； 在 doT.js 中，尽量使用 {{! data } 而不是 {{= data }； 在 FreeMarker 中，确保引擎版本高于 2.3.24，并且选择正确的freemarker.core.OutputFormat。
+
+2. 避免内联事件 
+尽量不要使用 onLoad="onload('{{data}}')"、onClick="go('{{action}}')" 这种拼接内联事件的写法。在 JavaScript 中通过 .addEventlistener() 事件绑定会更安全。
+
+3. 避免拼接 HTML 
+前端采用拼接 HTML 的方法比较危险，如果框架允许，使用 createElement、setAttribute 之类的方法实现。或者采用比较成熟的渲染框架，如 Vue/React 等。
+
+4. 时刻保持警惕 
+在插入位置为 DOM 属性、链接等位置时，要打起精神，严加防范。
+
+5. 增加攻击难度，降低攻击后果 
+通过 CSP、输入长度配置、接口安全措施等方法，增加攻击的难度，降低攻击的后果。
+
+6. 主动检测和发现 
+可使用 XSS 攻击字符串和自动扫描工具寻找潜在的 XSS 漏洞。
+
+###密码安全
+密码安全虽然大多是后端的事情，但是作为一名优秀的前端程序员也需要熟悉这方面的知识。
+#####加密
+虽然前端加密对于安全防护来说意义不大，但是在遇到中间人攻击的情况下，可以避免明文密码被第三方获取。
+#####加盐
+对于密码存储来说，必然是不能明文存储在数据库中的，否则一旦数据库泄露，会对用户造成很大的损失。并且不建议只对密码单纯通过加密算法加密，因为存在彩虹表的关系。
+通常需要对密码加盐，然后进行几次不同加密算法的加密。
+```
+// 加盐也就是给原密码添加字符串，增加原密码长度
+sha256(sha1(md5(salt + password + slat)))
+```
+但是加盐并不能阻止别人盗取账号，只能确保即使数据库泄露，也不会暴露用户的真实密码。一旦攻击者得到了用户的账号，可以通过暴力破解的方式破解密码。对于这种情况，通常使用验证码增加延时或者限制尝试次数的方式。并且一旦用户输入了错误的密码，也不能直接提示用户输错密码，而应该提示账号或密码错误。
+
+
+###参考文献
+1. OWASP. XSS (Cross Site Scripting) Prevention Cheat Sheet, OWASP.
+2. 李阳，美团外卖 Hybrid 页面性能优化

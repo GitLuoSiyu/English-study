@@ -1,0 +1,727 @@
+###前言
+前端传统的三驾马车：Vue、React、Angular，随着去年Flutter的迅猛发展，以及Dart语言在跨平台上的优势、Flutter与生俱来的高性能、丝滑、高拓展，奠定了Flutter在移动端开发的一席之地，同时也成为前端、移动端同学求职的必备技能之一了，称得上是“第四驾马车”。
+
+国内Flutter首次的大型企业应用应该是闲鱼，闲鱼也是首家将Flutter落地的企业，Flutter 作为新一代的跨平台框架，有较多的优点，但跟其他跨平台解决方案相比，最吸引我们的是它的高性能、高拓展，可以轻松构建更流畅的 UI。虽然各跨平台方案都有各自的特点，但 Flutter 的出现，给闲鱼、给大家都提供了一种新的可能性。
+
+###Flutter简介
+之前的 dart 文章已经详细介绍了 Flutter 框架的特性，这里不再赘述，简单来说，Flutter 框架自建了一个绘制引擎，基于C++编写的底层引擎负责渲染和节点处理，Dart VM 等，基于 Skia 绘制，操作 OpenGL、GPU，不需要依赖原生的组件渲染框架，上层的 Dart Framework 直接调用引擎。避免了以往 JS 解决方案的 JS Bridge、线程跳跃等问题。
+
+同时 Flutter 团队引入 Dart 语言，Dart 有 AOT 和 JIT 两种模式，线上使用时以 AOT 的方式编译成机器代码，保证了线上运行时的效率；而在开发期，Dart 代码以 JIT 的方式运行，支持代码的即时生效（HotReload)，提高开发效率。同时采用 Dart 语言书写移动端而非Java，长远考虑避免Oracle公司对 Java 版权的一个限制。
+
+
+###状态管理
+了解过前端的同学应该对Vue、React的状态管理不陌生，我之前的文章也有详细比较过，常见的状态管理有Vuex、Flux、Redux、MobX、Bloc、Stamen等等。但是对于新生代的Flutter，之前还没有完全符合Flutter的状态管理库，之前介绍过Redux是一门JS库，Redux 是一个函数式的数据管理的框架，不仅仅可以用于React，还可以应用于其他框架和平台，特点是、可预测、集中式、易调试、灵活性的数据管理的框架，所有对数据的增删改查等操作都由 Redux 来集中负责。
+// 图
+
+
+但是对于Flutter来说，Redux 的优点同时也是缺点，Redux 核心仅仅关心数据管理，不关心具体什么场景来使用它。所以在Flutter中使用 Redux 中将面临两个具体问题：Redux 的集中和 Component 的分治之间的矛盾；Redux 的 Reducer 需要一层层手动组装，带来的繁琐性和易错性。
+
+就在今天（2019年3月5号），闲鱼宣布在 GitHub 上开源 Fish Redux，从此Flutter有了真正意义上的完善的状态管理框架-Fish Redux。
+
+###旧-Flutter-provide
+上面说到Fish Redux 算是Flutter真正意义上完善的状态管理框架，原因是之前确实也有状态管理-Flutter-provide。（官方地址 https://github.com/google/flutter-provide）
+
+Provide 和 Scoped_model一样，也是借助了InheritWidget，将共享状态放到顶层MaterialApp之上。底层部件通过Provier获取该状态，并通过混合ChangeNotifier通知依赖于该状态的组件刷新。
+举个例子：
+// 图
+这两个页面都同时依赖于counter 和 switcher两个不同的状态。并且一个页面改变状态之后另外一个页面状态也随之改变。
+#####1.添加依赖
+在pubspec.yaml中添加Provide的依赖。 
+```
+dependencies:
+  provide: ^1.0.2
+```
+#####2.创建Model
+这里实际上它承担了State的职责，但是为了和官方的State区分所以叫做model。
+```
+import 'package:flutter/material.dart';
+
+class Counter with ChangeNotifier{
+  int value = 0;
+
+  increment(){
+    value++;
+    notifyListeners();
+  }
+}
+```
+这里我们可以看到，数据和操作数据的方法都在model中，我们可以很清晰的把业务分离出来。
+
+对比Scoped_model可以发现，Provide模式中model不再需要继承Model类，只需要实现Listenable，我们这里混入ChangeNotifier，可以不用管理听众。
+
+通过 notifyListeners 我们可以通知听众刷新。
+
+
+#####3.将状态放入顶层
+```
+void main() {
+  var counter = Counter();
+  var providers = Providers();
+
+//将counter对象添加进providers
+  providers.provide(Provider.value(counter));
+
+  runApp(
+    ProviderNode(
+        child: MyApp(), 
+        providers: providers),
+    );
+}
+```
+ProviderNode封装了InheritWidget，并且提供了 一个providers容器用于放置状态。
+
+providers内部通过 Map>来储存provider，在存放的时候你可以通过传入ProviderScope("name")来指定key。
+
+Provider.value将counter包装成了_ValueProvider。并在它的内部提供了StreamController从而实现对数据进行流式操作。
+
+#####4.获取状态
+同样的Provide也提供了两种获取State的方法。我们先来介绍第一种，通过Provide小部件获取。
+```
+Provide(
+  builder: (context, child, counter) {
+     return Text(
+        '${counter.value}',
+        style: Theme.of(context).textTheme.display1,
+      );
+   },
+),
+```
+每次通知数据刷新时，builder将会重新构建这个小部件。
+
+builder方法接收三个参数，这里主要介绍第二个和第三个。
+
+第二个参数child：假如这个小部件足够复杂，内部有一些小部件是不会改变的，那么我们可以将这部分小部件写在Provide的child属性中，让builder不再重复创建这些小部件，以提升性能。
+
+第三个参数counter：这个参数代表了我们获取的顶层providers中的状态。
+
+scope：通过指定ProviderScope获取该键所对应的状态。在需要使用多个相同类型状态的时候使用。
+
+第二种获取方式：Provide.value(context)
+
+final currentCounter = Provide.value(context);
+这种方式实际上调用了context.inheritFromWidgetOfExactType找到顶层的_InheritedProviders来获取到顶层providers中的状态。
+
+#####如何组织多个状态
+和scoped_model不同的是，provide模式中你可以轻松组织多个状态。只需要将状态provide进provider中就可以了。
+```
+void main() {
+  var counter = Counter();
+  var switcher = Switcher();
+
+  var providers = Providers();
+
+  providers
+    ..provide(Provider.value(counter))
+    ..provide(Provider.value(switcher));
+
+  runApp(
+    ProviderNode(
+        child: MyApp(), 
+        providers: providers)
+    );
+}
+```
+
+#####获取数据流
+在将counter添加进providers的过程中进行了一次包装。我们刚才通过分析源码知道了这个操作能够让我们处理流式数据。
+
+通过 Provide.stream(context) 就能获取数据流。
+```
+StreamBuilder(
+   initialData: currentCounter,
+   stream: Provide.stream(context)
+       .where((counter) => counter.value % 2 == 0),
+   builder: (context, snapshot) =>
+       Text('Last even value: ${snapshot.data.value}')),
+```
+
+
+###新-Fish Redux
+Fish Redux 是闲鱼团队基于 Redux 做的一次量身改良，通过 Redux 做集中化的可观察的数据管理。FR 是一个基于 Redux 数据管理的组装式 flutter 应用框架， 特别适用于构建中大型的复杂应用，对于传统 Redux 在使用层面上的两大缺点做了重大改良，具体做法是：
+
+首先规定一个组件需要定义一个数据（Struct）和一个 Reducer，同时组件之间存在着父依赖子的关系。通过这层依赖关系去解决了 集中 和 分治 之间的矛盾，而对 Reducer 的手动层层 Combine 变成由框架自动完成，使之简化了使用 Redux 的困难，同时也得到了理想的集中的效果和分治的代码。
+```
+sample_page
+- State
+- Action
+- Reducer
+- Store
+- Middleware
+```
+一个组件页面目录结构可以是这样设计，好处是这些概念与 ReduxJS 是一致的，可以保留Redux 的优势。
+
+Fish Redux 最显著的特征是函数式的编程模型、可预测的状态管理、可插拔的组件体系、最佳的性能表现。它的特点是配置式组装。
+一方面我们将一个大的页面，对视图和数据层层拆解为互相独立的 Component|Adapter，上层负责组装，下层负责实现；
+另一方面将 Component|Adapter 拆分为 View，Reducer，Effect 等相互独立的上下文无关函数。
+
+Fish Redux 的灵感主要来自于 Redux， Elm， Dva 这样的优秀框架。所以用闲鱼Flutter团队自己的话来说，Fish Redux 站在巨人的肩膀上，将集中，分治，复用，隔离做的更进一步。
+
+###FR源码解读
+#####Action
+-   Action 包含两个字段
+    -   type
+    -   payload
+-   推荐的写法是
+    -   为一个组件|适配器创建一个 action.dart 文件，包含两个类
+        -   为 type 字段起一个枚举类
+        -   为 Action 的创建起一个 ActionCreator 类，这样利于约束 payload 的类型。
+    -   Effect 接受处理的 Action，以 on{Verb} 命名
+    -   Reducer 接受处理的 Action，以{verb} 命名
+```
+enum MessageAction {
+    onShare,
+    shared,
+}
+
+class MessageActionCreator {
+    static Action onShare(Map<String, Object> payload) {
+        return Action(MessageAction.onShare, payload: payload);
+    }
+
+    static Action shared() {
+        return const Action(MessageAction.shared);
+    }
+}
+```
+
+#####Adapter
+我们在基础 Component 的概念外，额外增加了一种组件化的抽象 Adapter。它的目标是解决 Component 模型在 ListView 的场景下的 3 个问题
+    -   1）将一个"Big-Cell"放在 ListView 里，无法享受 ListView 代码的性能优化。
+    -   2）Component 无法区分 appear|disappear 和 init|dispose 事件。
+    -   3）Effect 的生命周期和 View 的耦合，在 ListView 的有些场景下不符合直观的预期。
+-   一个 Adapter 和 Component 几乎都是一致的，除了以下几点
+    -   Component 生成一个 Widget，Adapter 生成一个 ListAdapter，ListAdapter 有能力生成一组 Widget。
+        -   不具体生成 Widget，而是一个 ListAdapter，能非常大的提升页面帧率和流畅度。
+    -   Effect-Lifecycle-Promote
+        -   Component 的 Effect 是跟着 Widget 的生命周期走的，Adapter 的 Effect 是跟着上一级的 Widget 的生命周期走。
+        -   Effect? 提升，极大的解除了业务逻辑和视图生命的耦合，即使它的展示还未出现，的其他模块依然能通过 dispatch-api，调用它的能力。
+    -   appear|disappear 的通知
+        -   由于 Effect 生命周期的提升，我们就能更加精细的区分 init|dispose 和 appear|disappear。而这在 Component 的模型中是无法区分的。
+    -   Reducer?is?long-lived,?Effect?is?medium-lived,?View?is?short-lived.
+
+#####Auto-Dispose
+它是一个非常简易管理生命周期对象的方式。一个 auto-dispose 对象可以自我主动释放，或者在它 follow 的 托管对象释放的时候，释放。
+-   在 Effect 中使用的 Context，以及 HigherEffect 中的 EffectPart，都是 auto-dispose 对象。所以我们可以方便的将自定义的需要做生命周期管理的对象托管给它们。
+```
+class ItemWidgetBindingObserver extends WidgetsBindingObserver
+    with AutoDispose {
+  ItemWidgetBindingObserver() : super() {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (AppConfig.flutterBinding.framesEnabled &&
+        state == AppLifecycleState.resumed) {
+      AppConfig.flutterBinding.performReassemble();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
+}
+
+void _init(Action action, Context<ItemPageContainerState> ctx) {
+    final ItemWidgetBindingObserver observer = ItemWidgetBindingObserver();
+    observer.follow(ctx);
+}
+```
+
+#####Connector<T, P>
+它表达了如何从一个大数据中读取小数据，同时对小数据的修改如何同步给大数据，这样的数据连接关系。
+-   它是将一个集中式的 Reducer，可以由多层次多模块的小 Reducer 自动拼装的关键。
+    -   它大大降低了我们使用 Redux 的复杂度。我们不再关系组装过程，我们关系核心的什么动作促使数据怎么变化。
+-   它使用在配置 Dependencies 中，在配置中我们就固化了大组件和小组件之间的连接关系(数据管道)，所以在我们使用小组件的时候是不需要传入任何动态参数的。
+```
+class DetialState {
+    Profile profile;
+    String message;
+}
+
+Connector<DetialState, String> messageConnector() {
+    return Connector<DetialState, String>(
+        get: (DetialState state) => state.message,
+        set: (DetialState state, String message) => state.message = message,
+    );
+}
+
+```
+
+#####Component
+组件是对视图展现和逻辑功能的封装。
+面向当下，从 Redux 的视角看，我们对组件分为状态修改的功能(Reducer)和其他。
+面向未来，从 UI-Automation 的视角看，我们对组件分为展现表达和其他。
+结合上面两个视角，于是我们得到了，View、 Effect、Reducer 三部分，称之为组件的三要素，分别负责了组件的展示、非修改数据的行为、修改数据的操作。
+
+我们以显式配置的方式来完成大组件所依赖的小组件、适配器的注册，这份依赖配置称之为 Dependencies。
+
+所以有了这个公式
+Component = View + Effect(可选) + Reducer(可选) + Dependencies(可选)
+分治：从组件的角度
+// 1
+集中：从 Store 的角度
+// 2
+
+
+#####CustomAdapter
+-   对大 Cell 的自定义实现
+-   要素和 Component 类似，不一样的地方是 Adapter 的视图部分返回的是一个 ListAdapter
+```
+class CommentAdapter extends Adapter<CommentState> {
+    CommentAdapter()
+        : super(
+            adapter: buildCommentAdapter,
+            effect: buildCommentEffect(),
+            reducer: buildCommentReducer(),
+        );
+}
+
+ListAdapter buildCommentAdapter(CommentState state, Dispatch dispatch, ViewService service) {
+    final List<IndexedWidgetBuilder> builders = Collections.compact(<IndexedWidgetBuilder>[]
+    ..add((BuildContext buildContext, int index) =>
+        _buildDetailCommentHeader(state, dispatch, service))
+    ..addAll(_buildCommentViewList(state, dispatch, service))
+    ..add(isEmpty(state.commentListRes?.items)
+        ? (BuildContext buildContext, int index) =>
+            _buildDetailCommentEmpty(state.itemInfo, dispatch)
+        : null)
+    ..add(state.commentListRes?.getHasMore() == true
+        ? (BuildContext buildContext, int index) => _buildLoadMore(dispatch)
+        : null));
+    return ListAdapter(
+    (BuildContext buildContext, int index) =>
+        builders[index](buildContext, index),
+    builders.length,
+    );
+}
+```
+
+#####Dependencies
+   Dependencies 是一个表达组件之间依赖关系的结构。它接收两个字段
+    -   slots
+        -   <String, [Dependent](dependent-cn.md)>{}
+    -   [adapter](adapter-cn.md)
+-   它主要包含三方面的信息
+    -   slots，组件依赖的插槽。
+    -   adapter，组件依赖的具体适配器（用来构建高性能的 ListView）。
+    -   [Dependent](dependent-cn.md) 是 subComponent | subAdapter + [connector](connector-cn.md) 的组合。
+    -   一个 组件的 [Reducer](reducer-cn.md) 由 Component 自身配置的 Reducer 和它的 Dependencies 下的所有子 Reducers 自动复合而成。
+```
+///register in component
+class ItemComponent extends ItemComponent<ItemState> {
+  ItemComponent()
+      : super(
+          view: buildItemView,
+          reducer: buildItemReducer(),
+          dependencies: Dependencies<ItemState>(
+            slots: <String, Dependent<ItemState>>{
+              'appBar': AppBarComponent().asDependent(AppBarConnector()),
+              'body': ItemBodyComponent().asDependent(ItemBodyConnector()),
+              'ad_ball': ADBallComponent().asDependent(ADBallConnector()),
+              'bottomBar': BottomBarComponent().asDependent(BottomBarConnector()),
+            },
+          ),
+        );
+}
+
+///call in view
+Widget buildItemView(ItemState state, Dispatch dispatch, ViewService service) {
+  return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          service.buildComponent('body'),
+          service.buildComponent('ad_ball'),
+          Positioned(
+            child: service.buildComponent('bottomBar'),
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0,
+            height: 100.0,
+          ),
+        ],
+      ),
+      appBar: AppbarPreferSize(child: service.buildComponent('appBar')));
+}
+```
+
+#####Dependent
+Dependent = connector<T, P> + subComponent | subAdapter 的组合，它表达了小组件|小适配器是如何连接到 Component 的。
+
+
+#####Directory
+推荐的目录结构会是这样
+```
+sample_page
+    -- action.dart
+    -- page.dart
+    -- view.dart
+    -- effect.dart
+    -- reducer.dart
+    -- state.dart
+    components
+        sample_component
+        -- action.dart
+        -- component.dart
+        -- view.dart
+        -- effect.dart
+        -- reducer.dart
+        -- state.dart
+```
+上层负责组装，下层负责实现。
+
+#####DynamicFlowAdapter
+模版是一个 Map，接受一个数组类型的数据驱动
+```
+class RecommendAdapter extends DynamicFlowAdapter<RecommendState> {
+    RecommendAdapter()
+        : super(
+            pool: <String, Component<Object>>{
+                'card_0': RecommendTitleComponent(),
+                'card_1': RecommendRowComponent(),
+            },
+            connector: RecommendCardListConnector(),
+        );
+}
+```
+
+
+#####Effect
+ Effect 是一个处理所有副作用的函数。它接收下面的参数
+    -   Action action
+    -   Context context
+        -   BuildContext context
+        -   T state
+        -   dispatch
+        -   isDisposed
+-   它主要包含四方面的信息
+    -   接收来自 View 的“意图”，包括对应的生命周期的回调，然后做出具体的执行。
+    -   它的处理可能是一个异步函数，数据可能在过程中被修改，所以我们应该通过 context.state 获取最新数据。
+    -   如果它要修改数据，应该发一个 Action 到 Reducer 里去处理。它对数据是只读的，不能直接去修改数据。
+    -   如果它的返回值是一个非空值，则代表自己优先处理，不再做下一步的动作；否者广播给其他组件的 Effect 部分，同时发送给 Reducer。
+```
+/// one style of writing
+FutureOr<Object> sideEffect(Action action, Context<String> ctx) async {
+  if (action.type == Lifecycle.initState) {
+    //do something on initState
+    return true;
+  } else if (action.type == 'onShare') {
+    //do something on onShare
+    await Future<void>.delayed(Duration(milliseconds: 1000));
+    ctx.dispatch(const Action('shared'));
+    return true;
+  }
+  return null;
+}
+
+class MessageComponent extends Component<String> {
+    MessageComponent(): super(
+            view: buildMessageView,
+            effect: sideEffect,
+        );
+}
+
+/// another style of writing
+Effect<String> buildEffect() {
+  return combineEffects(<Object, Effect<String>>{
+    Lifecycle.initState: _initState,
+    'onShare': _onShare,
+  });
+}
+
+void _initState(Action action, Context<String> ctx) {
+  //do something on initState
+}
+
+void _onShare(Action action, Context<String> ctx) async {
+  //do something on onShare
+  await Future<void>.delayed(Duration(milliseconds: 1000));
+  ctx.dispatch(const Action('shared'));
+}
+
+class MessageComponent extends Component<String> {
+    MessageComponent(): super(
+            view: buildMessageView,
+            effect: buildEffect(),
+        );
+}
+```
+
+#####Filter
+Filter 是用来优化 Reducer 的性能的。因为 Reducer 是层层组装的，所以处理每一个 Action，理论上会遍历一遍所有的小 Reducer，在一些非常复杂的场景下，这样的一次深度遍历的耗时可能会到毫秒级别（一般情况下都应该小于 1 毫秒）。那么我们需要对 Reducer 
+```
+bool filter(Action action) {
+    return action.type == 'some action';
+}
+```
+
+#####HigherEffect
+由于 Effect 有可能有自己一些临时状态（尽管不建议这么做，但还是提供了支持），为了支持这个特性，我们将 Effect 提升为高阶函数，将它的状态放在闭包里。
+-   框架支持 Effect|HigherEffect 的配置，但是不能对一个组件或适配器同时都配置，那样会带来困扰，一般情况下，都配置往往是个显式的疏忽大意。
+-   HigherEffect = (Context ctx) => (Action action) => FutureOr
+```
+
+```
+
+#####Lifecycle
+默认的所有生命周期，本质上都来自于 flutter State<StatefulWidget> 中的生命周期。
+    -   initState
+    -   didChangeDependencies
+    -   build
+    -   didUpdateWidget
+    -   deactivate
+    -   dispose
+-   在组件内，Reducer 的生命周期是和页面一致的，Effect 和 View 的生命周期是和组件的 Widget 一致的。
+-   在适配器中，Reducer 的生命周期是和页面一致的，Effect 的生命周期是和 ListView 的生命周期一致，View 的生命周期是短暂的(划入不可见区域即销毁)。同时增加了 appear 和 disappear 的生命周期， 代表这个 adapter 管理的视图数组，刚进入显示区和完全离开显示区的回调。
+
+
+#####Communication Mechanism
+1.页面内通信
+- 组件|适配器内通信
+- 组件|适配器间内通信
+发出的 Action，自己优先处理，否则广播给其他组件和 Redux 处理。最终我们通过一个简单而直观的 dispatch 完成了组件内，组件间（父到子，子到父，兄弟间等）的通信。
+2.页面间通信
+- Context.appBroadcast
+- 每一个页面的 PageStore 都会收到消息，各自独立负责处理。
+3.数据刷新
+- 局部数据修改，自动层层触发上层数据的浅拷贝，对业务代码是透明的。
+- 层层的数据的拷贝
+-  一方面是对 Redux 数据修改的严格的 follow。
+- 另一方面也是对数据驱动展示的严格的 follow。
+- 数据的任何一个局部的变动，必须要让能看到这个局部的所有视图感知到。如果不拷贝，对应的视图通过新旧两份数据的比较（同一个引用），会错以为自己没有发生变化。
+4.视图刷新
+扁平化通知到所有组件，组件通过 shouldUpdate 确定自己是否需要刷新
+
+
+#####Middleware
+关于 Middleware 的定义、签名和 ReduxJS 社区是一致的。
+
+#####OnError
+集中处理由 Effect 产生的业务异常，无论是同步函数还是异步函数。有了统一的异常处理机制，我们就能站在一个更高的抽象角度，对业务代码做出合理的简化。
+```
+bool onMessageError(Exception e, Context<String> ctx) {
+    if(e is BizException) {
+        ///do some toast
+        return true;
+    }
+    return false;
+}
+
+class MessageComponent extends Component<String> {
+    MessageComponent(): super(
+            view: buildMessageView,
+            effect: buildEffect(),
+            reducer: buildMessageReducer(),
+            onError: onMessageError,
+        );
+}
+```
+
+#####OOP
+虽然框架推荐使用的函数式的编程方式，也提供面向对象式的编程方式的支持。
+ViewPart
+-   需要复写 build 函数。
+-   需要的 state，dispatch，viewService 的参数，已经成为了对象的字段可以直接使用。
+-   它是@immutable 的，所以不应该也不需要在内部定义可变字段。
+EffectPart
+-   需要复写 createMap 函数。
+-   需要的 Context 已经被打平，作为了对象的字段可以直接使用。
+-   可以定义字段，它的可见性也仅限于自身。
+-   它必须配合 higherEffect 一起使用。
+```
+class MessageView extends ViewPart<MessageState> {
+    @override
+    Widget build() {
+        return Column(children: [
+            viewService.buildComponent('profile'),
+            InkWell(
+                child: Text('$message'),
+                onTap: () => dispatch(const Action('onShare')),
+            ),
+        ]);
+    }
+}
+
+class MessageEffect extends EffectPart<MessageState> {
+    ///we could put some Non-UI fields here.
+
+    @override
+    Map<Object, OnAction> createMap() {
+        return <Object, OnAction>{
+            Lifecycle.initState: _initState,
+            'onShare': _onShare,
+        };
+    }
+
+    void _initState(Action action) {
+        //do something on initState
+    }
+
+    void _onShare(Action action) async {
+        //do something on onShare
+        await Future<void>.delayed(Duration(milliseconds: 1000));
+        dispatch(const Action('shared'));
+    }
+}
+
+class MessageComponent extends Component<MessageState> {
+    MessageComponent(): super(
+        view: MessageView().asView(),
+        higherEffect: higherEffect(() => MessageEffect()),
+    );
+}
+```
+
+#####Page
+一个页面内都有且仅有一个 Store
+-   Page 继承于 Component，所以它能配置所有 Component 的要素
+-   Page 能配置 Middleware，用于对 Redux 做 AOP 管理
+-   Page 必须配置一个初始化页面数据的初始化函数 ?initState
+```
+/// Hello World
+class HelloWordPage extends Page<String, String> {
+    HelloWordPage():
+        super(
+            initState: (String msg) => msg,
+            view:(String msg, _, __) => Text('Hello ${msg}'),
+        );
+}
+
+HelloWordPage().buildPage('world')
+```
+
+#####Reducer
+educer 是一个上下文无关的 pure function。它接收下面的参数
+-   T state
+    -   Action action
+它主要包含三方面的信息
+-   接收一个“意图”， 做出数据修改。
+-   如果要修改数据，需要创建一份新的拷贝，修改在拷贝上。
+-   如果数据修改了，它会自动触发 State 的层层数据的拷贝，再以扁平化方式通知组件刷新。
+```
+// another style of writing
+Reducer<String> buildMessageReducer() {
+  return asReducer(<Object, Reducer<String>>{
+    'shared': _shared,
+  });
+}
+
+String _shared(String msg, Action action) {
+  return '$msg [shared]';
+}
+
+class MessageComponent extends Component<String> {
+    MessageComponent(): super(
+        view: buildMessageView,
+        effect: buildEffect(),
+        reducer: buildMessageReducer(),
+    );
+}
+```
+
+#####Redux
+Action、Reducer、Middleware这三个概念和 ReduxJS 是完全一致的。
+
+#####ShouldUpdate
+当数据发生变更，Store 扁平化地通知所有组件
+框架默认使用 identical 比较新旧两份数据来决定是否需要刷新。
+如果我们对组件的刷新会有非常精确化的诉求， 那么我们可以自己定义一个 ShouldUpdate。
+```
+bool shouldUpdate(DetailState old, DetailState now) {
+    return old.message != now.message;
+}
+```
+
+#####StaticFlowAdapter
+模版是一个 Array，接受 Object|Map 的数据驱动。
+模版接收一个 Dependent 的数组，每一个 Dependent 可以是 Component 或者 Adapter + Connector<T,P> 的组合。
+抽象地看，它非常的像是一个 flatMap + compact 的操作。
+
+```
+class ItemBodyComponent extends Component<ItemBodyState> {
+    ItemBodyComponent()
+        : super(
+            view: buildItemBody,
+            dependencies: Dependencies<ItemBodyState>(
+            adapter: StaticFlowAdapter<ItemBodyState>(
+                slots: <Dependent<ItemBodyState>>[
+                    VideoAdapter().asDependent(videoConnector()),
+                    UserInfoComponent().asDependent(userInfoConnector()),
+                    DescComponent().asDependent(descConnector()),
+                    ItemImageComponent().asDependent(itemImageConnector()),
+                    OriginDescComponent().asDependent(originDescConnector()),
+                    VisitComponent().asDependent(visitConnector()),
+                    SameMoreComponent().asDependent(sameMoreConnector()),
+                    PondComponent().asDependent(pondConnector()),
+                    CommentAdapter().asDependent(commentConnector()),
+                    RecommendAdapter().asDependent(recommendConnector()),
+                    PaddingComponent().asDependent(paddingConnector()),
+             ]),
+         ),
+    );
+}
+```
+
+
+#####View
+-   View 是一个输出 Widget 的上下文无关的函数。它接收下面的参数
+    -   T state
+    -   Dispatch
+    -   ViewService
+-   它主要包含三方面的信息
+    -   视图完全由数据驱动。
+    -   视图产生的事件／回调，通过 Dispatch 发出“意图”，但绝不做具体的实现。
+    -   使用依赖的组件／适配器，通过在组件上显示配置，再通过 ViewService 标准化调用。
+        -   其中 ViewService 提供了三个能力
+            -   BuildContext context，获取 flutter Build-Context 的能力
+            -   Widget buildView(String name), 直接创建子组件的能力
+                -   这里传入的 name 即在 Dependencies 上配置的名称。
+                -   创建子组件不需要传入任何其他的参数，因为自组件需要的参数，已经通过 Dependencies 配置中，将它们的数据关系，通过 connector 确立。
+            -   ListAdapter buildAdapter()， 直接创建适配器的能力
+
+```
+Widget buildMessageView(String message, Dispatch dispatch, ViewService viewService) {
+  return Column(children: [
+    viewService.buildComponent('profile'),
+    InkWell(
+      child: Text('$message'),
+      onTap: () => dispatch(const Action('onShare')),
+    ),
+  ]);
+}
+
+class MessageComponent extends Component<String> {
+    MessageComponent(): super(
+            view: buildMessageView,
+        );
+}
+
+```
+
+#####WidgetWrapper
+它用来解决 flutter 的 ui 体系下，一些需要实现特色接口的 Widget，比如 KeepAlive，因为通过 Component 产生的 Widget 会被一个框架内部的 Stateful 的 Widget 所包裹。
+
+```
+import 'package:flutter/material.dart';
+
+Widget repaintBoundaryWrapper(Widget widget) {
+  return RepaintBoundary(child: widget);
+}
+
+```
+
+###Fish Redux的优点
+Redux 是一个专注于状态管理的框架；Fish Redux 是基于 Redux 做状态管理的应用框架;应用框架不仅仅要解决状态管理的问题，还要解决分治，通信，数据驱动，解耦等等问题。
+
+Redux 通过使用者手动组织代码的形式来完成从小的 Reducer 到主 Reducer 的合并过程；Fish Redux 通过显式的表达组件之间的依赖关系，由框架自动完成从细力度的 Reducer 到主 Reducer 的合并过程；
+
+
+它通过简单的 3 个函数组合而成
+
+Fish Redux 提供了一个 Adapter 的抽象组件模型，在基础的组件模型以外，Fish Redux 提供了一个 Adapter 抽象模型，用来解决在 ListView 上大 Cell 的性能问题。通过上层抽象，我们得到了逻辑上的 ScrollView，性能上的 ListView。
+
+###参考文献
+1.阿里巴巴 地址：https://github.com/alibaba/fish-redux
+2.米米狗 地址https://github.com/OpenFlutter/Flutter-Notebook/tree/master/mecury_project/example/flutter_provide

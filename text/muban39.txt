@@ -1,0 +1,274 @@
+
+
+###AndroidStudio
+常用控件：
+TextView
+文本框
+EditText
+可输入文本框
+AutoCompleteTextView
+自动匹配文本内容
+MutiAutoCompleteTextView
+支持多次自动匹配文本内容
+ImageView
+图片
+Button
+按钮
+ImageButton
+图片按钮
+ToggleButton
+多状态按钮
+CheckBox
+复选框
+RadioButton
+单选按钮
+
+
+控件1：TextView
+文本框里有很多属性
+android:id 
+控件ID，在其他地方可以通过id来锁定这个空间，书写格式是：@+id/控件名
+android:layout_width
+设置宽度属性，有2个常用选项，warp_content是包裹控件的宽度，match_parent是铺满（类似JS的100%），也可以自定义宽度，单位是dp，比如写成android:layout_width = "640dp"
+android:android_height
+设置高度属性，属性和layout_width相似。
+
+android:text
+文本内容，与JS的innerTEXT，一般直接内容写死，可以通过将文本信息都放在values/strings里，然后通过@string/名引用。
+```
+// string.xml
+<resources>
+    <string name="demo_text">Hello Android</string>
+</resources>
+
+// TextView
+android:text = "@string/demo_text"
+```
+android:textSize
+文本大小，单位是sp
+
+android:textColor
+文本颜色，
+
+android:background
+控件背景，可以是图片，也可以是纯颜色
+另外，常用的这些控件都是可以在Design界面拖拽的，不过新手还是先从代码自己敲开始，就像当初学JavaScript关闭代码提示，手敲HTML4、HTML5一样。
+
+控件2：EditText
+可输入文本，除了id、宽高基本属性外，还有
+android:hint
+输入提示文本内容，类似JS的placeholder，当用户在输入文本框的时候提示文本会消失。
+
+android:inputType
+输入文本的类型，比如data，number，保证用户输入的格式正确。
+android:layout_alignBaseline
+
+android:layout_alignBottom
+
+android:layout_centerHorizontal
+```
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="请输入密码"
+        android:textSize="32sp"
+        android:id="@+id/editText"
+        android:layout_alignBaseline="@+id/textView"
+        android:layout_alignBottom="@+id/textView"
+        android:layout_centerHorizontal="true" />
+```
+
+控件3：AutoCompleteTextView
+自动匹配文本内容
+
+比如我们在搜索引擎查找内容的时候，控件会根据已输入的信息去匹配内容（这一点搜索功能在JS里就需要不断刷新ajax请求），这就是AutoCompleteTextView的功能，与JS不同，它有一个属性android:completionThreshold，指定输入多少字符时提示内容。
+```
+    <AutoCompleteTextView
+        android:hint="请输入要搜索的信息"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/autoCompleteTextView"
+        android:completionThreshold="2"/>
+```
+提示的数据源还需要手动去设置，
+实现步骤：
+- 1.在类中定义一个AutoCompleteTextView对象，然后再onCreate方法里用findViewByld的方法找到之前定义号的控件AutoCompleteTectView，格式是R.id.控件id名，这也是为什么在xml布局文件里给控件一个id的原因，又由于findViewByld返回的是View类对象，要在方法前加上强制转换AutoCompleteTextView。
+
+- 2.在类内定义一个适配器ArrayAdapter，适配器是链接数据源和视图界面的桥梁，然后初始化适配器加载数据源，这里自定义的data数组就是被加载的数据源，其他两个参数this和android.R.layout.simple_list_item_1照写即可。
+
+- 3.用控件自身方法setAdapter去加载适配器ArrayAdapter。即可完成。
+```
+public class MainActivity extends AppCompatActivity {
+
+    private ArrayAdapter<String> arrayAdapter;
+    private AutoCompleteTextView autoCompleteTextView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.auto);
+        String data[] = {"hello", "how", "happy", "haha"};
+        autoCompleteTextView = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
+        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, data);
+        autoCompleteTextView.setAdapter(arrayAdapter);
+ }
+```
+控件4. MuiAutoCompleteTextView
+支持多次自动匹配文本内容
+当我们输入多组信息，比如发送邮件时的抄送多人，每次输入都是有提示信息，这就是MuiAutoCompleteTextView的功能。用法和AutoCompleteTextView类似。
+```
+ //.xml布局文件里设置一个MultiAutoCompleteTextView控件的代码
+ <MultiAutoCompleteTextView
+        android:hint="请输入要发送的对象"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/multiAutoCompleteTextView" />
+        
+//在MainActivity里实现的代码
+public class MainActivity extends AppCompatActivity {
+
+    private ArrayAdapter<String> arrayAdapter;
+    private MultiAutoCompleteTextView  multiAutoCompleteTextView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.auto);
+        String data[] = {"343028402@qq.com", "292500222@qq.com", "489103913@qq.com", "401804928@qq.com"};
+        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, data);
+        multiAutoCompleteTextView = (MultiAutoCompleteTextView) findViewById(R.id.multiAutoCompleteTextView);
+        multiAutoCompleteTextView.setAdapter(arrayAdapter);
+        multiAutoCompleteTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+}
+```
+
+控件5.ImageView
+显示图片
+和TextView相似，不过image自身还有src属性，图片路径。
+
+控件6.Button
+顾名思义。监听按钮时间，需要使用OnClickListener，首先在Mainactivity声明一个button对象并绑定数据，然后使用setOnClickListener赋予按钮监听事件，这里还需要一个OnClickListener对象的参数。
+```
+public class MainActivity extends AppCompatActivity{
+    private Button testButton;
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        testButton = (Button) findViewById(R.id.button);
+        // 采用匿名内部类
+        testButton.setOnClickListener(new View.OnClickListener(){
+          @Override
+           public void onClick(View v) {
+             Log.i("1","testButtonListener!")  
+           }
+        })
+    }
+}
+```
+在括号内部 new 一个事件对象，然后重写方法onClick，点击button，执行打印log。
+```
+// 方法2：
+
+private Button testButton
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    testButton = (Button) findViewById(R.id.button);
+    // 独立类
+    View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+             Log.i("2","testButtonListener")
+        };
+        testButton.setOnClickListener(onClickListener);
+    }
+}
+```
+和匿名类相对的，在外部初始化一个有名字的监听器对象。
+```
+// 方式3 监听接口
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+    private Button testButton;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        testButton = (Button) findViewById(R.id.button);
+        // 接口方式
+        testButton.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        Log.i("3","testButtonListener");
+    }
+}
+```
+继承监听接口要在MainActivity类内重写方法onClick，此时用this就可以实现监听器的作用。
+
+控件7：ImageButton
+图片按钮，ImageButton是显示图片的按钮，与Button正好相反，一个显示文本，一个显示图片。不过需要注意ImageButton的src如果不确实的话则高度会不确定。本质和Button区别不大，事件监听也是使用OnClickListener。
+JS里的图片链接和按钮有link、visited、focus、hover、active几种状态，Android里的button有点击前和点击后的状态，可以通过用drawable实现自定义图像或背景。
+```
+// 步骤 1
+// 在drawable文件夹下新建xml文件，shape标签。
+
+// 步骤 2
+// 在drawable文件夹下新建xml文件，selector标签。
+<selector xmlns:anroid = "http://schemas.android.com/apk/res/android">
+    <item>
+          android:drawable="@drawable/orange_bg" androidLstate_pressed="false"
+</item>
+    <item
+           android:drawable="@drawable/red_bg" android:state_pressed="true"
+></item>
+</selector>
+
+// 步骤 3
+设置Button的background属性。
+<Button
+    android:background="@drawable/orange_selector"
+/>
+````
+总的来说，android自定义控件样式在drawable文件夹下的XML文件中，然后通过设置控件的background属性达到效果。
+
+控件8：ToggleButton
+多状态控件，也是开关控件，它有2种状态，选中和未选中。比如使用手机自带的手电筒功能。有开、关两种状态，同时对应不同颜色按钮状态。
+ToggleButton有几个常用属性，有andorid:checked（true为当前选中，false表示未选择）、android:textOn（选中时按钮上的文本内容）、android:textOff（未选中时按钮上的文本内容）。
+这里还是会用到事件监听，OnCheckedChangeListener，当ToggleButton处于选中状态，就会触发onCheckedChanged事件并返回ischecked=true；利用ischecked这个boolean值作为开关，从而改变ToggleButton的选中状态并实时改变ToggleButton显示的文本内容和背景信息。
+```
+private ImageView imageView;
+
+@Override
+protected void onCreate（Bundle savedInstanceState） ｛
+    super.onCreate(savedInstanceState);
+    setConentView(R,layout.main);
+    
+    toggleButton = (ToggleButton) findViewById(R.id.toggleButton);
+    imageView = (ImageView) findViewById(R,id.imageView);
+    toggleButton.setOnCheckChangeListener(this);
+｝
+
+@Override
+public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    toggleButton.setChecked(isChecked);
+    imageView.setBackgroundResource(isChecked?R.drawable.on:R.drawable.off);
+}
+```
+
+控件9：CheckBox
+复选框有两种状态：选中、未选择，即android:checked = true选中，android:checked = false未选中，默认状态也是未选中。android.text是复选框后的文本信息。复选框的事件监听使用OnCheckedChangeListener。
+```
+// xml
+
+
+// 事件监听
+
+
+```

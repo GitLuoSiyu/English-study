@@ -1,0 +1,147 @@
+#####异步流中间件
+Redux核心理念很清晰明了，单一数据源，不可变数据源（单一）state以及纯函数修改state。它的主要流程就是：旧Store -> 用户触发action(from view) -> reducer -> 新State -> view。Redux有一个全局仓库store来保存整个应用程序的state，并且修改store的唯一方式就是通过用户触发action 然后dispatch出去(action)， dispatch 函数内部会调用 reducer 并且返回创建一个全新的state（并且销毁旧的state）来更新我们的store。当store发生更新，view就会触发render函数进行更新。
+
+不过Redux本身只能处理同步事件，Redux 作者（@dan_abramov）将异步流的处理通过提供中间件的方式让开发者自行选择，常用的异步流中间件有redux-thunk，还有redux-saga。
+###Redux-thunk
+上篇文章介绍过中间件 redux-thunk 中间件，它的机制主要通过判断 action 是否为一个函数（内部返回一个promise）。如果是则会立即调用，action 在函数内部可以进行异步流处理（本质还是同步），然后继续通过dispatch(action)进行同步数据的处理；如果不是函数，则通过next(action)调用下一个中间件或者是进入reducer。redux-thunk的核心思想是扩展action，使得action从一个对象变成一个函数。
+如果想要代码更加同步思维，也可以搭配async/await方法进行回调处理。redux-thunk处理异步便捷，配合asyvc/await更可以使得action同步化。不过redux-thunk中action会因此变的复杂，后期可维护性下降；同时若多人协作，当自己的action调用了别人的action，别人action发生改动，则需要自己主动修改。
+```
+// 简化后的核心部分
+function createThunkMiddleware(extraArgument) {
+  return ({ dispatch, getState }) => next => action => {
+    if (typeof action === 'function') {
+      return action(dispatch, getState, extraArgument);
+    }
+    return next(action);
+  };
+}
+const thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+
+export default thunk;
+```
+
+###Redux-saga
+Redux-saga是一个用于管理redux应用异步操作的中间件之一，redux-saga通过创建sagas将所有异步操作逻辑收集在一个地方集中处理，可以用来代替redux-thunk中间件。Redux-saga相对于其他异步流中间件，将异步处理单独放在一起，不需要修改action，action还是同步。同时redux-saga的异步控制流程也很强大，比如对于竞态的处理就通过takeLatest()来处理。
+####本质
+redux-saga 是一个用于管理应用程序 Side Effect（副作用，例如异步获取数据，访问浏览器缓存等）的 library，它的目标是让副作用管理更容易，执行更高效，测试更简单，在处理故障时更容易。可以想像为，一个 saga 就像是应用程序中一个单独的线程，它独自负责处理副作用。 redux-saga 是一个 redux 中间件，意味着这个线程可以通过正常的 redux action 从主应用程序启动，暂停和取消，它能访问完整的 redux state，也可以 dispatch redux action。
+// 图
+再重新简述一下整个流程：
+ui组件触发action创建函数 
+--> action创建函数返回一个action 
+--> action被传入redux中间件(saga、thunk等中间件处理)，产生新的action，传入reducer
+--> reducer把数据传给ui组件显示 
+--> mapStateToProps 
+--> ui组件显示
+
+####Redux-saga API
+redux-saga基本的api包括Effect creators，Saga Helpers等。Effect creators包括fork，call，take，put，cancel等。我们关注的异步处理是通过call来完成，例如const response=yield call(fetch,url)就可以发起一次fetch请求，由于redux-saga进行了封装，因此response会收到fetch得到的promise的resolve(data)中的data对象，实现了同步的方式也来处理异步流。fork和call的不同之处在于，fork的调用是非阻塞的，我们通过可以用yield [fork(saga1),fork(saga2)]将不同的子saga挂载。take用来监听aciton，put相当于dispatch一个action，cancel用来取消fork。其他redux-saga还有很多的Effect creators可以参见官网。
+####项目中Redux-saga
+######安装
+```
+$ npm install --save redux-saga
+```
+或
+```
+$ yarn add redux-saga
+```
+举个例子，假设我们有一个 UI 界面，在单击按钮时从远程服务器获取一些用户数据（为简单起见，这里借助官网的例子只列出 action 触发代码）。
+```
+class UserComponent extends React.Component {
+  ...
+  onSomeButtonClicked() {
+    const { userId, dispatch } = this.props
+    dispatch({type: 'USER_FETCH_REQUESTED', payload: {userId}})
+  }
+  ...
+}
+```
+这个组件 dispatch 一个 plain Object 的 action 到 Store。我们将创建一个 Saga 来监听所有的 USER_FETCH_REQUESTED action，并触发一个 API 调用获取用户数据。
+```
+// sagas.js
+import { call, put, takeEvery, takeLatest } from 'redux-saga/effects'
+import Api from '...'
+
+// worker Saga : 将在 USER_FETCH_REQUESTED action 被 dispatch 时调用
+function* fetchUser(action) {
+   try {
+      const user = yield call(Api.fetchUser, action.payload.userId);
+      yield put({type: "USER_FETCH_SUCCEEDED", user: user});
+   } catch (e) {
+      yield put({type: "USER_FETCH_FAILED", message: e.message});
+   }
+}
+
+/*
+  在每个 `USER_FETCH_REQUESTED` action 被 dispatch 时调用 fetchUser
+  允许并发（译注：即同时处理多个相同的 action）
+*/
+function* mySaga() {
+  yield takeEvery("USER_FETCH_REQUESTED", fetchUser);
+}
+
+/*
+  也可以使用 takeLatest
+
+  不允许并发，dispatch 一个 `USER_FETCH_REQUESTED` action 时，
+  如果在这之前已经有一个 `USER_FETCH_REQUESTED` action 在处理中，
+  那么处理中的 action 会被取消，只会执行当前的
+*/
+function* mySaga() {
+  yield takeLatest("USER_FETCH_REQUESTED", fetchUser);
+}
+
+export default mySaga;
+```
+为了能跑起 Saga，我们需要使用 redux-saga 中间件将 Saga 与 Redux Store 建立连接。
+```
+// main.js
+import { createStore, applyMiddleware } from 'redux'
+import createSagaMiddleware from 'redux-saga'
+
+import reducer from './reducers'
+import mySaga from './sagas'
+
+// create the saga middleware
+const sagaMiddleware = createSagaMiddleware()
+// mount it on the Store
+const store = createStore(
+  reducer,
+  applyMiddleware(sagaMiddleware)
+)
+
+// then run the saga
+sagaMiddleware.run(mySaga)
+
+// render the application
+```
+如果是在实际项目中使用redux-saga，首先将不同组件的异步处理分布在各个子saga，然后通过一个合并saga的文件将各个saga进行fork。同时，在各个子saga中对异步处理进行抽象封装：
+```
+// 发起文件
+let request = fetchData(url, successAction, failAction);
+
+export function* watcher() {
+  while (true) {
+    const action = yield take(takeAction);
+	yield call(request, data);
+  }
+
+// 简化fetchData文件
+export function fetchData(url, successAction, failAction) {
+   return function*(data) {
+	 try {
+	    const response = yield call((arguments.length === 1) ? fetchPost : fetchGet, url, data);
+         //处理正常情况下，在此可以put(action);
+		} catch (e) {
+          //处理异常
+		}
+	 }
+}
+```
+通过简单的封装，从这里看到异步执行过程都在fetchData()内部执行，而fetchData()是暴露的，对于大部分组件是公用的，因此只要在子saga文件只要配置具体的url以及回调的action。通过上述操作，我们将异步操作简化到配置参数级别。只要处理好fetchData()的兼容性，我们可以通过redux-saga很方便地进行异步编码，大大地提高开发效率。
+###总结
+①. sagas是通过generator函数来创建的；
+②. sagas可以被看作是在后台运行的进程；
+③. 在redux-saga的世界里，所有的任务都通过用yield Effects来完成(effect可以看作是redux-saga的任务单元)；
+④. redux-saga为各项任务提供了各种Effects创建器；
+⑤. 因为使用了generator函数，redux-saga让你可以用 同步的方式来写异步代码；

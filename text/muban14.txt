@@ -1,0 +1,181 @@
+###前言
+前一篇介绍了XSS攻击的常见分类和预防，并列举了美团的业务场景，想必大家记忆犹新，除了常见的暴力破解、XSS攻击，还有就是CSRF攻击，并且CSRF是最令前端同学头疼的，不过随着网络安全的逐渐重视以及浏览器的升级，这种攻击逐渐少见。下面将带大家一起复习一下CSRF。
+
+###CSRF背景
+CSRF，Cross-site request forgery，跨站请求伪造，也被称为 one-click attack 或者 session riding，通常缩写为 CSRF 或者 XSRF，是一种挟制用户在当前已登录的 Web 应用（比如邮箱）上诱导受害者进入第三方网站（“垃圾邮件”），在第三方恶意网站中，向被攻击网站发送跨站请求，最终导致执行非本意的操作的攻击方法。相比，XSS 利用的是用户对指定网站的信任，CSRF 利用的是网站对用户网页浏览器的信任。简单点说，CSRF 就是利用用户的登录态发起恶意请求。
+
+假设网站中有一个通过 Get 请求提交用户评论的接口，那么攻击者就可以在钓鱼网站中加入一个图片，图片的地址就是评论接口
+```
+  <img src="http://www.domain.com/xxx?comment='attack'"/>
+```
+如果接口是 Post 提交的，就相对麻烦点，需要用表单来提交接口
+```
+<form action="http://www.domain.com/xxx" id="CSRF" method="post">
+  <input name="comment" value="attack" type="hidden">
+</form>
+```
+
+整个CSRF攻击过程可以简述为：
+①. 受害者登录web应用（比如email.com），并保留了登录凭证（Cookie）；
+②. 攻击者发送诱导邮件或内容，诱惑受害者访问第三方网站（csrf.com）；
+③. csrf.com 向 email.com 发送了一个请求：email.com/act=xx。浏览器会默认携带email.com的Cookie；
+④. email.com接收到请求后会进行验证，通过密钥等方式确认是受害者的凭证，email.com误以为这是受害者发送的请求，并执行了act=xx请求；
+⑤. 整个过程就结束了。攻击者成功冒充身份并让email.com执行了自定义指令。
+
+###CSRF攻击分类
+CSRF攻击主要分类三类：Get类型、Post类型、链接类型。
+
+####Get类型CSRF
+Get类型顾名思义，仅需一个get类型的http请求，比如
+```
+ ![](https://awps-assets.meituan.net/mit-x/blog-images-bundle-2018b/ff0cdbee.example/withdraw?amount=10000&for=hacker)
+```
+在受害者访问含有这个 img 的页面后，浏览器会自动向http://bank.example/withdraw?account=xiaoming&amount=10000&for=hacker 发出一次HTTP请求。bank.example 就会收到包含受害者登录信息的一次跨域请求，这里是美团的测试页，攻击者完全可以把地址导向病毒网站或非法网站完成劫持。
+
+
+####Post类型CSRF
+Post类型也好理解，最常见的业务场景就是商品评论等表单页，CSRF可以利用自动提交的表单发送post请求。比如
+```
+ <form action="http://bank.example/withdraw" method=POST>
+    <input type="hidden" name="account" value="xiaoming" />
+    <input type="hidden" name="amount" value="10000" />
+    <input type="hidden" name="for" value="hacker" />
+</form>
+<script> document.forms[0].submit(); </script> 
+```
+受害者访问该页面后，表单会自动提交，攻击者相当于借助受害者自己的手触发了一次POST操作。这里需要注意的是，并非把接口限制为Post就能避免，这样做甚至连降低攻击风险都做不到。任何网站、博客，被黑客上传页面的网站都有可能是发起攻击的来源，后端接口不能将安全寄托在仅允许 POST 上。
+
+
+####链接类型CSRF
+链接类型的CSRF相对于Post类型很相似，不过它是存在页面中，由用户点击链接才会触发，比如常见的中奖新闻、游戏链接、黄赌毒之类的流式广告。攻击者往往在论坛、视频网站发布图片类的广告，并在右上角设置一个虚假的关闭按钮，诱导用户去点击。比如：
+```
+<a href="http://test.com/csrf/withdraw.php?amount=1000&for=hacker" taget="_blank">
+  一刀999，装备全靠捡，还能返现金！！
+<a/>
+```
+如果之前用户登录了信任的网站 test.com 并且保存登录状态，只要用户主动访问上面的这个PHP页面，则表示攻击成功。
+
+###CSRF的特征
+1. 攻击者一般发起在防御薄弱的第三方网站，先诱导用户访问第三方站点，然后再实施攻击；
+2. 被攻击的网站无法防止攻击发生；
+2. 利用受害者在被攻击网站的登录凭证，冒充受害者提交操作；
+3. 整个攻击过程，并不需要获取受害者的登陆凭证，而是直接冒充受害者的身份操作；
+4. 跨站请求可以用各种方式：图片URL、超链接、表单提交等等，部分请求方式可以直接嵌入在第三方论坛、文章中，比较难以进行追踪。
+
+###CSRF的预防
+由于CSRF一般通过受害者信任的第三方网站发起恶意攻击，在第三方网站并不能阻止攻击的发生，所以一般通过增强自身的站点安全性来预防CSRF。
+
+通过上面的例子，可以总结出CSRF的两个要素：CSRF一般发生在第三方站点、CSRF是冒充身份而非获取凭证
+
+针对CSRF来源，预防要素主要是：
+
+1.阻止不明来源的第三方弹窗外链
+- 同源检测
+- Samesite Cookie
+
+2.提交时要求附加本域才能获取的信息
+- CSRF Token
+- 双重Cookie验证
+
+#####措施一：同源策略
+使用Origin Header确定来源域名，在部分与CSRF有关的请求中，请求的Header中会携带Origin字段。字段内包含请求的域名（不包含path及query）；如果Origin存在，那么直接使用Origin中的字段确认来源域名就可以；如果Origin不存在，比如302重定向之后，Origin就不包含在重定向的请求中，这类特殊情况下，就使用Referer Header确定来源域名；无法确认来源域名，这种情况建议直接阻止，特别是在没有做CSRF Token二次检查的情况下。
+
+平常使用谷歌搜索或者百度搜索，这也是很常见一次外域请求，所以在判断的时候需要过滤掉这些常见场景，并且一般商品详情尽量不要在URL上暴露产品参数，降低安全风险。
+
+之前说CSRF攻击一般由第三方站点发起，但是攻击者如果通过某种渠道获得了受害者本域的读写权限，那么CSRF攻击也是可以由本域发起的，同源策略这条措施仅仅检查和预防第三方外域请求还不够。
+
+#####措施二：Samesite Cookie
+谷歌改进了HTTP协议，通过为Set-Cookie响应头新增Samesite属性（有Strict 和 Lax 两个属性值），用于标明这个 Cookie是个“同站 Cookie”，同站Cookie只能作为第一方Cookie，不能作为第三方Cookie。当我们设置Samesite=Strict时，表明这个 Cookie 在任何情况下都不可能作为第三方 Cookie，那么通过第三方甚至不同搜索引擎、不同网站、不同浏览器的新标签页发起的跨域请求都不会携带原网站的Cookie，而且SamesiteCookie不支持子域，可以说从根源杜绝CSRF攻击。
+```
+// 生成Token放到Cookie中并且设置Cookie的Samesite
+ private void addTokenCookieAndHeader(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        //生成token
+        String sToken = this.generateToken();
+        //手动添加Cookie实现支持“Samesite=strict”
+        //Cookie添加双重验证
+        String CookieSpec = String.format("%s=%s; Path=%s; HttpOnly; Samesite=Strict", this.determineCookieName(httpRequest), sToken, httpRequest.getRequestURI());
+        httpResponse.addHeader("Set-Cookie", CookieSpec);
+        httpResponse.setHeader(CSRF_TOKEN_NAME, token);
+    }
+```
+但是重新打开标签页进入同一个网站也需要重新登陆，提高了安全性但是也降低了用户体验度。
+如果SamesiteCookie被设置为Lax，由第三方网站通过页面跳转过来的时候可以使用Cookie，可以保障外域连接打开页面时用户的登录状态，但是降低了安全性。
+
+
+#####措施三：CSRF Token
+前面说了CSRF通常是冒充受害者的身份而非获取站点的凭证，所以站点才会将攻击者的请求当作合法用户的请求并正常处理，那么在用户身份凭证这方面，携带一个CSRF攻击者无法复制或获取的Token（这个Token是随即产生并且足够复杂），可以达到预防攻击的作用。
+Token预防CSRF攻击的原理就是将CSRF Token输出到页面中，每次页面提交的请求携带这个Token，每次站点处理请求都会重新验证Token是否正确。这个Token，产生并放于Session之中，并在每次请求时把Token从Session中拿出，与请求中的Token进行比对，但这种方法的关键点在于如何把Token以参数的形式加入请求。
+```
+// 此处列举一个CSRF Token的服务端校验逻辑(Java)
+HttpServletRequest req = (HttpServletRequest)request; 
+HttpSession s = req.getSession(); 
+ 
+// 从 session 中得到 csrftoken 属性
+String sToken = (String)s.getAttribute(“csrftoken”); 
+if(sToken == null){ 
+   // 产生新的 token 放入 session 中
+   sToken = generateToken(); 
+   s.setAttribute(“csrftoken”,sToken); 
+   chain.doFilter(request, response); 
+} else{ 
+   // 从 HTTP 头中取得 csrftoken 
+   String xhrToken = req.getHeader(“csrftoken”); 
+   // 从请求参数中取得 csrftoken 
+   String pToken = req.getParameter(“csrftoken”); 
+   if(sToken != null && xhrToken != null && sToken.equals(xhrToken)){ 
+       chain.doFilter(request, response); 
+   }else if(sToken != null && pToken != null && sToken.equals(pToken)){ 
+       chain.doFilter(request, response); 
+   }else{ 
+       request.getRequestDispatcher(“error.jsp”).forward(request,response); 
+   } 
+}
+```
+在初始化Token之后，该Token值将存储在会话中，并用于每个后续请求，直到会话过期。如果在请求中找不到Token，或者提供的值与会话中的值不匹配，则应中止请求，应重置Token并将事件记录为正在进行的潜在CSRF攻击。缺点在于需要给每一个页面都写入Token，每一个表单、每个Ajax请求都携带这个Token，每次都要验证，如果企业项目业务很多很复杂，不宜采用这种方式。
+
+
+
+#####措施四：双重Cookie验证
+前面说session Token比较繁琐，不适合在通用的拦截上统一处理所有的接口，而使用双重提交Cookie，我们可以利用CSRF攻击不能获取到用户Cookie的特点，我们可以要求Ajax和表单请求携带一个Cookie中的值。
+验证过程如下：
+- ①. 在用户访问网站页面时，向请求域名注入一个Cookie，内容为随机字符串（例如csrfcookie=v8g9e4ksfhw）。
+- ②. 在前端向后端发起请求时，取出Cookie，并添加到URL的参数中（接上例POST https://www.a.com/comment?csrfcookie=v8g9e4ksfhw）。
+- ③. 后端接口验证Cookie中的字段与URL参数中的字段是否一致，不一致则拒绝。
+
+优点：
+①. 不使用Session，便于实施；
+②. Token储存于客户端中，不会徒增服务器压力；
+③. 可以在前后端统一拦截校验；
+
+缺点：
+①. Cookie中增加了额外的字段；
+②. 攻击者可以注入Cookie，使该防御方式失效；
+③. 难以做到子域名的隔离；
+④. Cookie传输安全难以保障，依赖https；
+
+
+###CSRF的检测
+#####1.CSRF测试
+使用CSRFTester等CSRF漏洞检测工具，使用代理抓取用户在浏览器中访问过的链接及表单等敏感信息，通过在CSRFTester中修改相应的表单等信息，然后重新提交，这里相当于一次伪造客户端请求，如果修改后的测试请求被站点接受，则说明存在CSRF漏洞，当然此款工具也可以被用来进行CSRF攻击。
+
+#####2.CSRF监控
+我们可以在网站的代理层监控所有的接口请求，一般发现有跨域请求并且header的MIME类型为Text、JSON、HTML，就大概率认定为有CSRF嫌疑，及时上报并进行仔细的检测和排错。
+
+###CSRF防御总结
+防范 CSRF 可以遵循以下几种规则：
+1. 严格管理所有的上传接口；
+2. 添加Header X-Content-Type-Options: nosniff 防止攻击者上传HTML内容的资源被解析为网页；
+3. 对于用户上传的图片，进行转存或者校验；
+4. 当前用户打开其他用户填写的链接时，需告知风险；
+SameSite
+可以对 Cookie 设置 SameSite 属性。该属性设置 Cookie 不随着跨域请求发送，该属性可以很大程度减少 CSRF 的攻击，但是该属性目前并不是所有浏览器都兼容。
+验证 Referer
+对于需要防范 CSRF 的请求，我们可以通过验证 Referer 来判断该请求是否为第三方网站发起的。
+Token
+服务器下发一个随机 Token（算法不能复杂），每次发起请求时将 Token 携带上，服务器验证 Token 是否有效。
+
+###参考文献
+OWASP.Cross-Site_RequestForgery(CSRF)_Prevention_Cheat_Sheet.
+刘烨.前端安全如何防止CSRF攻击.
+
+

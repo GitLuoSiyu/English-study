@@ -1,0 +1,184 @@
+>最近1周的非常忙，导致昨天没有按时更新，由于合作项目的后端部分是联通负责，很多接口即使拿到也无法在web测试，很多时候必须前往甲方联调，巨坑。作为不同团队的不同职员，对于api接口，恐怕是双方最大的鸿沟了。所以一个合理的api接口规范就显得尤为重要，今天介绍一下开始用的GraphQL，在这个过程中，一直在思考它对比RPC和REST整体架构体系中的各个指标上，孰优孰劣。
+友情提示：阅读本文大概需要 15分钟
+
+###前言
+###### GraphQL的官方定义
+GraphQL 既是一种用于 API 的查询语言也是一个满足你数据查询的运行时。 GraphQL 对你的 API 中的数据提供了一套易于理解的完整描述，使得客户端能够准确地获得它需要的数据，而且没有任何冗余，也让 API 更容易地随着时间推移而演进，还能用于构建强大的开发者工具。下面我将从RPC和REST分别对比GraphQL。
+
+###RPC
+先简单介绍下RPC，它是Remote Procedure Call(远程过程调用)的简称。一般基于RPC协议所设计的接口，是基于网络采用客户端/服务端的模式完成调用接口的。
+######优点：简单并且易于理解（面向开发者）、轻量级的数据载体、高性能
+######缺点：对于系统本身耦合性高、因为RPC本身很简单、轻量，因此很容易造成 function explosion
+关于RPC的优点其实很好理解，就是因为它性能高同时又很简单，但是我认为这是对于后端来讲的（因为它的高耦合性），毕竟他们是接口实现者。
+但是如果从接口调用者（前端）的角度来看，高耦合性就变成了缺点，因为高耦合意味着调用者必须要足够了解系统本身的实现才能够完成调用，比如：调用者需要知道所调用接口的函数名、参数格式、参数顺序、参数名称等等
+如果接口提供者(server)要对接口做出一些改变，很容易对接口调用者(client)造成breaking change（违背开闭原则)
+一般RPC所暴露接口仅仅会暴露函数的名称和参数等信息，对于函数之间的调用关系无法提供，这意味着调用者必须足够了解系统，从能够知道如何正确的调用这些接口，但是对于接口调用者往往不需要了解过多系统内部实现细节。
+
+###REST
+当前REST风格的API架构方式已经成了主流解决方案了，相比较RPC，它的主要不同之处在于，它是对于资源(Resource)的模型化而非步骤(Procedure)。
+```
+######优点：
+1.对于系统本身耦合性低，调用者不再需要了解接口内部处理和实现细节
+2.重复使用了一些 http 协议中的已定义好的部分状态动词，增强语义表现力
+3.API可以随着时间而不断演进
+
+######缺点：
+1.重复使用了一些 http 协议中的已定义好的部分状态动词，增强语义表现力 explosion
+2.有时候 payload 会变的冗余(overload)，有时候调用api会比较繁琐(chattiness)
+3.有时候需要发送多条请求已获取数据，在网络带宽较低的场景，往往会造成不好的影响
+```
+有同事认为REST当前最大的问题在于虽然它利用http的动词约束了接口的暴露方式，同时增强了语义，但是却没有约束接口如何返回数据的最佳实践，总让人感觉只要是返回json格式的接口都可以称作REST。在这里我补充一句，只有返回json格式的接口才称得上REST，没错，过多暴露无用的数据只能代表写接口的人懒。
+
+###GraphQL
+
+GraphQL是近来比较热门的一个技术话题，相比REST和RPC，它汲取了两者的优点，即不面向资源，也不面向过程，而是面向数据查询(ask for exactly what you want)。
+```
+######优点：
+1.网络开销低，可以在单一请求中获取REST中使用多条请求获取的资源
+2.强类型Schema（约束意味着可以根据规范形成文档、IDE、错误提示等生态工具）
+3.特别适合图状数据结构的业务场景（比如好友、流程、组织架构等系统）
+
+######缺点：
+1.本身的语法相比较REST和RPC均复杂一些
+2.实现方面需要配套 Caching 以解决性能瓶颈
+3.对于 API 的版本控制当前没有完善解决方案（社区的建议是不要使API版本化）
+4.仍然是新鲜事物，很多技术细节仍然处于待验证状态
+
+```
+###Apollo
+####Apollo Client
+Apollo是一个开源的grapql-client框架，并且与各个主流前端技术栈如Angular、React等均有适配版本。
+用了Apollo，我们可以抛弃Redux或mobX，用Apollo客户端程序(Apollo Client)实现状态管理。在Apollo客户端程序(Apollo Client)里管理本地数据可以通过Apollo Link这个模块化网络栈来实现，它能在任意一点上与GraphQL请求操作的循环挂钩。要从GraphQL服务器上访问数据，我们可以用HttpLink链路，但要从缓存中请求本地数据，我们需要安装一个新的链路：链路状态(apollo-link-state)。
+
+```
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloLink } from 'apollo-link';
+import { withClientState } from 'apollo-link-state';
+import { HttpLink } from 'apollo-link-http';
+
+import { defaults, resolvers } from './resolvers/todos';
+
+const cache = new InMemoryCache();
+
+const stateLink = withClientState({ resolvers, cache, defaults });
+
+const client = new ApolloClient({
+  cache,
+  link: ApolloLink.from([stateLink, new HttpLink()]),
+});
+```
+Apollo客户端程序(Apollo Client)带链路状态(apollo-link-state)模块的初始化
+
+要创建状态链路，用withClientState函数，把解析器(resolvers)对象默认(defaults)对象和Apollo的缓存(cache)对象组成一个参数对象传入，然后把状态链路与整个链路拼接起来，作为其中一环。状态链路应该放在HttpLink链路前面，这样程序就能先拦截执行本地的查询(query)与修改(mutation)，然后再进入网络。
+####默认对象(Defaults)
+默认(defaults)这个对象表示了创建状态链路时要写入缓存的初始状态。虽然不是必需的，但传入默认(defaults)对象给缓存预热一下是很重要的，因为这样不管什么组件查询(query)数据都不会出现错误。默认(defaults)对象的形态应该反映程序里缓存的计划查询方式。
+```
+ export const defaults = {
+  visibilityFilter: 'SHOW_ALL',
+  todos: [],
+}; 
+// 默认(Defaults)代表了想写入缓存的初始状态  
+```
+####解析器(Resolvers)
+用Apollo客户端程序(Apollo Client)管理状态时，Apollo缓存就成了程序里所有本地和远程数据的唯一来源。如何更新并访问缓存里的数据呢？这时就要用到解析器了。如果大家在服务器端用过graphql-tools工具，那客户端解析器的类型签名和它是一样的：
+```
+fieldName: (obj, args, context, info) => result;
+```
+不熟悉这个也不用担心。这里要注意的有两点最重要，一是查询(query)或修改(mutation)部分中的变量是作为第二个参数传入的，二是缓存会自动添加到语句环境里去。
+```
+export const defaults = { // 和之前一样 }
+
+export const resolvers = {
+  Mutation: {
+    visibilityFilter: (_, { filter }, { cache }) => {
+      cache.writeData({ data: { visibilityFilter: filter } });
+      return null;
+    },
+    addTodo: (_, { text }, { cache }) => {
+      const query = gql`
+        query GetTodos {
+          todos @client {
+            id
+            text
+            completed
+          }
+        }
+      `;
+      const previous = cache.readQuery({ query });
+      const newTodo = {
+        id: nextTodoId++,
+        text,
+        completed: false,
+        __typename: 'TodoItem',
+      };
+      const data = {
+        todos: previous.todos.concat([newTodo]),
+      };
+      cache.writeData({ data });
+      return newTodo;
+    },
+  }
+}
+```
+解析器函数可以用来更新和访问缓存里的数据
+
+要把数据写入缓存的根路径，我们调用cache.writeData函数并传入数据。有时我们写入缓存的数据取决于之前缓存里已有的数据，比如上面addTodo的修改(mutation)部分。在那种情况下，可以用cache.readQuery函数先从缓存里读取，再进行写入。如果要把缓存内已有对象的一部分写进去，也可以选择传入一个id号，它与对象在缓存里的键相对应。因为我们用的是InMemoryCache，键值就是__typename:id。
+
+链路状态(apollo-link-state)模块支持异步解析函数，这对于实施异步操作的附加效果很有用，比如访问设备API接口。然而，建议大家不要在解析函数中调用REST端点，而是用[apollo-link-rest](https://github.com/apollographql/apollo-link-rest)库，有自己的@rest指令可用。
+####@client客户指令
+从用户界面发起修改(mutation)操作时，Apollo的网络栈需要知道更新的数据是在客户端还是在服务器上。链路状态(apollo-link-state)模块用的是@client客户指令来设定只用于客户端的数据域。然后，链路状态(apollo-link-state)再为这些域调用解析函数。
+```
+const SET_VISIBILITY = gql`
+  mutation SetFilter($filter: String!) {
+    visibilityFilter(filter: $filter) @client
+  }
+`;
+
+const setVisibilityFilter = graphql(SET_VISIBILITY, {
+  props: ({ mutate, ownProps }) => ({
+    onClick: () => mutate({ variables: { filter: ownProps.filter } }),
+  }),
+});
+```
+用@client客户指令对本地数据进行修改(mutation)
+
+查询(query)操作看起来和修改(mutation)很像。在查询(query)中有什么异步操作要执行的话，Apollo客户端程序(Apollo Client)会帮忙追踪加载与错误状态。对React框架来说，这些状态可以在this.props.data属性里找到，同时那里还可以找到无数的辅助函数，可以用来重新获取数据、分页和轮询。
+
+有一个让人兴奋的特色是可以在一个查询(query)里请求多个数据源的数据！? 在这个例子里，我们要用Apollo缓存里的可视化过滤器(visibilityFilter)从GraphQL服务器那里请求一个用户(user)数据。
+```
+const GET_USERS_ACTIVE_TODOS = gql`
+  {
+    visibilityFilter @client
+    user(id: 1) {
+      name
+      address
+    }
+  }
+`;
+
+const withActiveState = graphql(GET_USERS_ACTIVE_TODOS, {
+  props: ({ ownProps, data }) => ({
+    active: ownProps.filter === data.visibilityFilter,
+    data,
+  }),
+});
+// 用@client客户指令查询Apollo缓存
+```
+###Apollo目前的状态
+#####引用官网的一段话
+```
+链路状态(apollo-link-state)模块已经很稳定了，在现在的程序里已经够用了，不过我们还是想尽快弄好一些新的特色：
+// 客户端模式
+客户端模式： 目前，我们还不支持根据客户端模式进行类型验证。这是因为如果在运行阶段要把graphql-js用于构建验证模式的模块都包括进去，那会极大地增加软件包的大小。与之相反，我们希望能把模式构建转移到生成阶段去，并支持模式自我查询(introspection)，这样大家就仍然可以利用到GraphQL的绝妙特色。
+// 辅助组件
+辅助组件： 我们的目标是要在Apollo程序中尽量实现无缝状态管理。我们想编写一些React组件，使常规操作不那么冗长，比如在后台实现修改(mutation)本身，同时把变量传进去。
+```
+
+###最后
+今天的分享就到这里，有问题欢迎大家留言，谢谢~
+***
+发布时间：2019.01.27
+软文作者：思语
+个人站点：limeini.com
+GitHub: https://github.com/GitLuoSiyu

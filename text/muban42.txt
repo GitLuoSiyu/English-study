@@ -1,0 +1,284 @@
+MainActivity就像是Vue里面的app.vue，或react里的main.js。
+实际的项目工作中肯定是多页面应用，如何实现多页面场景跳转和部署，就需要了解Activity。
+
+
+###Mainfest配置文件
+我们先看一下默认的空项目中Mainfest里的配置：
+``
+// Mainfest.xml
+
+```
+主要包括包名、版本号、组件、权限等信息，它主要用于记录相关的配置信息。
+```
+<mainfest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapplication">
+```
+全局部分：mainfest是androidMainfest.xml配置文件的根标签，必须指定xmlns:android和package属性，且只包含一个application节点。
+xlmns:android指定了android的命名空间，默认情况下是http://schemas.com/apk/android。
+package是标准的应用包名，也是一个应用进程的默认名称，为避免命令的冲突，一般会以应用的域名来作为包名，一般情况下这部分不需要改动。
+
+组成部分
+由一个application标签包裹这安卓四大组件。
+```
+<application>
+
+	
+	
+</application>
+```
+在application标签下面有几个面向全局的属性：
+android:icon（图标）、android:label（标题）。
+application标签里面包裹这安卓四大组件：activity（活动）、service（服务）、content provider（内容提供者）以及boradcast reveiver（广播接受者）。
+
+其中activity是一个应用程序通过屏幕提供给用户进行交互界面的android组件，其他三个组件还没有用到，后续介绍，在这四个组件添加到application时，一定要声明android:name属性，值以包名.类名 的形式，其中包名（package）可省写成类名即可。
+
+每声明一个activity都必须在AndroidMainfest.xml配置文件中声明，否则系统将不识别也不执行该Activity。当application下有多个Activity时，需要用intent-filter表示一下哪一个是主入口的activity。
+
+权限部分：权限就是当用户安装应用程序的时候，提示用户该程序为提供服务必须获得的权限。可用uses-permission标签声明一系列系统权限，需要的时候添加即可，比如，如下是一个申请访问 网络的权限。
+```
+// 权限部分
+<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+```
+也可以自定义权限，用到peimission标签，并用name唯一标识自定义权限的名称，在其他应用程序中必须有这个name的peimission才能访问到这个应用程序，从而保护该程序中的重要组件。
+
+
+
+###Activity生命周期
+从react、vue、angular的角度学习activity的生命周期， 
+```
+// vue
+
+
+
+// react
+
+
+
+// angular
+
+
+
+// android activity
+// 7种方法
+// 1.onCreate()方法：创建Activity，标明这个Activity正在被创建
+@Override
+protected void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState);}
+
+// 2.onStart()方法：运行Activity，表明这个Activity正在变为可见
+@Override
+protected void onStart(){ super.onStart();}
+
+// 3.onResume()方法：Activity获取焦点，标明当前Activity已经变得可见
+@Override
+protected void onResume(){ super.onResume();}
+
+// 4.onPause()方法：Activity失去焦点，表明当前Activity正在被另个Activity部分或者全部覆盖
+@Override
+protected void onPause(){ super.onPause();}
+
+// 5.onStop()方法：暂停Activity，表明这个Activity现在不可见
+@Override
+protected void onStop(){ super.onStop();}
+
+// 6.onDestory()方法：销毁Activity，标明这个Activity已经被销毁
+@Override
+protected void onDestory(){ super.onDestory();}
+
+// 7.onRestart()方法：重新开始Activity，表明这个Activity被停止后再次启动了
+@Override
+protected void onRestart(){ super.onRestart();}
+```
+四种状态：
+
+- 活动状态：Activity处于页面的最顶端，当启动应用的时候，将一次调用方法onCreate()、onStart()、onResume()，使应用获得焦点并处于活动状态。
+
+- 暂停状态：
+Activity失去焦点，但此时对用户是可见的。比如当另一个Activity在前一个Activity之上，而前一个Activity又是可见的并且部分透明或者没有覆盖整个屏幕时，该Activity会调用方法onPause()方法失去焦点。返回到该Activity后又会调用onResume()方法使它处于活动状态。
+
+- 停止状态：
+Activity被完全遮挡，但此时仍然保留着所有的state和成员信息。比如用户按下移动设备的Home键使得应用处于后台，这个过程就调用方法onPause()->onStop()方法，应用程序处于暂停状态；当重新回到应用时，这个过程调用方法onRestart()、onStart()、onResume()，从而使应用再次获得焦点。
+
+- 非活动状态：
+Activity被销毁，当退出应用程序后，调用方法onPause()、onStop()、onDestory()，最后整个应用被销毁。
+
+
+
+
+###Activity的创建方法
+在简单了解配置文件和生命周期之后，接下来就用activity生命周期里的一个重要方法-onCreate()实现如何创建一个Activity了，共4步骤：
+
+- 新建一个类，并继承AppCompatActivity类或Activity类，与Activity类不同的是，AppCompatActivity默认带标题栏，在v7包，AndroidStudio的工程也是默认继承AppcompatActivity类。
+- 重写方法onCreate()
+- 用setContentView()方法设置在该Acitivity上显示的布局文件。
+- 最后记得在AndroidMainfest配置文件声明该Activity，如果该Activity是主入口还需要加上intent-filter标签。
+```
+package com.example.myapplication;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+// step1:新建一个类，并继承Activity类或AppCompatActivity类，两者不同之处在于包的引用同。
+public class ThirdActivity extends AppCompatActivity{
+
+  // step2:重写方法onCreate()
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    // step3:用setContentView()方法设置在该Activity上显示的布局文件
+    setContentView(R.layout.activity_main);
+  }
+}
+
+// step4:在AndroidMainfest配置文件中声明该Activity，如果是主入口需要加上intent-filter标签。
+<activity android:name=".ThirdActivity">
+</acticity>
+```
+一顿操作后，应用中就会生成多个页面。页面场景之间的切换，需要引入intent(意图)，它可以协助完成Android各个组件之间的通讯，充当组件之间的通讯桥梁。
+
+显式intent形如new intent(上下文，目标Activity)，直接表明了跳转对象；
+隐式intent通过匹配目标Activity在配置文件中IntentFilter设置的过滤信息去构造一个intent，方法有intent的setAction()、addCategory()、setDataAndType()
+
+###页面跳转的实现
+可以使用Intent实现页面之间的场景切换，有两种方式：无结果的页面跳转、有结果的页面跳转。
+
+#####(1)无结果的页面跳转
+首先创建好两个Activity，注意在AndroidMainfest给FirstActivity添加标签intent-filter。
+```
+
+```
+// 图
+如上图，当点击button事件之后，会初始化一个intent对象，并赋予两个参数告诉intent从哪个页面跳转到哪个页面，这里需要注意的是如果使用匿名内部类的方式（即重写onClick）注册点击事件，在初始化Intent时直接使用this，会导致访问不到当前的Activity，这里有2种解决方法：
+- 第一种方式用activity类名.this 引用
+
+- 第二种方式是在方法外部初始化一个全局变量并赋值this，此时再引用该成员变量即可。
+
+最后使用startActivity方法执行Intent就可以完成。
+```
+public class FirstActivity extends AppCompatActivity {
+  private Button button1;
+  private Button button2;
+  private TextView textView;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.f_layout);
+
+    // 无返回结果的页面跳转
+    button1 = (Button) findViewById(R.id.button_f1);
+    button1.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(FirstActivity.this, SecondActivity.class);
+        startActivity(intent);
+      }
+    })
+  }
+}
+```
+从demo上看实现无结果的页面跳转比较容易，只需要使用Intent就可以实现。
+
+
+
+#####(2)有结果的页面跳转
+实现步骤：
+- step1:
+首先在当前页面onCreate方法里换一种执行Intent的方法：
+①.注册点击事件
+②.初始化一个Intent对象，参数表示（上下文对象， 目标文件），意图从当前页面跳转到目标页面。
+③.用方法startActivityForResult执行意图，参数表示（Intent对象，请求访问界面即主动方的int型标志）
+```
+//
+button2 = (Button) findViewById(R.id.button_f2);
+button2.setOnClickListener(new View.OnClickListener() {
+  @Override
+  public void onClick(View v) {
+    Intent intent = new Intent(FirstActivity.this, SecondActivity.class);
+    startActivityForResult(intent, 1);  
+  }
+})
+
+textView = (TextView) findViewById(R.id.textView_f);
+```
+这里我用startActivityForResult(intent, 1)给第一个页面标号为1。
+
+- step2:
+然后再目标页面onCreate方法里准备回传的数据：
+①.注册点击事件
+②.初始化一个Intent对象，但是不需要实现跳转，而需要用它的方法putExtra存储需要回传的数据
+③.用方法setResult回传数据，参数表示（被请求访问的场景即被动方的int型标志， Intent对象）
+④.用finish()结束目标页面的进程
+```
+// 
+public class SecondActivity extends AppCompatActivity {
+  private Button bt;
+  private String text="goodbye";
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.s_layout);
+
+    bt = (Button) findViewById(R.id.button_s);
+    bt.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent data = new Intent();
+        data.putExtra("text", text);
+        setResult(2, data);
+        finish();
+      }
+    })
+  }
+}
+```
+这时候又会发现我用setResult(2,data)给第二个页面标号为2，并且还带着intent对象data。
+
+
+
+- step3:
+最后再回到当前场景页，用onActivityResult方法接收回传的数据，参数表示（请求访问界面即主动方的int型标志， 被请求访问界面即被东方的int型标志， Intent对象；
+```
+@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+  super.onActivityResult(requestCode, resultCode, data);
+  if(requestCode == 1 && resultCode == 2) {
+    String text = data.getStringExtra("text");
+    textView.setText(text);
+  }
+}
+```
+onActivityResult这个方法里的参数resultcode，是方便当前FirstActivity活动判断哪个页面返回的消息，在复杂情况下返回的页面太多时，每个页面的唯一标号能更好的帮助它们辨识彼此。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
