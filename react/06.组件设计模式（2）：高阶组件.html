@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>组件设计模式（2）：高阶组件.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+	font-size: 14px;
+	padding: 0 12px;
+	line-height: 22px;
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	color: #4080D0;
+	text-decoration: none;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
+	font-size: inherit;
+	line-height: auto;
+}
+
+a:hover {
+	color: #4080D0;
+	text-decoration: underline;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left: 5px solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 14px;
+	line-height: 19px;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+.mac code {
+	font-size: 12px;
+	line-height: 18px;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+/** Theming */
+
+.vscode-light,
+.vscode-light pre code {
+	color: rgb(30, 30, 30);
+}
+
+.vscode-dark,
+.vscode-dark pre code {
+	color: #DDD;
+}
+
+.vscode-high-contrast,
+.vscode-high-contrast pre code {
+	color: white;
+}
+
+.vscode-light code {
+	color: #A31515;
+}
+
+.vscode-dark code {
+	color: #D7BA7D;
+}
+
+.vscode-light pre:not(.hljs),
+.vscode-light code > div {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre:not(.hljs),
+.vscode-dark code > div {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre:not(.hljs),
+.vscode-high-contrast code > div {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vscode-light blockquote,
+.vscode-dark blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.vscode-high-contrast blockquote {
+	background: transparent;
+	border-color: #fff;
+}
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family:  "Meiryo", "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+</head>
+<body>
+<h1 id="%E7%BB%84%E4%BB%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%882%EF%BC%89%EF%BC%9A%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6">组件设计模式（2）：高阶组件</h1>
+<p><strong>资源由 IT视频学习网(www.itspxx.com) 收集并免费发布</strong></p>
+<p>在开发 React 组件过程中，很容易发现这样一种现象，某些功能是多个组件通用的，如果每个组件都重复实现这样的逻辑，肯定十分浪费，而且违反了“不要重复自己”（DRY，Don't Repeat Yourself)的编码原则，我们肯定想要把这部分共用逻辑提取出来重用。</p>
+<p>我们说过，在 React 的世界里，组件是第一公民，首先想到的是当然是把共用逻辑提取为一个 React 组件。不过，有些情况下，这些共用逻辑还没法成为一个独立组件，换句话说，这些共用逻辑单独无法使用，它们只是对其他组件的功能加强。</p>
+<p>举个例子，对于很多网站应用，有些模块都需要在用户已经登录的情况下才显示。比如，对于一个电商类网站，“退出登录”按钮、“购物车”这些模块，就只有用户登录之后才显示，对应这些模块的 React 组件如果连“只有在登录时才显示”的功能都重复实现，那就浪费了。</p>
+<p>这时候，我们就可以利用“高阶组件（HoC）”这种模式来解决问题。</p>
+<h2 id="%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%BD%A2%E5%BC%8F">高阶组件的基本形式</h2>
+<p>“高阶组件”名为“组件”，其实并不是一个组件，而是一个函数，只不过这个函数比较特殊，它接受至少一个 React 组件为参数，并且能够返回一个全新的 React 组件作为结果，当然，这个新产生的 React 组件是对作为参数的组件的包装，所以，有机会赋予新组件一些增强的“神力”。</p>
+<p>一个最简单的高阶组件是这样的形式：</p>
+<pre class="hljs"><code><div>const withDoNothing = (Component) =&gt; {
+  const NewComponent = (props) =&gt; {
+    return &lt;Component {...props} /&gt;;
+  };
+  return NewComponent;
+};
+
+</div></code></pre>
+<p>上面的函数 <code>withDoNothing</code> 就是一个高阶组件，作为一项业界通用的代码规范，高阶组件的命名一般都带 <code>with</code> 前缀，命名中后面的部分代表这个高阶组件的功能。</p>
+<p>就如同 withDoNothing 这个名字所说的一样，这个高阶组件什么都没做，但是从中可以看出高阶组件的基本代码套路。</p>
+<ol>
+<li>高阶组件不能去修改作为参数的组件，高阶组件必须是一个纯函数，不应该有任何副作用。</li>
+<li>高阶组件返回的结果必须是一个新的 React 组件，这个新的组件的 JSX 部分肯定会包含作为参数的组件。</li>
+<li>高阶组件一般需要把传给自己的 props 转手传递给作为参数的组件。</li>
+</ol>
+<h2 id="%E7%94%A8%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6%E6%8A%BD%E5%8F%96%E5%85%B1%E5%90%8C%E9%80%BB%E8%BE%91">用高阶组件抽取共同逻辑</h2>
+<p>接下来，我们对 withDoNothing 进行一些改进，让它实现“只有在登录时才显示”这个功能。</p>
+<p>假设我们已经有一个函数 <code>getUserId</code> 能够从 cookies 中读取登录用户的 ID，如果用户未登录，这个 <code>getUserId</code> 就返回空，那么“退出登录按钮“就需要这么写：</p>
+<pre class="hljs"><code><div>const LogoutButton = () =&gt; {
+  if (getUserId()) {
+    return ...; // 显示”退出登录“的JSX
+  } else {
+    return null;
+  }
+};
+
+</div></code></pre>
+<p>同样，购物车的代码就是这样：</p>
+<pre class="hljs"><code><div>const ShoppintCart = () =&gt; {
+  if (getUserId()) {
+    return ...; // 显示”购物车“的JSX
+  } else {
+    return null;
+  }
+};
+
+</div></code></pre>
+<p>上面两个组件明显有重复的代码，我们可以把重复代码抽取出来，形成 <code>withLogin</code> 这个高阶组件，代码如下：</p>
+<pre class="hljs"><code><div>const withLogin = (Component) =&gt; {
+  const NewComponent = (props) =&gt; {
+    if (getUserId()) {
+      return &lt;Component {...props} /&gt;;
+    } else {
+      return null;
+    }
+  }
+
+  return NewComponent;
+};
+
+</div></code></pre>
+<p>如此一来，我们就只需要这样定义 <code>LogoutButton</code> 和 <code>ShoppintCart</code>：</p>
+<pre class="hljs"><code><div>const LogoutButton = withLogin((props) =&gt; {
+  return ...; // 显示”退出登录“的JSX
+});
+
+const ShoppingCart = withLogin(() =&gt; {
+  return ...; // 显示”购物车“的JSX
+});
+
+</div></code></pre>
+<p>你看，我们避免了重复代码，以后如果要修改对用户是否登录的判断逻辑，也只需要修改 withLogin，而不用修改每个 React 组件。</p>
+<h2 id="%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6%E7%9A%84%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95">高阶组件的高级用法</h2>
+<p>高阶组件只需要返回一个 React 组件即可，没人规定高阶组件只能接受一个 React 组件作为参数，完全可以传入多个 React 组件给高阶组件。</p>
+<p>比如，我们可以改进上面的 withLogin，让它接受两个 React 组件，根据用户是否登录选择渲染合适的组件。</p>
+<pre class="hljs"><code><div>const withLoginAndLogout = (ComponentForLogin, ComponentForLogout) =&gt; {
+  const NewComponent = (props) =&gt; {
+    if (getUserId()) {
+      return &lt;ComponentForLogin {...props} /&gt;;
+    } else {
+      return &lt;ComponentForLogout{...props} /&gt;;
+    }
+  }
+  return NewComponent;
+};
+
+</div></code></pre>
+<p>有了上面的 <code>withLoginAndLogout</code>，就可以产生根据用户登录状态显示不同的内容。</p>
+<pre class="hljs"><code><div>const TopButtons = withLoginAndLogout(
+  LogoutButton,
+  LoginButton
+);
+
+</div></code></pre>
+<h2 id="%E9%93%BE%E5%BC%8F%E8%B0%83%E7%94%A8%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6">链式调用高阶组件</h2>
+<p>高阶组件最巧妙的一点，是可以链式调用。</p>
+<p>假设，你有三个高阶组件分别是 <code>withOne</code>、<code>withTwo</code> 和 <code>withThree</code>，那么，如果要赋予一个组件 X 某个高阶组件的超能力，那么，你要做的就是挨个使用高阶组件包装，代码如下：</p>
+<pre class="hljs"><code><div>const X1 = withOne(X);
+const X2 = withTwo(X1);
+const X3 = withThree(X2);
+const SuperX = X3; //最终的SuperX具备三个高阶组件的超能力
+
+</div></code></pre>
+<p>很自然，我们可以避免使用中间变量 <code>X1</code> 和 <code>X2</code>，直接连续调用高阶组件，如下：</p>
+<pre class="hljs"><code><div>const SuperX = withThree(withTwo(withOne(X)));
+
+</div></code></pre>
+<p>对于 <code>X</code> 而言，它被高阶组件包装了，至于被一个高阶组件包装，还是被 N 个高阶组件包装，没有什么差别。而高阶组件本身就是一个纯函数，纯函数是可以组合使用的，所以，我们其实可以把多个高阶组件组合为一个高阶组件，然后用这一个高阶组件去包装<code>X</code>，代码如下：</p>
+<pre class="hljs"><code><div>const hoc = compose(withThree, withTwo, withOne);
+const SuperX = hoc(X);
+
+</div></code></pre>
+<p>在上面代码中使用的 <code>compose</code>，是函数式编程中很基础的一种方法，作用就是把多个函数组合为一个函数，在很多开源的代码库中都可以看到，下面是一个参考实现：</p>
+<pre class="hljs"><code><div>export default function compose(...funcs) {
+  if (funcs.length === 0) {
+    return arg =&gt; arg
+  }
+
+  if (funcs.length === 1) {
+    return funcs[0]
+  }
+
+  return funcs.reduce((a, b) =&gt; (...args) =&gt; a(b(...args)))
+}
+
+</div></code></pre>
+<p>React 组件可以当做积木一样组合使用，现在有了 compose，我们就可以把高阶组件也当做积木一样组合，进一步重用代码。</p>
+<p>假如一个应用中多个组件都需要同样的多个高阶组件包装，那就可以用 compose 组合这些高阶组件为一个高阶组件，这样在使用多个高阶组件的地方实际上就只需要使用一个高阶组件了。</p>
+<h2 id="%E4%B8%8D%E8%A6%81%E6%BB%A5%E7%94%A8%E9%AB%98%E9%98%B6%E7%BB%84%E4%BB%B6">不要滥用高阶组件</h2>
+<p>高阶组件虽然可以用一种可重用的方式扩充现有 React 组件的功能，但高阶组件并不是绝对完美的。</p>
+<p>首先，高阶组件不得不处理 <code>displayName</code>，不然 debug 会很痛苦。当 React 渲染出错的时候，靠组件的 displayName 静态属性来判断出错的组件类，而高阶组件总是创造一个新的 React 组件类，所以，每个高阶组件都需要处理一下 displayName。</p>
+<p>如果要做一个最简单的什么增强功能都没有的高阶组件，也必须要写下面这样的代码：</p>
+<pre class="hljs"><code><div>const withExample = (Component) =&gt; {
+  const NewComponent = (props) =&gt; {
+    return &lt;Component {...props} /&gt;;
+  }
+  
+  NewComponent.displayName = `withExample(${Component.displayName || Component.name || 'Component'})`;
+  
+  return NewCompoennt;
+};
+
+
+</div></code></pre>
+<p>每个高阶组件都这么写，就会非常的麻烦。</p>
+<p>对于 React 生命周期函数，高阶组件不用怎么特殊处理，但是，如果内层组件包含定制的静态函数，这些静态函数的调用在 React 生命周期之外，那么高阶组件就必须要在新产生的组件中增加这些静态函数的支持，这更加麻烦。</p>
+<p>其次，高阶组件支持嵌套调用，这是它的优势。但是如果真的一大长串高阶组件被应用的话，当组件出错，你看到的会是一个超深的 stack trace，十分痛苦。</p>
+<p>最后，使用高阶组件，一定要非常小心，要避免重复产生 React 组件，比如，下面的代码是有问题的：</p>
+<pre class="hljs"><code><div>const Example = () =&gt; {
+  const EnhancedFoo = withExample(Foo);
+  return &lt;EnhancedFoo /&gt;
+}
+
+</div></code></pre>
+<p>像上面这样写，每一次渲染 Example，都会用高阶组件产生一个新的组件，虽然都叫做 <code>EnhancedFoo</code>，但是对 React 来说是一个全新的东西，在重新渲染的时候不会重用之前的虚拟 DOM，会造成极大的浪费。</p>
+<p>正确的写法是下面这样，自始至终只有一个 EnhancedFoo 组件类被创建：</p>
+<pre class="hljs"><code><div>const EnhancedFoo = withExample(Foo);
+
+const Example = () =&gt; {
+  return &lt;EnhancedFoo /&gt;
+}
+
+</div></code></pre>
+<p>总之，高阶组件是重用代码的一种方式，但并不是唯一方式，在下一小节，我们会介绍一种更加精妙的方式。</p>
+<h1 id="%E5%B0%8F%E7%BB%93">小结</h1>
+<p>在这一小节中，我们介绍了高阶组件（HoC）这种重用逻辑的模式，读者应该能够学会：</p>
+<ol>
+<li>高阶组件的形式；</li>
+<li>高阶组件的链式调用方法；</li>
+<li>高阶组件的不足。</li>
+</ol>
+
+</body>
+</html>
