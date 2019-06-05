@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>路由的魔法：React Router.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+	font-size: 14px;
+	padding: 0 12px;
+	line-height: 22px;
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	color: #4080D0;
+	text-decoration: none;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code {
+	font-size: inherit;
+	line-height: auto;
+}
+
+a:hover {
+	color: #4080D0;
+	text-decoration: underline;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left: 5px solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 14px;
+	line-height: 19px;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+.mac code {
+	font-size: 12px;
+	line-height: 18px;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+/** Theming */
+
+.vscode-light,
+.vscode-light pre code {
+	color: rgb(30, 30, 30);
+}
+
+.vscode-dark,
+.vscode-dark pre code {
+	color: #DDD;
+}
+
+.vscode-high-contrast,
+.vscode-high-contrast pre code {
+	color: white;
+}
+
+.vscode-light code {
+	color: #A31515;
+}
+
+.vscode-dark code {
+	color: #D7BA7D;
+}
+
+.vscode-light pre:not(.hljs),
+.vscode-light code > div {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre:not(.hljs),
+.vscode-dark code > div {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre:not(.hljs),
+.vscode-high-contrast code > div {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vscode-light blockquote,
+.vscode-dark blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.vscode-high-contrast blockquote {
+	background: transparent;
+	border-color: #fff;
+}
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family:  "Meiryo", "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+</head>
+<body>
+<h1 id="%E8%B7%AF%E7%94%B1%E7%9A%84%E9%AD%94%E6%B3%95%EF%BC%9Areact-router">路由的魔法：React Router</h1>
+<p><strong>资源由 IT视频学习网(www.itspxx.com) 收集并免费发布</strong></p>
+<p>随着 AJAX 技术的成熟，现在单页应用（Single Page Application）已经是前端网页界的标配，名为“单页”，其实在设计概念上依然是多页的界面，只不过从技术层面上页之间的切换是没有整体网页刷新的，只需要做局部更新。</p>
+<p>要实现“单页应用”，一个最要紧的问题就是做好“路由”（Routing)，也就是处理好下面两件事：</p>
+<ol>
+<li>把 URL 映射到对应的页面来处理；</li>
+<li>页面之间切换做到只需局部更新。</li>
+</ol>
+<p>感谢业界前人给我们开发者铺平了道路，在 React 的世界里，上面说的问题都有成熟解法，其中最热门的工具，就是 react-router，这一节我们就来介绍这个工具。</p>
+<h2 id="react-router-v4-%E7%9A%84%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1">react router v4 的动态路由</h2>
+<p>我们现在说到 react-router，基本上都是在说 react-router 的第 4 版，也就是 v4。这个 v4 很有意思，它完全推翻了之前 v3 的做法。可以说，react-router 的 v3 和 v4 版完完全全是不同的两个工具，两者差距实在太大。</p>
+<p>其实当初 v3 也已经很优秀很热门了，但是 react-router 的开发者不满意，他们认为 v3 还是落入了“静态路由”的窠臼，所以在 v4 中 react-router 做到了“动态路由”的功能。</p>
+<p>所谓“静态路由”，就是说路由规则是固定的，无论 express、Angular 还是 Rails 等业界响当当的框架，都用的是静态路由。以 express 为例，路由规则差不多是这么写的：</p>
+<pre class="hljs"><code><div>app.get('/', Home);
+app.get('/product/:id', Product);
+app.get('/about', About);
+
+</div></code></pre>
+<p>对于大部分应用，支持这样的路由规则真的是足够了，但是，react-router 的开发者觉得这样还不够好，要支持“动态路由”才是最好。</p>
+<p>所谓动态路由，指的是路由规则不是预先确定的，而是在渲染过程中确定的。因为 react-router 的定位就是专供 React 应用服务，而 React 的世界中一切皆为组件，所以 react-router v4 就完全用 React 组件来实现路由功能。</p>
+<p>不得不承认，虽然 react-router 的开发者是挺折腾的，但是他们的确是领悟了 React 的精髓，而且在 react-router 中把 React 的哲学发挥到了极致。</p>
+<p>接下来，我们通过一个很简单的例子来说明 react-router v4 如何工作的，然后在这个例子的基础上介绍“动态路由”。</p>
+<h2 id="react-router-%E5%AE%9E%E4%BE%8B">React Router 实例</h2>
+<h3 id="%E5%AE%89%E8%A3%85%E5%8C%85-react-router-dom">安装包 react-router-dom</h3>
+<p>create-react-app 产生的应用默认为不支持多个页面，但还是在 README 文件中友情推荐了一下 react-router 来增强功能，可见 react-router 影响力之大。</p>
+<p>不过，我们并不需要安装 react-router 这个 npm 包，因为 react-router 为了支持 Web 和 React Native 出了两个包—— react-router-dom 和 react-router-native ，我们只关心 Web，所以只需要安装 react-router-dom 。这个 react-router-dom 依赖于 react-router ，所以 react-router 也会被自动安装上。</p>
+<pre class="hljs"><code><div>npm install react-router-dom
+
+</div></code></pre>
+<h3 id="hashrouter-%E8%BF%98%E6%98%AF-browserrouter">HashRouter 还是 BrowserRouter</h3>
+<p>react-router 的工作方式，是在组件树顶层放一个 Router 组件，然后在组件树中散落着很多 Route 组件（注意比 Router 少一个“r”），顶层的 Router 组件负责分析监听 URL 的变化，在它保护伞之下的 Route 组件可以直接读取这些信息。</p>
+<p>很明显，Router 和 Route 的配合，就是之前我们介绍过的“提供者模式”，Router 是“提供者”，Route是“消费者”。</p>
+<p>更进一步，Router 其实也是一层抽象，让下面的 Route 无需各种不同 URL 设计的细节，不要以为 URL 就一种设计方法，至少可以分为两种。</p>
+<p>第一种很自然，比如 <code>/</code> 对应 Home 页，<code>/about</code> 对应 About 页，但是这样的设计需要服务器端渲染，因为用户可能直接访问任何一个 URL，服务器端必须能对 <code>/</code>的访问返回 HTML，也要对 <code>/about</code> 的访问返回 HTML。</p>
+<p>第二种看起来不自然，但是实现更简单。只有一个路径 <code>/</code>，通过 URL 后面的 <code>#</code> 部分来决定路由，<code>/#/</code> 对应 Home 页，<code>/#/about</code> 对应 About 页。因为 URL 中<code>#</code>之后的部分是不会发送给服务器的，所以，无论哪个 URL，最后都是访问服务器的 <code>/</code> 路径，服务器也只需要返回同样一份 HTML 就可以，然后由浏览器端解析 <code>#</code> 后的部分，完成浏览器端渲染。</p>
+<p>在 react-router，有 BrowserRouter 支持第一种 URL，有 HashRouter 支持第二种 URL。</p>
+<p>因为 create-react-app 产生的应用默认不支持服务器端渲染，为了简单起见，我们在下面的例子中使用 HashRouter，在实际产品中，其实最好还是用 BrowserRouter，这样用户体验更好。</p>
+<p>修改<code>index.js</code>文件，增加下面的代码：</p>
+<pre class="hljs"><code><div>import {HashRouter} from 'react-router-dom';
+
+ReactDOM.render(
+  &lt;HashRouter&gt;
+    &lt;App /&gt;
+  &lt;/HashRouter&gt;,
+  document.getElementById('root')
+);
+
+</div></code></pre>
+<p>把 Router 用在 React 组件树的最顶层，这是最佳实践。因为将来我们如果想把 HashRouter 换成 BrowserRouter，组件 App 以下几乎不用任何改变。</p>
+<h3 id="%E4%BD%BF%E7%94%A8-link">使用 Link</h3>
+<p>对于单页应用，需要在不同“页面”之间切换，往往需要一个“导航栏”，我们在这里也实现一个简单的导航栏。</p>
+<p>在<code>App.js</code>中，我们让网页由两个组件 Navigation 和 Content 组成， Navigation 就是导航栏，而 Content 是具体内容。</p>
+<pre class="hljs"><code><div>class App extends Component {
+  render() {
+    return (
+      &lt;div className=&quot;App&quot;&gt;
+        &lt;Navigation /&gt;
+        &lt;Content /&gt;
+      &lt;/div&gt;
+    );
+  }
+}
+
+</div></code></pre>
+<p>我们计划只增加两个页面，在 Navigation 中就应该有两个链接，但是，如果我们简单使用 HTML 的 <code>&lt;a&gt;</code> 标签那就错了，用户点击 <code>&lt;a&gt;</code> 标签缺省行为是网页跳转，这违背了“单页应用”的原则。虽然对于 HashRouter 使用的是没有网页跳转的 <code>#</code>，但是为了将来可以无缝切换为 BrowserRouter ，我们也不能使用 <code>&lt;a href=&quot;#about&quot;&gt;</code> 这样的标签。</p>
+<p>正确的解法是用 react-router 提供的 Link 组件，虽然 Link 最终还是渲染为 <code>&lt;a&gt;</code> 标签，但这是有神力的 <code>&lt;a&gt;</code> 标签，用户点击时，react-router 可以知晓这是一个单页应用的链接，不用网页跳转只做局部页面更新。</p>
+<pre class="hljs"><code><div>const ulStyle = {
+  'list-style-type': 'none',
+  margin: 0,
+  padding: 0,
+};
+
+const liStyle = {
+  display: 'inline-block',
+  width: '60px',
+};
+
+const Navigation = () =&gt; (
+  &lt;header&gt;
+    &lt;nav&gt;
+      &lt;ul style={ulStyle}&gt;
+        &lt;li style={liStyle}&gt;&lt;Link to='/'&gt;Home&lt;/Link&gt;&lt;/li&gt;
+        &lt;li style={liStyle}&gt;&lt;Link to='/about'&gt;About&lt;/Link&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+)
+
+</div></code></pre>
+<h3 id="%E4%BD%BF%E7%94%A8-route-%E5%92%8C-switch">使用 Route 和 Switch</h3>
+<p>我们来看 Content 这个组件，这里会用到 react-router 最常用的两个组件 Route 和 Switch。</p>
+<pre class="hljs"><code><div>const Content = () =&gt; (
+  &lt;main&gt;
+    &lt;Switch&gt;
+      &lt;Route exact path='/' component={Home}/&gt;
+      &lt;Route path='/about' component={About}/&gt;
+    &lt;/Switch&gt;
+  &lt;/main&gt;
+)
+
+</div></code></pre>
+<p>Route 组件的 path 属性用于匹配路径，因为我们需要匹配 <code>/</code> 到 <code>Home</code>，匹配 <code>/about</code> 到 <code>About</code>，所以肯定需要两个 Route，但是，我们不能这么写。</p>
+<pre class="hljs"><code><div>      &lt;Route path='/' component={Home}/&gt;
+      &lt;Route path='/about' component={About}/&gt;
+
+</div></code></pre>
+<p>如果按照上面这么写，当访问 <code>/about</code> 页面时，不光匹配 <code>/about</code>，也配中 <code>/</code>，界面上会把 Home 和 About 都渲染出来的。</p>
+<p>解决方法，可以在想要精确匹配的 Route 上加一个属性 <code>exact</code>，或者使用 Switch 组件。</p>
+<p>可以把 Switch 组件看做是 JavaScript 的 switch 语句，像这样：</p>
+<pre class="hljs"><code><div>switch (条件) {
+  case 1: 渲染1; break;
+  case 2: 渲染2; break;
+}
+
+</div></code></pre>
+<p>从上往下找第一个匹配的 Route，匹配中了之后，立刻就 break，不继续这个 Switch 下其他的 Route 匹配了。</p>
+<p>可以看到，react-router 巧妙地用 React 组件实现了路由的所有逻辑，印证了那句话：React 世界里一切都是组件。</p>
+<h2 id="%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1">动态路由</h2>
+<p>在了解了 react-router的基本路由功能之后，再来理解“动态路由”就容易了。</p>
+<p>假设，我们增加一个新的页面叫 <code>Product</code>，对应路径为 <code>/product</code>，但是只有用户登录了之后才显示。如果用静态路由，我们在渲染之前就确定这条路由规则，这样即使用户没有登录，也可以访问 <code>product</code>，我们还不得不在 Product 组件中做用户是否登录的检查。</p>
+<p>如果用动态路由，则只需要在代码中的一处涉及这个逻辑：</p>
+<pre class="hljs"><code><div>    &lt;Switch&gt;
+      &lt;Route exact path='/' component={Home}/&gt;
+      {
+        isUserLogin() &amp;&amp;
+        &lt;Route exact path='/product' component={Product}/&gt;,
+      }  
+      &lt;Route path='/about' component={About}/&gt;
+    &lt;/Switch&gt;
+
+</div></code></pre>
+<p>可以用任何条件决定 Route 组件实例是否渲染，比如，可以根据页面宽度、设备类型决定路由规则，动态路由有了最大的自由度。</p>
+<h2 id="%E5%B0%8F%E7%BB%93">小结</h2>
+<p>这一小节我们介绍了 React 世界中最热门的路由工具 react-router，读者应该能够理解：</p>
+<ol>
+<li>单页应用中路由功能的必要；</li>
+<li>如何使用 react-router v4 来实现路由；</li>
+<li>动态路由的意义。</li>
+</ol>
+
+</body>
+</html>
