@@ -1,0 +1,60 @@
+子页面
+
+首页： www.wanandroid.com    "/" || "index"
+项目： www.wanandroid.com/projectindex  "/projectindex"
+体系： www.wanandroid.com/tree   "/tree"
+公众号：www.wanadroid.com/wxarticle/list/408/1   "/wxarticle/list"
+导航：www.wanadroid.com/navi  "/navi"
+项目分类：www.wanadroid.com/project   "/project"
+工具：www.wanandroid.com  "/tools"
+
+登陆：www.wanandroid.com/login
+注册：www.wanandroid.com/register
+
+分享项目：/tmpproject/add
+待办事件：/todo/list
+开放API： /blog/show/2
+
+最新博文： /index
+最新项目： /pindex
+
+
+
+    /**
+     * @场景说明：LUR-UI策略
+     * @param 首页  www.wanandroid.com 
+     * @param 项目  www.wanandroid.com/projectindex  "/projectindex"
+     * @param 体系  www.wanandroid.com/tree   "/tree"
+     * @param 公众号 www.wanadroid.com/wxarticle/list/408/1
+     * @param 导航 www.wanadroid.com/navi
+     * @param 项目分类 www.wanadroid.com/project 
+     * @param 工具 www.wanandroid.com
+     * @param 登陆 www.wanandroid.com/login
+     * @param 注册 www.wanandroid.com/register
+     * @param 分享项目 /tmpproject/add
+     * @param 待办事件 /todo/list
+     * @param 开放API  /blog/show/2
+     * @param 最新博文  /index
+     * @param 最新项目  /pindex
+     * @param 设置 /setting
+     * @param 搜索 /search
+     */
+
+
+    /**
+     * @接口说明: wanandroid.com 的 api
+     * @param baseUrl https://www.wanandroid.com
+     * @param 获取公众号列表  get  https://wanandroid.com/wxarticle/chapters/json  
+     * @param 查看某个公众号历史数据  GET  https://wanandroid.com/wxarticle/list/408/1/json
+     * @param 在某个公众号中搜索历史文章  GET  https://wanandroid.com/wxarticle/list/405/1/json?k=Java
+     * @param 按时间分页展示所有项目  GET  https://wanandroid.com/article/listproject/0/json
+     * @param 首页文章列表  GET  https://www.wanandroid.com/article/list/0/json
+     * @param 首页banner  GET  https://www.wanandroid.com/banner/json
+     * @param 常用网站  GET https://www.wanandroid.com/friend/json  
+     * @param 搜索热词  GET  https://www.wanandroid.com//hotkey/json
+     * @param 置顶文章  https://www.wanandroid.com/article/top/json
+     * @param 体系数据 
+     * @param
+     * @param
+     * @param
+     */
