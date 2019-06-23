@@ -1,0 +1,37 @@
+yum install gcc-c++
+
+yum install -y pcre pcre-devel
+
+yum install -y openssl openssl-devel
+
+yum install wget -y
+
+ÉÏ´«nginx
+½âÑ¹
+tar -xzvf nginx-1.8.1.tar.gz
+
+./configure \
+--with-http_stub_status_module
+--with-http_ssl_module
+
+./configure \
+--with-http_ssl_module
+
+mkdir temp
+
+cd /nginx
+make
+
+java-1.7.0-openjdk-1.7.0.221-2.6.18.0.el7_6.x86_64
+
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.221-2.6.18.0.el7_6.x86_64
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+export PATH=${JAVA_HOME}/bin:$PATH
+
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+export PATH=${JAVA_HOME}/bin:$PATH
+
+tar -xzvf 
