@@ -1,0 +1,33 @@
+<view>
+  <scroll-view scroll-x="true" class="tab-h" scroll-left="{{scrollLeft}}">
+    <block wx:for="{{tabs}}" wx:key="index">
+      <view class="tab-item {{currentTab == item.id ?'active':''}}" data-current="{{item.id}}" bindtap="swichNav">{{item.name}}</view>
+    </block>
+  </scroll-view>
+
+  <swiper class="tab-content" current="{{currentTab}}" duration="300" bindchange="switchTab">
+    <swiper-item wx:for="{{tabs}}" wx:key="index">
+      <scroll-view scroll-y="true" class="scoll-h">
+        <view class="goods-list">
+          <block wx:for="{{goodsList[currentTab]}}" wx:key="index">
+            <!--  -->
+            <view class="good-item" bindtap="goDetail">
+              <navigator url="./../../product/productDetail/productDetail?goodId=${{item.goodId}}">
+                <view class="good-img">
+                  <image src="{{item.imgUrl}}"></image>
+                </view>
+                <view class="title">{{item.desc}}</view>
+                <view class="info">
+                  <view class="price">￥
+                    <text class="now">{{item.price}}</text>
+                  </view>
+                </view>
+              </navigator>
+            </view>
+            <!--  -->
+          </block>
+        </view>
+      </scroll-view>
+    </swiper-item>
+  </swiper>
+</view>

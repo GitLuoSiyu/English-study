@@ -1,0 +1,19 @@
+<view class="shopList">
+    <view class="shopImg">
+        <image src="{{commodity.headPicture}}" mode="widthFix"></image>
+    </view>
+    <view class="shopMsg">
+        <view>{{commodity.productName}}</view>
+        <view wx:if="{{commodity.colorPicture&&commodity.colorPicture!=''}}" class="lipColor">
+            <view class="lip">
+                <image src="{{commodity.colorPicture}}"></image>
+            </view>
+            <view>{{commodity.categorySkuProperty.catePropVal}}</view>
+        </view>
+        <view>单价：￥{{commodity.basePrice}}</view>
+        <view>数量：{{commodity.quantity}}</view>
+    </view>
+    <view class="shopPrice">
+        ￥{{commodity.totalPrice}}
+    </view>
+</view>

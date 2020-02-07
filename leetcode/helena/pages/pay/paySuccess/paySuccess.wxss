@@ -1,0 +1,45 @@
+/* pages/pay/paySuccess/paySuccess.wxss */
+page {
+  background: #f4f4f4;
+}
+.payTop {
+  text-align: center;
+  font-size: 36rpx;
+  color: #333333;
+  margin: 47rpx 0 37rpx;
+}
+.payImg {
+  width: 79rpx;
+  height: 79rpx;
+  margin-bottom: 25rpx;
+}
+.payOrder {
+  width: 715rpx;
+  background: #ffffff;
+  padding: 20rpx 30rpx;
+  box-sizing: border-box;
+  box-shadow: 1rpx 1rpx 15rpx 1rpx rgba(242, 242, 242, 0.9);
+  border-radius: 20rpx;
+  margin: 0 auto;
+  font-size: 24rpx;
+  color: #333333;
+  line-height: 44rpx;
+}
+.payBtn {
+  margin: 68rpx auto 0;
+  width: 715rpx;
+}
+.payBtn button {
+  width: 323rpx;
+  height: 76rpx;
+  line-height: 76rpx;
+  font-size: 36rpx;
+  color: #ffffff;
+  background: #000000;
+  padding-left: 0;
+  padding-right: 0;
+  float: left;
+}
+.payBtn button.btn {
+  float: right;
+}

@@ -1,0 +1,52 @@
+<!--pages/orders/orderDeatil/orderDetail.wxml-->
+<view>
+  <view class="order-box">
+    <view class="order-title">
+      <text class="order-status">已完成</text>
+      <text class="order-notice">您的订单已完成,欢迎下次回顾</text>
+    </view>
+    <view class="empty"></view>
+    <view class="order-info">
+      <image class="order-img" src="https://i2.tiimg.com/708157/6bded69cb50e5a7c.png"></image>
+      <view class="order-info-title">
+        <view>赫莲娜测试产品</view>
+        <view>150ml</view>
+        <view>X1</view>
+      </view>
+      <view class="order-price-info">
+        <view class="order-price-num">￥8888</view>
+      </view>
+    </view>
+    <view class="empty"></view>
+    <view class="gift-info">
+      <image class="order-img"  src="https://i1.fuimg.com/708157/14662ff33149b189.png"></image>
+      <view class="order-info-title">
+        <view>赫莲娜赠品小样</view>
+        <view>10ml</view>
+        <view>X1</view>
+      </view>
+      <view class="order-price-info">
+        <view class="order-price-num">赠品</view>
+      </view>
+    </view>
+  </view>
+
+  <!--  -->
+  <view class="order-detail">
+    <view class="order-num">
+      <view class="order-id">订单编号 : 201200</view>
+      <view class="order-time">订单时间 : 2020-01-21</view>
+    </view>
+    <view class="empty"></view>
+    <view class="order-price">
+      <text class="">支付金额</text>
+      <text class="">￥1080</text>
+    </view>
+  </view>
+
+  <!-- 提醒，24小时未支付将被取消 -->
+  <view class="order-warn">
+    24小时未支付的订单将被取消
+  </view>
+
+</view>

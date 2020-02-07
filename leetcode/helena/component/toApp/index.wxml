@@ -1,0 +1,6 @@
+<view class="toApp row" wx:if="{{isShow}}">
+  <view class="icon-arrowsL"></view>
+  <view class="icon-txt">{{text}}</view>
+  <view class="icon-close" catchtap="closeApp">X</view>
+  <button class="btn-toApp" catchtap open-type="launchApp" bindlaunchapp="launchAppOK" binderror="launchAppError" app-parameter="{{parameter}}"></button>
+</view>

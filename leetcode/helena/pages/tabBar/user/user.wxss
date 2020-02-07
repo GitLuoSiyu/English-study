@@ -1,0 +1,423 @@
+/* pages/tabBar/user/user.wxss */
+page {
+  background: #f8f8f8;
+   font-family: "PingFang-Medium";
+}
+
+.userHeader {
+  width: 750rpx;
+  height: 374rpx;
+  margin: 0 auto;
+}
+
+.userHmain {
+  width: 715rpx;
+  margin: 0 auto;
+  padding-top: 85rpx;
+  box-sizing: border-box;
+}
+
+.userHmainTop {
+  width: 100%;
+  height: 117rpx;
+  position: relative;
+  margin-bottom: 100rpx;
+}
+
+.userLogo {
+  width: 117rpx;
+  height: 117rpx;
+  border: solid 4rpx #fff;
+  border-radius: 50%;
+  float: left;
+  overflow: hidden;
+}
+
+.userTxt {
+  font-size: 28rpx;
+  color: #fff;
+  float: left;
+  margin: 20rpx 0 0 35rpx;
+}
+
+.userTxt text {
+  font-size: 38rpx;
+  color: #fff;
+}
+
+.userTxt text {
+  font-size: 38rpx;
+  color: #fff;
+}
+
+.userTxt open-data {
+  font-size: 38rpx;
+  color: #fff;
+}
+
+.userTxt image {
+  width: 18rpx;
+  height: 28rpx;
+  margin-left: 17rpx;
+}
+
+.userWrite {
+  position: absolute;
+  top: 40rpx;
+  right: 0;
+  height: 33rpx;
+  line-height: 33rpx;
+  text-align: center;
+  background: none;
+  color: #fff;
+}
+.Potins{
+	position: absolute;
+  top: 81rpx;
+  right: 0;
+  width:206rpx;
+  height: 33rpx;
+  text-align: center;
+	color: #fff;
+	font-size: 22rpx;
+}
+.Potins .bigFont{
+	font-size: 27rpx;
+}
+
+.userWrite image {
+  width: 19rpx;
+  height: 19rpx;
+  vertical-align: middle;
+  margin: 3rpx 10rpx 0;
+}
+
+.userWrite text {
+  font-size: 26rpx;
+  color: #fff;
+  float: left;
+  margin-top: 5rpx;
+}
+
+.orderList {
+  width: 100%;
+  height: 268rpx;
+  background: #fff;
+  padding: 0 25rpx;
+  box-sizing: border-box;
+  box-shadow: 1rpx 1rpx 15rpx 1rpx rgba(242, 242, 242, 0.9);
+  border-radius: 20rpx;
+}
+
+.orderTitlr {
+  width: 100%;
+  height: 103rpx;
+  line-height: 103rpx;
+  color: #333;
+  font-size: 36rpx;
+  border-bottom: 1rpx solid #dbdbdb;
+  position: relative;
+}
+
+.orderNext {
+  width: 13rpx;
+  height: 25rpx;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  margin-top: -12rpx;
+}
+
+.orderUl {
+  width: 100%;
+  padding-top: 45rpx;
+  box-sizing: border-box;
+}
+
+.orderLi {
+  width: 20%;
+  text-align: center;
+  float: left;
+  position: relative;
+}
+
+.orderLiImage {
+  width: 52rpx;
+  height: 52rpx;
+}
+
+.orderLiImage1 {
+  width: 52rpx;
+  height: 52rpx;
+}
+
+.orderLiImage2 {
+  width: 52rpx;
+  height: 52rpx;
+}
+
+.orderLiImage3 {
+  width: 52rpx;
+  height: 52rpx;
+}
+
+.orderLiTxt {
+  font-size: 24rpx;
+  color: #333;
+   font-family: "PingFang-Medium";
+}
+
+.orderLiNum {
+  position: absolute;
+  top: 0;
+  right: 46rpx;
+  font-size: 16rpx;
+  color: #fff;
+  background: #f0331b;
+  border-radius: 10rpx;
+  padding: 0rpx 5rpx;
+  height: 20rpx;
+  min-width: 20rpx;
+  text-align: center;
+  line-height: 20rpx;
+  box-sizing: border-box;
+  display: inline-block;
+}
+
+.userList {
+  width: 715rpx;
+  margin: 33rpx auto 0;
+  background: #fff;
+  padding: 6rpx 25rpx;
+  box-sizing: border-box;
+  box-shadow: 1rpx 1rpx 15rpx 1rpx rgba(242, 242, 242, 0.9);
+  border-radius: 20rpx;
+}
+
+.userLi {
+  width: 100%;
+  height: 76rpx;
+  border-bottom: 1rpx solid #dbdbdb;
+  position: relative;
+  font-size: 24rpx;
+  color: #333;
+  line-height: 76rpx;
+  font-family: "PingFang-Medium";
+}
+
+.userLi navigator {
+  width: 100%;
+  height: 100%;
+}
+
+.userLi:last-child {
+  border-bottom: none;
+}
+
+.userLiImage {
+  width: 32rpx;
+  height: 31rpx;
+  float: left;
+  margin: 23rpx 20rpx 0;
+}
+
+/* .userLi .orderNext {
+  top: 25rpx;
+} */
+
+.userLi .image1 {
+  width: 28rpx;
+  height: 31rpx;
+  margin:23rpx 24rpx 0 23rpx;
+}
+.userLi .image2 {
+  width: 25rpx;
+  height: 32rpx;
+  margin:23rpx 25rpx 0;
+
+}
+.userLi .image3 {
+  width: 35rpx;
+  height: 34rpx;
+  margin-left:-8rpx;
+}
+.userLi .image4 {
+  width: 32rpx;
+  height: 31rpx;
+  margin: 23rpx 22rpx 0 21rpx;
+}
+.userLi .image5 {
+  width: 28rpx;
+  height: 28rpx;
+  margin: 23rpx 24rpx 0 23rpx;
+}
+
+.userLi-btn{
+  background:white;
+  border-radius:0;
+  text-align: left;
+}
+
+.userLayer {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+}
+.userGray {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(51, 51, 51, 0.5);
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+.userLayerHide {
+  display: none;
+}
+.inuserLy {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 370rpx;
+  background: #ffffff;
+  z-index: 9999;
+}
+.inUserClose {
+  width: 23rpx;
+  height: 23rpx;
+  float: right;
+}
+.image100 {
+  width: 113rpx;
+  height: 50rpx;
+  padding: 24rpx 18rpx 0 0;
+  float: right;
+}
+.inUserList {
+  color: rgba(51, 51, 51, 0.5);
+  font-size: 24rpx;
+  text-align: center;
+  line-height: 36rpx;
+  height: 152rpx;
+  padding-top: 100rpx;
+}
+.inUserBtn {
+  float: left;
+  width: 122rpx;
+  height: 152rpx;
+  text-align: center;
+  border: none;
+  background: transparent;
+  line-height: inherit;
+  margin-left: 143rpx;
+  margin-bottom: 30rpx;
+  padding-left: 0;
+  padding-right: 0;
+}
+button::after{
+  border: none;
+  background: transparent;
+}
+button[class=".inUserBtn"]::after {
+  border: none;
+  background: transparent;
+}
+.inUserBtn:nth-child(2) {
+  margin-left: 225rpx;
+}
+.inUserWx {
+  width: 122rpx;
+  height: 152rpx;
+}
+.inUserPh {
+  width: 119rpx;
+  height: 152rpx;
+}
+.userLayerTxt {
+  width: 100%;
+  font-size: 24rpx;
+  text-align: center;
+  line-height: 36rpx;
+  color: rgba(51, 51, 51, 0.5);
+  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+}
+
+
+
+/*适配 iphoneX */
+.isIpxList .userTxt {
+  font-size: 30rpx;
+}
+.isIpxList .userTxt open-data {
+  font-size: 40rpx;
+  color: #fff;
+}
+.isIpxList .userWrite {
+  position: absolute;
+  top: 45rpx;
+  right: 0;
+  width: 161rpx;
+  height: 35rpx;
+}
+.isIpxList .userWrite text {
+  font-size: 20rpx;
+}
+
+.isIpxList .orderList {
+  height: 270rpx;
+}
+
+.isIpxList .orderTitlr {
+  height: 104rpx;
+  line-height: 104rpx;
+  font-size: 38rpx;
+}
+
+.isIpxList .orderNext {
+  top: 41rpx;
+}
+
+.isIpxList .orderLiImage {
+  width: 51rpx;
+  height: 51rpx;
+}
+
+.isIpxList .orderLiImage1 {
+  width: 53rpx;
+  height: 43rpx;
+}
+
+.isIpxList .orderLiImage2 {
+  width: 48rpx;
+  height: 42rpx;
+}
+
+.isIpxList .orderLiImage3 {
+  width: 47rpx;
+  height: 44rpx;
+}
+
+.isIpxList .orderLiTxt {
+  font-size: 25rpx;
+}
+
+.isIpxList .orderLiNum {
+  font-size: 17rpx;
+  padding: 0rpx 6rpx;
+  height: 21rpx;
+  min-width: 21rpx;
+  line-height: 21rpx;
+}
+
+.isIpxList .userLi {
+  font-size: 25rpx;
+}

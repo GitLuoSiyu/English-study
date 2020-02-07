@@ -1,0 +1,145 @@
+{
+	"description": "项目配置文件",
+	"packOptions": {
+		"ignore": []
+	},
+	"setting": {
+		"urlCheck": true,
+		"es6": true,
+		"postcss": true,
+		"minified": true,
+		"newFeature": true,
+		"coverView": true,
+		"autoAudits": false,
+		"showShadowRootInWxmlPanel": true,
+		"scopeDataCheck": false,
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
+	},
+	"compileType": "miniprogram",
+	"libVersion": "2.9.4",
+	"appid": "wx6feb8db6bf81e443",
+	"projectname": "miniprogram-hr",
+	"debugOptions": {
+		"hidedInDevtools": []
+	},
+	"isGameTourist": false,
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"currentL": -1,
+			"list": []
+		},
+		"gamePlugin": {
+			"current": -1,
+			"list": []
+		},
+		"miniprogram": {
+			"current": -1,
+			"list": [
+				{
+					"id": -1,
+					"name": "品牌故事",
+					"pathName": "pages/brandStory/brandStory",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "产品分类",
+					"pathName": "pages/goods/goods",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "领券优惠",
+					"pathName": "pages/getCoupons/getCoupons",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "明星产品",
+					"pathName": "pages/starProduct/starProduct",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "至美力量",
+					"pathName": "pages/category/category",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "订单中心",
+					"pathName": "pages/orders/orders",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "绑定会员",
+					"pathName": "pages/vip/bindVip/bindVip",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "商品详情",
+					"pathName": "pages/product/productDetail/productDetail",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "购物车",
+					"pathName": "pages/tabBar/cart/cart",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "绑定会员信息",
+					"pathName": "pages/vip/bindVip/bindVip",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "全部分类",
+					"pathName": "pages/tabBar/productList/productList",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "个人中心",
+					"pathName": "pages/tabBar/user/user",
+					"scene": null
+				}
+			]
+		}
+	}
+}

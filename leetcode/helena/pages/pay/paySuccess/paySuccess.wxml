@@ -1,0 +1,19 @@
+<!--pages/pay/paySuccess/paySuccess.wxml-->
+<view class='payMain'>
+  <view class='payTop'>
+    <image class='payImg' src='/image/s_0.png'></image>
+    <view>恭喜您付款成功！</view>
+  </view>
+
+  <view class='payOrder'>
+    <view>订单编号：{{orderNo}}</view>
+    <view>下单日期：{{orderTime}}</view>
+    <view>订单状态：待发货</view>
+    <view>订单金额：￥{{totalPrice}}</view>
+  </view>
+
+  <view class='payBtn'>
+    <button bindtap='toIndex'>返回首页</button>
+    <button class='btn' bindtap='toOrder'>查看订单</button>
+  </view>
+</view>

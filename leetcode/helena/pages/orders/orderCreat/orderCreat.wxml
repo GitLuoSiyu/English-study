@@ -1,0 +1,54 @@
+<!--pages/orders/orderCreact/orderCreact.wxml-->
+<view class="order-create">
+    <!-- 地址栏 -->
+    <view class="address-manage">
+      <view class="add-name">姓名</view>
+      <view class="add-context">
+        <view class="add-phone">13966666666</view>
+        <view class="add-content">上海市浦东新区陆家嘴南路520号</view>
+      </view>
+      <view class="add-more">></view>
+    </view>
+
+    <!-- 商品信息 -->
+    <view class="good-info">
+      <view class="good-img"><image src="https://i1.fuimg.com/708157/14662ff33149b189.png"></image></view>
+      <view class="good-desc">
+        <view class="good-title">绿宝瓶悦活蓄能新肌水 X1</view>
+        <view class="good-sku">200ml</view>
+      </view>
+      <view class="good-price">￥720</view>
+    </view>
+
+    <!-- 订单参数 -->
+    <view class="order-info">
+      <view class="coupon order-card">
+        <view class="coupon-title">优惠券</view>
+        <view class="coupon-more">></view>
+      </view>
+      <view class="empty"></view>
+      <view class="good-count order-card">
+        <view class="good-count-title">商品合计：</view>
+        <view class="good-count-price">￥720</view>
+      </view>
+      <view class="good-freight order-card">
+        <view class="good-freight-title">运费：</view>
+        <view class="good-freight-price">￥0</view>
+      </view>
+      <view class="empty"></view>
+      <view class="order-sum order-card">
+        <view class="order-sum-title">应付金额：</view>
+        <view class="order-sum-price">￥720</view>
+      </view>
+      <view class="message order-card">买家留言:</view>
+      <textarea class="message-box" placeholder="请输入您的订单留言">
+        
+      </textarea>
+    </view>z
+
+    <!-- footer -->
+    <view class="footer-pay" bindtap="goPay">
+      微信支付
+    </view>
+
+</view>

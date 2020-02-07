@@ -1,0 +1,106 @@
+<view class="{{isIphoneX? 'isIpxList' : ''}}">
+  <view class='userHeader' style='background:url(https://hr-1256143910.cos.ap-shanghai.myqcloud.com/user/0997c3d14c52fda0.png) no-repeat top center / 100% 415rpx'>
+    <view class='userHmain'>
+      <view class='userHmainTop'>
+        <view class='userLogo'>
+          <open-data type='userAvatarUrl'></open-data>
+        </view>
+        <view class='userTxt'>
+          <view>
+            <block wx:if="{{customer.name}}">
+              <text>{{customer.name}}</text>
+            </block>
+            <block wx:else>
+              <open-data type='userNickName'></open-data>
+            </block>
+          </view>
+        </view>
+        <button wx:if="{{isAuth}}" bindtap="bindGetUserInfo" class='userWrite'>
+          <text>{{text}}</text>
+          <image src='/static/perfect.png'></image>
+        </button>
+        <button open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo" class='userWrite' wx:else>
+          <text>{{text}}</text>
+          <image src='/static/perfect.png'></image>
+        </button>
+
+      </view>
+      <view class="orderList">
+        <navigator class='orderTitlr' url='../../order/order' hover-class='none'>订单中心
+          <!-- <image class='orderNext' src='/static/u_4.png'></image> -->
+        </navigator>
+        <view class='orderUl'>
+          <view class='orderLi' bindtap='goMyOder' data-indexId="0">
+            <image class='orderLiImage' src='https://hr-1256143910.cos.ap-shanghai.myqcloud.com/orders/u_11.png'></image>
+            <view class='orderLiTxt'>全部订单</view>
+            <text class='orderLiNum' wx:if="{{NEWInNum>0}}">{{NEWInNum}}</text>
+          </view>
+
+          <view class='orderLi' bindtap='goMyOder' data-indexId="1">
+            <image class='orderLiImage' src='https://hr-1256143910.cos.ap-shanghai.myqcloud.com/orders/u_11.png'></image>
+            <view class='orderLiTxt'>待付款</view>
+            <text class='orderLiNum' wx:if="{{NEWInNum>0}}">{{NEWInNum}}</text>
+          </view>
+
+          <view class='orderLi' bindtap='goMyOder' data-indexId="2">
+            <image class='orderLiImage1' src='https://hr-1256143910.cos.ap-shanghai.myqcloud.com/orders/u_12.png'></image>
+            <view class='orderLiTxt'>待发货</view>
+            <text class='orderLiNum' wx:if="{{ShippingInNum>0}}">{{ShippingInNum}}</text>
+          </view>
+
+          <view class='orderLi' bindtap='goMyOder' data-indexId="3">
+            <image class='orderLiImage2' src='https://hr-1256143910.cos.ap-shanghai.myqcloud.com/orders/u_13.png'></image>
+            <view class='orderLiTxt'>待收货</view>
+            <text class='orderLiNum' wx:if="{{UnCommentInNum>0}}">{{UnCommentInNum}}</text>
+          </view>
+
+          <view class='orderLi' bindtap='goMyOder' data-indexId="4">
+            <image class='orderLiImage3' src='https://hr-1256143910.cos.ap-shanghai.myqcloud.com/orders/u_14.png'></image>
+            <view class='orderLiTxt'>已完成</view>
+          </view>
+        </view>
+      </view>
+      <view class="userList">
+        <view class='userLi'>
+          <navigator url='./../../vip/bindVip/bindVip' hover-class='none'>
+            <image class='userLiImage' src='/static/gift_icon.png'></image>
+            绑定会员卡
+            <image class='orderNext' src='/static/u_4.png'></image>
+          </navigator>
+
+        </view>
+        <view class='userLi'>
+          <navigator url='./../../vip/policy/policy' hover-class='none'>
+            <image class='userLiImage image1' src='/static/u_6.png'></image>
+            会员相关政策
+            <image class='orderNext' src='/static/u_4.png'></image>
+          </navigator>
+        </view>
+        <view class='userLi'>
+          <navigator url='../category/category' hover-class='none'>
+            <image class='userLiImage image4' src='/static/promotion_icon.png'></image>
+            活动专区
+            <image class='orderNext' src='/static/u_4.png'></image>
+          </navigator>
+        </view>
+        <view class='userLi'>
+          <navigator url='../../vip/prent/prent' hover-class='none'>
+            <image class='userLiImage image4' src='/static/promotion_icon.png'></image>
+            赠品专区
+            <image class='orderNext' src='/static/u_4.png'></image>
+          </navigator>
+        </view>
+        <button class='userLi userLi-btn' open-type="contact" bindtap="contactIcon" wx:if="{{isPhone}}">
+          <image class='userLiImage image3' src='/static/u_8.png'></image>
+          在线客服(工作时间：9：00-21:00)
+          <image class='orderNext' src='/static/u_4.png'></image>
+        </button>
+        <button class='userLi userLi-btn' bindtap="contactIcon" wx:else>
+          <image class='userLiImage image3' src='/static/u_8.png'></image>
+          在线客服(工作时间：9：00-21:00)
+          <image class='orderNext' src='/static/u_4.png'></image>
+        </button>
+      </view>
+    </view>
+  </view>
+</view>

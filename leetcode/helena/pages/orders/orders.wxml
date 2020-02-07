@@ -1,0 +1,89 @@
+<!--pages/orders/orders.wxml-->
+<scroll-view scroll-y="true">
+  <view class='giveGift'>
+    <view class='headerNav'>
+      <block>
+        <view wx:for="{{nav}}" wx:key="indexId" class="{{item.className}}" id='{{item.indexId}}' bindtap='navTab' data-navname="{{item.name}}">{{item.name}}
+        </view>
+      </block>
+    </view>
+
+    <!-- 无订单 -->
+    <view class='noOrder' bindtouchstart="touchStart" bindtouchend="touchEnd" class="noOrder {{orders.length==0?'':'hidden'}}">
+      <image src='./../../static/noOrder.png'></image>
+      <view>你还没有相关订单哦！</view>
+    </view>
+    <!-- 有订单 -->
+
+    <view class='giveMain' bindtouchstart="touchStart" bindtouchend="touchEnd">
+      <!-- <view class="giveContent {{orders.length>0? 'active' : ''}}" wx:for="{{orders}}" wx:for-index="idx" wx:for-item="order" wx:key="{{order.id}}" data-id="{{order.id}}">
+        <view class='order'>
+          <view>订单编号：{{order.orderNo}}</view>
+          <view>下单日期：{{order.createTimeFormat}}</view>
+          <text class='giveMoney' wx:if="{{order.orderStatus=='NEW'}}">待付款</text>
+          <text class='giveMoney' wx:elif="{{order.orderStatus=='Shipping'}}">待收货</text>
+          <text class='giveMoney' wx:elif="{{order.orderStatus=='UnComment'}}">待评价</text>
+          <text class='giveMoney' wx:elif="{{order.orderStatus=='Cancel'}}">已取消</text>
+          <text class='giveMoney' wx:elif="{{order.orderStatus=='Return'}}">退货</text>
+          <text class='giveMoney' wx:elif="{{order.orderStatus=='Complete'}}">完成</text>
+          <text class='giveMoney' wx:elif="{{order.orderStatus=='WaitPay'}}">待付款</text>
+        </view>
+        <view class='givePdt' bindtap='goDetail' data-id="{{order.orderNo}}">
+          <view class='givePdtImage'>
+             <image class='givePdtImage-img' mode="aspectFit" src='{{order.productsDto[0].pictureDTO[0].pictureUrl}}'></image>
+          </view>
+
+         
+          <view class='givePdtTxt'>
+            <view class='giveTxt'>
+              <view>
+                <text>￥{{order.total+order.shippingPrice}}</text>
+              </view>共{{order.checkNum}}件商品
+            </view>
+          </view>
+
+        </view>
+        <view class="{{currentNavId=='1'||(order.orderStatus=='NEW' || order.orderStatus=='WaitPay')?'orderBtn':'hidden'}}">
+          <button bindtap='goPay' data-order="{{order}}">前往支付</button>
+        </view>
+        <view class="{{currentNavId=='3'||order.orderStatus=='UnComment'?'orderSay':'hidden'}}">
+          <view class='orderSayTitle' data-orderid='{{order.id}}' bindtap='toggle'>
+            {{order.isShow?"收起":"展开"}}
+          </view>
+          <image class='orderImage' src="{{order.isShow?'/image/c_1p.png':'/image/c_1.png'}}"></image>
+          <view class='orderSayContent {{order.isShow?"":"hidden"}}' wx:for="{{order.products}}" wx:for-index="pidx" wx:for-item="product" wx:key="{{product.productId}}">
+            <view class='orderSLi'>
+              <image class='osLiImage' src='{{product.pictureDTO[0].pictureUrl}}'></image>
+              <view class='osLiTitle'>
+                <view class='osLiTt'>{{product.productName}}</view>
+                <view style='font-weight: normal;color:#c3c3c3;'>{{product.categorySkuPropertyDTO.catePropVal}}×{{product.quantity}}</view>
+              </view>
+              <view class='osLiNum' wx:if="{{order.orderStatus=='UnComment'}}">
+                <view class="{{product.star>=1?'on':''}}" data-orderidx="{{idx}}" data-productidx="{{pidx}}" data-star="1" bindtap="evaluate"></view>
+                <view class="{{product.star>=2?'on':''}}" data-orderidx="{{idx}}" data-productidx="{{pidx}}" data-star="2" bindtap="evaluate"></view>
+                <view class="{{product.star>=3?'on':''}}" data-orderidx="{{idx}}" data-productidx="{{pidx}}" data-star="3" bindtap="evaluate"></view>
+                <view class="{{product.star>=4?'on':''}}" data-orderidx="{{idx}}" data-productidx="{{pidx}}" data-star="4" bindtap="evaluate"></view>
+                <view class="{{product.star>=5?'on':''}}" data-orderidx="{{idx}}" data-productidx="{{pidx}}" data-star="5" bindtap="evaluate"></view>
+              </view>
+            </view>
+          </view> -->
+          <!-- TODO需要判断是否有代付人 -->
+          <!-- <view class='payUser' wx:if="{{order.isShow&&order.insteadCustomer}}">
+            <view>代付人：</view>
+            <view>
+              <image src='{{order.insteadCustomer.headImg}}'></image>
+              {{order.insteadCustomer.customerName}}
+            </view>
+            <text>已完成</text>
+          </view> -->
+          <!-- <view class="orderBtn" wx:if="{{order.orderStatus=='UnComment'&&order.isShow}}">
+            <button bindtap="submit" data-orderidx="{{idx}}">提交</button>
+          </view> -->
+        <!-- </view>
+      </view> -->
+    </view>
+  </view>
+</scroll-view>
+
+
+

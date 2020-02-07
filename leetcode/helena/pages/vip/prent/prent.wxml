@@ -1,0 +1,7 @@
+<!--pages/vip/prent/prent.wxml-->
+<view class="">
+  <view class="no-prent d-flex j-center a-center" style="font-size: 38upx; padding-top: 100upx;" v-if="{{prents.length === 0}}">暂无可用优惠券</view>
+  <view v-else>
+    <!-- 有优惠卷 -->
+  </view>
+</view>

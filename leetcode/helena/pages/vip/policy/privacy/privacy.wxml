@@ -1,0 +1,23 @@
+<!--pages/vip/policy/privacy/privacy.wxml-->
+<view>
+  <view class="context">
+    <view class="question">退换订购的产品</view>
+    <view class="answer">
+      如果您收到的货物与您订购的产品有出入，您可以在收到产品7天内与我们的在线客服联系，我们将为您提供退换货服务。退还订购.的产品，请确保所有的产品未开封及附上送货单据明细，还有送货单和发票上注明的其他物品后，您将得到退款。
+    </view>
+    <view class="question">退换产品运费处理</view>
+    <view class="answer">
+      如果因为赫莲娜的工作失误造成退货(收到的产品并非订购的产品，或包装出现损坏等)，退款中将包含您支付的运费。对于您在官方商城上订购的产品，不能到品牌各专柜办理调换或退货。
+    </view>
+    <view class="question">退货流程</view>
+    <view class="answer">1.请联系官方商城在线客服</view>
+    <view class="answer">2.在必要情况下提供产品质量问题证明(过敏报告、产品图片等)</view>
+    <view class="answer">3.根据客服人员提示将订单快递寄回</view>
+    <view class="answer">4.快递到达仓库，5个工作日内安排退款5.耐心等待银行到账，最长7个工作日</view>
+    <view class="question">客服专线</view>
+    <view class="answer">
+      如果您有任何关于赫莲娜官方商城的购物流程疑问需要解答。可致电赫莲娜官方订购热线:
+      <text class="telenumber">4008210811</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,4 @@
+<!--pages/pay/payFail/payFail.wxml-->
+<view>
+  支付失败回调页
+</view>

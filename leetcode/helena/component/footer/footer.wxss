@@ -1,0 +1,91 @@
+.footer {
+  width: 100%;
+  height: 105rpx;
+  background: white;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+}
+
+.footer-index {
+  font-size: 23rpx;
+  width: 14%;
+  text-align: center;
+  margin-top: 22rpx;
+  position: relative;
+}
+
+.shopping-icon1 {
+  height: 30rpx;
+  width: 30rpx;
+}
+
+.footer-index text {
+  font-size: 18.26rpx;
+  color: #fff;
+  background: #de443c;
+  position: absolute;
+  top: -17rpx;
+  right: 1px;
+  /* padding: 5rpx 10rpx; */
+  line-height: 30rpx;
+  border-radius: 50%;
+  width: 30rpx;
+  height: 30rpx;
+  box-sizing: border-box;
+}
+
+.footer-index button{
+  font-size: 23rpx;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  line-height: 15px;
+  color: #333;
+  background: #fff;
+}
+
+.footer-bottom{
+  height: 105rpx;
+  width: 29%;
+  background: black;
+  margin-left: 2rpx;
+  padding: 0;
+}
+.footer-bottom11{
+  width: 36%;
+}
+.footer-bottom1{
+  height: 105rpx;
+  width: 100%;
+  background: black;
+  color: white;
+  font-size: 30rpx;
+  line-height: 105rpx;
+  text-align: center;
+  border-radius: 0;
+}
+.footer-bottom2{
+  height: 105rpx;
+  width: 29%;
+  background: black;
+  color: white;
+  font-size: 30rpx;
+  line-height: 105rpx;
+  text-align: center;
+  border-radius: 0;
+  margin-left: 2rpx;
+  padding: 0;
+}
+.footer-bottomT{
+  height: 105rpx;
+  width: 100%;
+  /* background:rgba(167, 164, 164, 0.541) ; */
+  color: white;
+  font-size: 30rpx;
+  line-height: 105rpx;
+  text-align: center;
+  border-radius: 0;
+}

@@ -1,0 +1,43 @@
+.shopList {
+    display: flex;
+    border-bottom: 1px solid #aaaaaa;
+    justify-content: space-between;
+    padding: 30rpx;
+    align-items: center;
+}
+
+.shopImg {
+    width: 200rpx;
+    height: 200rpx;
+    overflow: hidden;
+}
+
+.shopImg image {
+    width: 100%;
+}
+
+.shopMsg {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    line-height: 40rpx;
+    flex: 1;
+    padding-left: 66rpx;
+}
+
+.lip {
+    width: 26rpx;
+    height: 26rpx;
+    margin-right: 10rpx;
+}
+
+.lip image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+
+.lipColor {
+    display: flex;
+    color: #999;
+}

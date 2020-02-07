@@ -1,0 +1,79 @@
+{
+  "pages": [
+    "pages/tabBar/index/index",
+    "pages/tabBar/category/category",
+    "pages/tabBar/productList/productList",
+    "pages/tabBar/cart/cart",
+    "pages/tabBar/user/user",
+    "pages/tabBar/user/bindUser/bindUser",
+    "pages/product/product",
+    "pages/product/productDetail/productDetail",
+    "pages/orders/orders",
+    "pages/orders/orderCreat/orderCreat",
+    "pages/orders/orderDetail/orderDetail",
+    "pages/address/address",
+    "pages/address/addressManage/addressManage",
+    "pages/pay/pay",
+    "pages/pay/payFail/payFail",
+    "pages/pay/paySuccess/paySuccess",
+    "pages/search/search",
+    "pages/error/error",
+    "pages/vip/bindVip/bindVip",
+    "pages/vip/policy/policy",
+    "pages/vip/policy/privacy/privacy",
+    "pages/vip/policy/returnpolicy/returnpolicy",
+    "pages/vip/policy/useprivacy/useprivacy",
+    "pages/vip/prent/prent",
+    "pages/integral/integral"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#000",
+    "navigationBarTitleText": "赫莲娜官方微信商城",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#8f8f8f",
+    "selectedColor": "#e9d6b2",
+    "borderStyle": "black",
+    "backgroundColor": "#000",
+    "list": [
+      {
+        "pagePath": "pages/tabBar/index/index",
+        "iconPath": "static/other/icon_index.png",
+        "selectedIconPath": "static/other/icon_index_selected.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/tabBar/category/category",
+        "iconPath": "static/other/icon_brand.png",
+        "selectedIconPath": "static/other/icon_brand_selected.png",
+        "text": "至美力量"
+      },
+      {
+        "pagePath": "pages/tabBar/productList/productList",
+        "iconPath": "static/other/icon_products.png",
+        "selectedIconPath": "static/other/icon_products_selected.png",
+        "text": "全部分类"
+      },
+      {
+        "pagePath": "pages/tabBar/cart/cart",
+        "iconPath": "static/other/icon_cart.png",
+        "selectedIconPath": "static/other/icon_cart_selected.png",
+        "text": "购物车"
+      },
+      {
+        "pagePath": "pages/tabBar/user/user",
+        "iconPath": "static/other/icon_user.png",
+        "selectedIconPath": "static/other/icon_user_selected.png",
+        "text": "个人中心"
+      }
+    ]
+  },
+  "usingComponents": {
+    "returnOrService": "/component/returnOrService/returnOrService",
+    "productItem": "/component/productItem/index",
+    "footer": "/component/footer/footer"
+  },
+  "sitemapLocation": "sitemap.json"
+}

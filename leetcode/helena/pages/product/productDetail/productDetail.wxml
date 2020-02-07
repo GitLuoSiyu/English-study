@@ -1,0 +1,259 @@
+<!-- 
+<scroll-view scroll-y="true">
+  <view style='background: #fff;'>
+    
+    <view class="swiper-container">
+      <swiper class="swiper" circular autoplay interval="5000" current="{{swiperIndex}}" bindchange="swiperChange">
+        <block wx:for="{{productSKU.p2}}" wx:key="index">
+          <swiper-item>
+            <image src="{{item.pictureUrl}}" class="slide-image auto-img" mode="aspectFill" />
+          </swiper-item>
+        </block>
+      </swiper>
+    
+      <view class="dots">
+        <block wx:for="{{productSKU.p2}}" wx:key="index">
+          <view class="dot{{index == current ? ' active' : ''}}"></view>
+        </block>
+      </view>
+
+    </view>
+  </view>
+  
+  <view class='productMain'>
+    <view class='productTitle'>
+      <view class='pdtTitleLeft'>
+        <view class='pdtAlign'>
+          <view class='pdtTitleMoney'>
+            <view style='margin-top:25rpx;'>￥
+              <text>9999</text>
+            </view>
+            <view class="sku">200ml</view>
+          </view>
+          <view class='pdtTitleTxt' style='flex-direction:row;'>HR赫莲娜绿宝瓶悦活蓄能新肌水</view>
+        </view>
+
+      </view>
+    </view>
+
+    <view class='productImg'>
+      <view class='pdtImgBox'>
+        <view class='pdtwT'>
+          图文详情
+        </view>
+      </view>
+      <view class='pdtwMain'>
+        <view class="">
+          <image mode="widthFix" src="https://i1.fuimg.com/708157/a109c965c6f932bd.jpg"></image>
+        </view>
+
+      </view>
+
+  
+      <view class="footer1">国家药监局提示您：请正确认识化妆品功效，化妆品不能替代药品，不能治疗皮肤病等疾病</view>
+    </view>
+  </view>
+</scroll-view>
+
+<view class='productEnd'>
+  <view class='pdtElist'>
+    <view class='pdtEli' bindtap="toIndex">
+      <image class='pdtEliImg' src='./../../../static/shopping-icon1.png'></image>
+      <view>首页</view>
+    </view>
+    <button class='pdtEli' hover-class='none' bindtap='toCustomer'>
+      <image class='pdtEliImg1' src='./../../../static/service_icon1.png'></image>
+      <view>客服</view>
+    </button>
+    <view class='pdtEli' bindtap='toCart'>
+      <image class='pdtEliImg2' src='./../../../static/wx.png'></image>
+      <view>购物车</view>
+    </view>
+  </view>
+  <view class='pdtElistR'>
+    <button class='yellow' bindtap='addCart'>加入购物车</button>
+    <button class='red' bindtap='toPay'>立即购买</button>
+  </view>
+</view>
+
+
+<view class='share' hidden='{{isShare}}'>
+  <view class='shareLayer' bindtap='clickShare'></view>
+  <view class='inShare'>
+    <view class='shareImg' bindtap='clickShare'>
+      <image src='./../../../static/close.png'></image>
+    </view>
+    <view class='shareList'>
+      <button class='shareLi' hover-class='none' open-type='share'>
+        <image src='./../../../static/wx.png' bindtap='shareToFriend'></image>
+        <view>分享给好友</view>
+      </button>
+      <button class='shareLi' hover-class='none' bindtap='showShareToMoments'>
+        <image src='./../../../static/fd.png'></image>
+        <view>生成分享图片</view>
+      </button>
+    </view>
+  </view>
+</view> -->
+
+
+<view class="product-container">
+  <!-- 赫莲娜头部没有搜索框 -->
+  <!-- <view class='productSearch'>
+    <view class="search-view">
+      <view class="search-content" bindtap="goDetail">
+        <input placeholder="{{placeholder}}" disabled class="search-input">
+        </input>
+        <image src="/image/search-pic.png" class="search-icon"/>
+      </view>
+    </view>
+  </view> -->
+
+  <view class="banner">
+    <swiper autoplay circular interval="{{3000}}" duration="{{500}}" current="{{swiperIndex}}" indicator-dots="{{productSKU.p2.length>1? true:false}}" style="height:810rpx">
+      <block wx:for="{{productSKU.p2}}" wx:for-index="index" wx:key="id">
+        <swiper-item>
+          <image src="{{item.pictureUrl}}" mode="widthFix" class="banner-image" />
+        </swiper-item>
+      </block>
+    </swiper>
+
+    <view style="display:flex;">
+      <view class="title">
+        <view class="title-price">
+          <span class="price-symbol">¥</span>
+          <span class="product-details-money">{{productSKU.platformPrice}}</span>
+        </view>
+        <view class="title-name">{{product.name}}</view>
+      </view>
+      <view class="match-box" wx:if="{{!product.showColorSelector}}">
+        <!-- <view class="title titleF">
+          <view>选择规格:</view>
+        </view> -->
+        <!-- sku -->
+        <view class="type-box">
+          <block wx:for="{{product.productSkuDTO}}" wx:key="index">
+            <view class="item {{index==skuIndex?'active':''}}" data-index="{{index}}" data-value="{{item.productSkuId}}" bindtap="changeSpecify">{{item.categorySkuPropertyDTOList[0].catePropVal}}</view>
+          </block>
+        </view>
+      </view>
+    </view>
+    <!-- <view class="title">
+      <view class="title-price">
+        <span>¥</span>
+        <span class="product-details-money">{{productSKU.platformPrice}}</span>
+      </view>
+      <view class="title-name">{{product.name}}</view>
+    </view> -->
+
+  </view>
+
+
+  <view class="banner-details">
+    <view class="recommend-box">
+      <!-- <view class="recommend-container" bindtap='clickCircle' data-id='{{productSKU.productSkuId}}'>
+        <image src="/image/recommend-good.png" class="recommend-good"></image>
+        <span class="recommend-title">推荐好物</span>
+      </view> -->
+
+      <view wx:if="{{product.showColorSelector}}" class="suit-details color-details">
+        <span>选择色号:</span>
+        <view class="color-title">
+          <view>色号：{{colorName}}</view>
+          <view class="swiper-color">
+            <view class="direction" wx:if="{{product.productSkuDTO.length>11}}">
+              <image src="/image/left.png" class="direction-icon"></image>
+            </view>
+            <scroll-view class="color-container" scroll-x>
+              <view class="colorBoxScroll">
+                <view class="colorList {{index==activeIndex?'activeColor':''}}" bindtap="chooseColor" wx:for="{{product.productSkuDTO}}" wx:key="{{index}}" data-index="{{index}}" data-name="{{item.name}}" data-defaultProperty="{{item.defaultProperty}}" data-color="{{item.rgba}}"
+                  data-id="{{item.productSkuId}}" data-picture="{{item.pictureDTO}}" data-basePrice="{{item.platformPrice}}" data-productType="{{item.productType}}">
+                  <view class="clorListChild" style="background-color:rgba({{item.rgba[0]}},{{item.rgba[1]}},{{item.rgba[2]}},{{item.rgba[3]}})"></view>
+                </view>
+              </view>
+            </scroll-view>
+            <view class="direction" wx:if="{{product.productSkuDTO.length>11}}">
+              <image src="/image/right.png" class="direction-icon"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{product.tryColor}}" class="camera-container" bindtap="cameraEvent">
+        <image src="/image/colorTest.png" class="camera"></image>
+        <span class="camera-title">即刻试色，挑选适合你的色号</span>
+        <image src="/image/right.png" class="color-icon"></image>
+      </view>
+      <view class="suit-details" hidden="{{product.productDetails == '' || product.productDetails == null}}">
+        <span>图文详情:</span>
+        <ul>
+          <li style="white-space:pre-line">{{tools.filter_N(product.productDetails)}}</li>
+        </ul>
+      </view>
+    </view>
+
+    <view class="photo-container">
+      <!-- {{item}} -->
+      <block wx:for="{{product.p1}}" wx:key="index">
+        <image mode="widthFix" src="{{item.pictureUrl}}" class="photo-all"></image>
+
+      </block>
+    </view>
+    <view class="hot-product" wx:if="{{recommendProductsDTOList.length>0}}">
+      <view class="hot-product-title">你可能还喜欢</view>
+      <scroll-view class="nav" scroll-x>
+        <view class="hot-product-item">
+          <view bindtap="toDetail" data-id="{{item.productSkuDTO.productId}}" wx:for="{{recommendProductsDTOList}}" wx:key="{{index}}" class="product-item">
+            <view class="product-box">
+              <image src="{{item.productSkuDTO.headPicture}}"></image>
+            </view>
+            <view class="Ename">{{item.productSkuDTO.name}}</view>
+            <view class="price">￥{{item.productSkuDTO.platformPrice}}</view>
+            <view class="btn">立即购买</view>
+          </view>
+
+          <view class="product-item">
+            <view class="lookMore" bindtap="lookMore">
+              查看更多
+              <image src="/image/right.png" class="direction-icon"></image>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- <footer commodity="{{footerData}}" skuInformation="{{productSKU}}" cartCount="{{cartCount}}" choosed="{{productSKU}}"></footer> -->
+  <view class="footer">
+    <view class="footer-index" bindtap="toIndex">
+      <image src="/static/shopping-icon1.png" class="shopping-icon1"></image>
+      <view>首页</view>
+    </view>
+    <view wx:if="{{!skuInformation.customizationDTO.engraveEnable}}" class="footer-index" bindtap="contactEvent">
+      <button hover-class="none" open-type="contact" style="opacity: 0;position: absolute;" wx:if="{{isPhone}}"></button>
+      <button hover-class="none" style="opacity: 0;position: absolute;" wx:else></button>
+      <image src="/static/custom-service.png" class="shopping-icon1"></image>
+      <view class="contactDetail">
+        <!-- <button>客服</button> -->
+        <view>客服</view>
+      </view>
+    </view>
+    <view class="footer-index footer-indexB" bindtap='toCart'>
+      <image src="/static/shopping-icon2.png" class="shopping-icon1"></image>
+      <text hidden="{{cartCount == 0}}">{{cartCount}}</text>
+      <!-- <button>购物车</button> -->
+      <view>购物车</view>
+    </view>
+    <view wx:if="{{skuInformation.customizationDTO.engraveEnable}}" class="footer-bottom2" bindtap='toCustomService'>定制服务</view>
+      <form report-submit='true' bindsubmit='addCart1' class="footer-bottom footer-bottom11">
+          <button hover-class="none" bindtap="addCart" form-type="submit" class="footer-bottom1" wx:if="{{isAuth}}">加入购物车</button>
+        <button hover-class="none" open-type="getUserInfo" bindgetuserinfo="addCart" form-type="submit" class="footer-bottom1" wx:else>加入购物车</button>
+      </form>
+      <form report-submit='true' bindsubmit='toPay'  class="footer-bottom">
+        <button hover-class="none" bindtap="toPay" form-type="submit" class="footer-bottom1">立即购买</button>
+        <!-- <button hover-class="none" bindtap="toPay" form-type="submit" class="footer-bottom1 {{btnTimeOutAll?'footer-bottomT':''}}"  wx:if="{{isAuth}}">{{payStatus}}</button>
+        <button hover-class="none" open-type="getUserInfo" bindgetuserinfo="toPay" form-type="submit" class="footer-bottom1{{btnTimeOutAll?'footer-bottomT':''}}" wx:else>{{payStatus}}</button> -->
+      </form>
+    </view>
+
+
+</view>

@@ -1,0 +1,33 @@
+<view class="returnOrService">
+  <!-- 客服功能 -->
+  <view class='server' bindtap="changeLayer" wx:if="{{customAttribute2 != 'false'}}">
+    <image src='/image/i_1.png'></image>
+  </view>
+
+  <!-- 返回主页 -->
+  <view class='return' catchtap='returnHome' wx:if="{{customAttribute != 'KFeature' || customAttribute1 != ''}}">
+    <image src='/image/i_back.png'></image>
+  </view>
+
+
+  <!-- 弹层 -->
+  <view class="{{isShowLayer?'userLayer':'userLayerHide'}}">
+    <view class='userGray' bindtap='changeLayer'></view>
+    <view class='inuserLy'>
+      <view class='image100' bindtap='changeLayer'>
+        <image class='inUserClose' src='/image/close.png'></image>
+      </view>
+
+      <view class='inUserList'>
+        <button class='inUserBtn' open-type="contact" bindtap='clickWX' show-message-card="{{card.isShow}}" send-message-title="{{card.title}}" send-message-path="{{card.path}}" bindcontact='contactCallback'>
+          <!-- <image class='inUserWx' src='/image/k_1.png'></image> -->
+        </button>
+        <button class='inUserBtn' data-reply-phone="400-820-5433" bindtap='phoneCall'>
+          <!-- <image class='inUserPh' src='/image/k_0.png'></image> -->
+        </button>
+      </view>
+      <view class='userLayerTxt'>服务时间： 09：00 - 21：00</view>
+      <view class='userLayerTxt' style='margin-top: 5rpx;'>（国定节假日除外）</view>
+    </view>
+  </view>
+</view>

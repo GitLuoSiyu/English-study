@@ -1,0 +1,52 @@
+/* pages/tabBar/category/category.wxss */
+page{
+  height: 100%;
+  width: 100%;
+}
+.category{
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+}
+.video-box{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.video{
+  width: 100%;
+}
+.ad-box{
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: relative;
+}
+.ad-img{
+  display: flex;
+}
+.hoot-good-box{
+  width: 100%;
+  position: absolute;
+  bottom: -2500rpx;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  height: 70rpx;
+  line-height: 70rpx;
+}
+.hoot-good{
+  width: 300rpx;
+  border: solid 2rpx #999;
+  color: #999;
+  font-size: 28rpx;
+  margin: 0 auto;
+}
+.hoot-good-img{
+  display: flex;
+  width: 100%;
+}
+.go-pay{
+  display: inline-block;
+  text-align: center;
+}

@@ -1,0 +1,348 @@
+/* pages/orders/orders.wxss */
+page {
+  background: #f4f4f4;
+}
+.giveGift {
+  width: 715rpx;
+  margin: 0 auto;
+}
+.headerNav {
+  width: 100%;
+  height: 102rpx;
+  line-height: 102rpx;
+  font-size: 28rpx;
+  color: rgba(51, 51, 51, 0.4);
+}
+.headerNav view {
+  float: left;
+  width: 16%;
+  position: relative;
+  text-align: center;
+}
+.headerNav view:first-child {
+  width: 18%;
+}
+.headerNav view:last-child {
+  width: 17%;
+  text-align: center;
+}
+.headerNav .inNum {
+  font-size: 16rpx;
+  color: #fff;
+  background: #f0331b;
+  border-radius: 10rpx;
+  padding: 0rpx 5rpx;
+  height: 20rpx;
+  min-width: 20rpx;
+  text-align: center;
+  line-height: 20rpx;
+  box-sizing: border-box;
+  display: inline-block;
+  position: absolute;
+  top: 30rpx;
+  right: 50rpx;
+  width: auto;
+}
+.headerNav .active text {
+  position: absolute;
+  top: 27rpx;
+  right: 25rpx;
+}
+.active {
+  font-size: 32rpx;
+  color: #333333;
+  font-weight: bold;
+}
+.giveMain {
+  width: 100%;
+}
+.order {
+  font-size: 24rpx;
+  margin-bottom: 40rpx;
+  position: relative;
+  font-weight: normal;
+}
+.order .time {
+  font-size: 36rpx;
+}
+.order .giveMoney {
+  font-size: 33rpx;
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-weight: normal;
+  color:#2D9780;
+}
+.givePdtTxt {
+ float: right;
+font-size: 24rpx;
+vertical-align: middle;
+display: flex;
+flex-direction: column;
+justify-content: space-evenly;
+/* align-items: center; */
+height: 100%;
+
+}
+.giveTxt {
+  line-height: 45rpx;
+  display: inline-block;
+  font-weight: normal;
+  text-align: right;
+  font-size: 22rpx;
+  color: #AEAEAE;
+}
+.giveTxt view {
+  font-size: 36rpx;
+  color: #333333;
+  /* font-weight: bold; */
+}
+.givePdtImage {
+  float: left;
+  overflow: hidden;
+}
+.givePdtImage-img {
+  width: 175rpx;
+  height: 195rpx;
+  margin-right:10rpx;
+  border-radius:10%;
+}
+.givePdtsmall{
+  height: 195rpx;
+  width: 200rpx;
+  border-radius:10%;
+  background:#F3F3F3;
+}
+.givePdt {
+  width: 100%;
+  height: 195rpx;
+}
+.giveUser {
+  font-size: 24rpx;
+  color: #333333;
+  height: 103rpx;
+  line-height: 103rpx;
+}
+.giveUser text {
+  float: right;
+  font-size: 36rpx;
+}
+.giveUser view {
+  float: left;
+}
+.giveUser image {
+  width: 41rpx;
+  height: 41rpx;
+  vertical-align: middle;
+  margin: 0 20rpx 0 23rpx;
+}
+.giveContent {
+  display: none;
+  padding: 30rpx;
+  box-sizing: border-box;
+  box-shadow: 0 0 35rpx 10rpx rgba(34, 30, 30, 0.1);
+  border-radius: 20rpx;
+  background: #ffffff;
+  color: #333333;
+  margin-bottom: 30rpx;
+}
+.giveMain .active {
+  display: block;
+}
+
+.noOrder {
+  width: 100%;
+  font-size: 36rpx;
+  color: #333333;
+  text-align: center;
+  height: 1090rpx;
+}
+.noOrder image {
+  width: 192rpx;
+  height: 202rpx;
+  margin: 145rpx 0 50rpx;
+}
+.cancelBtn {
+  /* padding: 30rpx 0 0; */
+  box-sizing: border-box;
+  height: 50rpx;
+}
+.cancelBtn button {
+  float: right;
+  font-size: 33rpx;
+  font-weight: 400;
+  border: none;
+  width: 192rpx;
+  height: 62rpx;
+  line-height: 62rpx;
+  padding-left: 0;
+  padding-right: 0;
+  background: none;
+  border-radius: 0;
+  text-align: right;
+  color:#2D9780;
+}
+
+.orderSay {
+  width: 100%;
+  border-top: 1rpx solid #dbdbdb;
+  position: relative;
+  margin-top: 20rpx;
+}
+.orderSayTitle {
+  height: 72rpx;
+  line-height: 72rpx;
+  width: 100%;
+  text-align: right;
+  padding-right: 42rpx;
+  box-sizing: border-box;
+  font-size: 32rpx;
+  color: #333333;
+  font-weight: normal;
+}
+.orderImage {
+  width: 32rpx;
+  height: 18rpx;
+  position: absolute;
+  top: 28rpx;
+  right: 0;
+}
+.orderSayContent {
+  width: 100%;
+  padding-top: 35rpx;
+  box-sizing: border-box;
+}
+.orderSLi {
+  width: 100%;
+  overflow: hidden;
+  /* padding-bottom: 55rpx; */
+  position: relative;
+  height: 136rpx;
+  margin-bottom: 50rpx;
+}
+.osLiImage {
+  float: left;
+  width: 127rpx;
+  height: 103rpx;
+  margin-right: 23rpx;
+}
+.osLiTitle {
+  float: left;
+  font-size: 28rpx;
+  color: rgba(51, 51, 51, 0.5);
+  width: 282rpx;
+}
+.osLiTt {
+  color: #333333;
+  margin-top: 14rpx;
+  font-weight: normal;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp:1;
+  -webkit-box-orient: vertical;
+}
+.osLiNum {
+  width: 195rpx;
+  height: 31rpx;
+  position: absolute;
+  top: 34rpx;
+  right: 0rpx;
+}
+.osLiNum view {
+  width: 31rpx;
+  height: 31rpx;
+  margin-right: 10rpx;
+  float: left;
+  background: url("https://ecminiappprd.kiehls.com.cn/miniprogram/image/f1.png") no-repeat center center / 31rpx 31rpx;
+}
+.osLiNum view:last-child {
+  margin-right: 0;
+}
+.osLiNum .on {
+  background: url("https://ecminiappprd.kiehls.com.cn/miniprogram/image/f1_y.png") no-repeat center center / 31rpx 31rpx;
+}
+.hidden{
+  display: none;
+}
+
+.payUser {
+  font-size: 24rpx;
+  color: #333333;
+  height: 103rpx;
+  line-height: 103rpx;
+}
+.payUser text {
+  float: right;
+  font-size: 36rpx;
+}
+.payUser view {
+  float: left;
+}
+.payUser image {
+  width: 41rpx;
+  height: 41rpx;
+  vertical-align: middle;
+  margin: 0 20rpx 0 23rpx;
+  border-radius: 50%;
+}
+ .askReturn{
+  font-size: 33rpx;
+  margin-top: 10rpx;
+  font-weight: 400;
+  color:#2D9780;
+}
+.returnshop{
+  justify-content: space-between;
+}
+.cancelReturn{
+  font-size: 32rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+.cancelReturnBtn{
+  margin-right: 20rpx;
+  font-size: 33rpx;
+  /* margin-top: 10rpx; */
+  font-weight: 400;
+}
+/* .givePdtImage-first{
+  margin-left:2%;
+} */
+.isRecive{
+  width: 160rpx;
+  text-align: right;
+  font-size: 32rpx;
+}
+.returnpicker{
+  height: 35rpx;
+}
+.picker image{
+  width: 30rpx;
+height: 18rpx;
+display: inline-block;
+}
+.order .Reject{
+  margin-right: 10rpx;
+}
+.customFriends{
+  position: fixed;
+  right: 10px;
+  bottom: 164rpx;
+  z-index: 9;
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  border:1rpx solid #333;
+}
+.customFriends image{
+  position: absolute;
+  left:9rpx;
+  top: 9rpx;
+  z-index: 10;
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+}

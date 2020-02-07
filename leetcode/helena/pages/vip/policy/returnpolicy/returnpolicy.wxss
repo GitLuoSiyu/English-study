@@ -1,0 +1,27 @@
+/* pages/vip/policy/returnpolicy/returnpolicy.wxss */
+page {
+	margin: 12rpx auto;
+}
+.title {
+	width: 100%;
+	margin: 24rpx auto;
+	margin-top: 40rpx;
+	text-align: center;
+	font-size: 38rpx;
+}
+.context {
+	width: 100%;
+	padding: 4rpx 24rpx;
+}
+.question {
+	font-weight: 700;
+	font-size: 32rpx;
+}
+.answer {
+	font-weight: 500;
+	font-size: 26rpx;
+}
+.telenumber {
+	color: green;
+	padding-left: 6rpx;
+}

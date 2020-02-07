@@ -1,0 +1,14 @@
+/* pages/error/error.wxss */
+page {
+  background: #f4f4f4;
+}
+.error {
+  font-size: 36rpx;
+  color: #333333;
+  text-align: center;
+  margin-top: 92rpx;
+}
+.error image {
+  width: 183rpx;
+  height: 176rpx;
+}

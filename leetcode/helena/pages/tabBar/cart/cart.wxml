@@ -1,0 +1,59 @@
+<!--pages/tabBar/cart/cart.wxml-->
+<view class="{{showCoupon ? 'preventTouchMove' : ' '}}">
+  <!-- 无产品 -->
+  <!-- <view class="empty-blank"></view> -->
+
+
+
+  <!-- 有产品 -->
+  <view class="cart-products">
+    <view class="cart-list">
+      <block wx:for="{{cartList}}" wx:key="index">
+        <view class="cart-box">
+          <view class="cart-check" bindtap="checkSingleCart"><image wx-if="{{item.selected}}" mode="widthFix" src="https://hr-1256143910.cos.ap-shanghai.myqcloud.com/cart/selected.png"></image></view>
+          <view class="cart-img">
+            <image mode="widthFix" src="https://i2.tiimg.com/708157/6bded69cb50e5a7c.png"></image>
+          </view>
+          <view class="cart-info">
+            <view class="cart-title">赫莲娜测试产品
+              <view class="cart-sku">50ml</view>
+            </view>
+            <view class="cart-number">
+              <picker style='width: 100%;height:60rpx;' bindchange="bindPickerChange" data-productsku="" data-id="" range="{{[1,2,3,4,5]}}">
+                <view class="picker">
+                  {{item.count}}
+                </view>
+              </picker>
+            </view>
+          </view>
+          <view class="cart-good-edit">
+            <view class="cart-delete" bindtap="deleteCartProduct">
+              <image mode="widthFix" src="https://i1.fuimg.com/708157/6ad9011212be70be.png"></image>
+            </view>
+            <view class="cart-price">¥{{item.price}}</view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+
+
+  <!-- 促销码 -->
+  <view hidden='{{cartInfo.detailDTOS.length<=0}}' class="payAll">
+    <!-- 前往支付 -->
+    <view class='carPay'>
+      <label class='carPauLabel' >
+        <image src="{{checkAllFlag ? '/static/selected.png':'/static/unselect.png'}}" bindtap='checkAllClick'></image>
+        全选
+      </label>
+      <view class='carPayM'>
+        <view>合计：¥ {{totalPrice}}</view>
+        <!-- <view class='carPaySmall'>（运费：￥{{freight}}）</view> -->
+      </view>
+      <form report-submit='true' bindsubmit="toPay">
+        <button class='carPayBtn' form-type='submit'>立即结算</button>
+      </form>
+    </view>
+  </view>
+</view>

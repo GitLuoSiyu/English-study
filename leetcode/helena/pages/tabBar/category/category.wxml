@@ -1,0 +1,16 @@
+<!--pages/tabBar/category/category.wxml-->
+<view class="category">
+  <!-- video -->
+  <view class="video-box">
+    <video class="video" src="https://res-wxec-unipt.lorealchina.com/helena/HR_video.m4v"
+      controls show-fullscreen-btn auto-pause-if-navigate auto-pause-if-open-native></video>
+  </view>
+
+  <!-- ad -->
+  <view class="ad-box">
+      <image class="ad-img" mode="widthFix" src="https://i1.fuimg.com/708157/7aba66781f1eb6dc.png"></image>
+      <view class="hoot-good-box" bindtap="goPay">
+        <view class="hoot-good">开启逆时之美</view>
+      </view>
+  </view>
+</view>

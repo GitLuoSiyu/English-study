@@ -1,0 +1,141 @@
+/* pages/orders/orderCreact/orderCreact.wxss */
+.order-create{
+  width: 100%;
+  height: 100%;
+}
+.address-manage{
+  height: 120rpx;
+  margin: 20rpx 14rpx;
+  border: solid 4rpx #ddd;
+  border-radius: 8rpx;
+  background-color: #f4f4f4;
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: #333;
+}
+.add-name{
+  width: 25%;
+  text-align: center;
+}
+.add-context{
+  width: 65%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: left;
+}
+.add-phone{
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+.add-content{
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+.add-more{
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-size: #555;
+}
+.good-info{
+  background-color: #fff;
+  height: 260rpx;
+  padding: 20prx;
+  box-shadow: 0 0 12rpx #fff;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.good-img{
+  width: 30%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.good-img image{
+  padding: 10rpx;
+  display: block;
+  width: 200rpx;
+  height: 200rpx;
+  border: solid 1rpx #999;
+}
+.good-desc{
+  height: 100%;
+  width: 52%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.good-title{
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+.good-sku{
+  font-size: 20rpx;
+  color: #666;
+}
+.good-price{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  font-size: 32rpx;
+  padding-top: 42rpx;
+}
+.order-info{
+  margin-top: 20rpx;
+  padding: 20rpx;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+}
+.order-card{
+  font-size: 28rpx;
+  color: #333;
+  height: 100rpx;
+  line-height: 100rpx;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20rpx;
+  align-items: center;
+}
+.message-box{
+  width: 96%;
+  margin: 0 auto;
+  padding: 16rpx;
+  height: 200rpx;
+  border: solid 1rpx #ddd;
+  font-size: 26rpx;
+  color: #ccc;
+}
+.empty{
+  width: 100%;
+  content: "";
+  display: block;
+  height: 1rpx;
+  bottom: 0;
+  border-bottom: solid 1rpx #ddd;
+}
+
+.footer-pay{
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
+  background-color: #e9d6b2;
+  position: fixed;
+  bottom: 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  color: #fff;
+  font-size: 32rpx;
+} 

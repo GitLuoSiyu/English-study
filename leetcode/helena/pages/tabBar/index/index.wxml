@@ -1,0 +1,220 @@
+<!-- <view>
+
+	<view class="swiperContainer">
+		<swiper autoplay circular style="height:{{swiperHeight}}px" bindchange="swiperChange">
+			<block wx:for="{{bannerList}}" wx:key="index">
+				<swiper-item>
+					<image class="auto-img" bindload="setSwiperHeight" src="{{item}}" mode="widthFix"></image>
+				</swiper-item>
+			</block>
+		</swiper>
+
+		<view class="dots">
+			<block wx:for="{{bannerList}}" wx:key="index">
+				<view class="dot{{index == current ? ' active' : ''}}"></view>
+			</block>
+		</view>
+	</view>
+
+	<view class="search_box">
+		<input class="search_input" placeholder="{{placeholder}}" type="text" bindinput="getInputValue">
+		<view class="yticon icon-sousuo search-icon"></view>
+		</input>
+	</view>
+
+  <view class="notice-box" wx:if="{{notice_flag}}">
+    <view class="notice-title">温馨提示</view>
+    <view class="notice-context">
+      尊贵的赫莲娜女孩，因目前新型冠状病毒肺炎疫情的防控，您在本店订购的产品将会延期送货，给你带来不便我们深表歉意。我们将密切跟踪疫情防控信息与进展，争取尽快为您配送。如有任何疑问，请详询线上美妆顾问。衷心祝福您和您的家人朋友平安健康，新春快乐！
+    </view>
+  </view>
+
+  <view class="video-box">
+    <video class="video" src="https://res-wxec-unipt.lorealchina.com/helena/HR_video.m4v"
+      controls show-fullscreen-btn auto-pause-if-navigate auto-pause-if-open-native></video>
+  </view>
+
+  <view class="">
+    <image mode="widthFix" src="https://hr-1256143910.cos.ap-shanghai.myqcloud.com/index/ad_0.png"></image>
+  </view>
+
+  <view class="hot_one">
+    <image class="ad_1" mode="widthFix" src="https://hr-1256143910.cos.ap-shanghai.myqcloud.com/index/ad_1.png"></image>
+    <view class="hot_one_list" wx:for="{{hotOneList}}" wx:key="index">
+      <image mode="widthFix" src="{{item.imgUrl}}"></image>
+    </view>
+  </view>
+  <view class="hot_one">
+    <image class="ad_2" mode="widthFix" src="https://hr-1256143910.cos.ap-shanghai.myqcloud.com/index/ad_2.png"></image>
+    <view class="hot_two_list" wx:for="{{hotTwoList}}" wx:key="index">
+      <image mode="widthFix" src="{{item.imgUrl}}"></image>
+    </view>
+  </view>
+  <view class="hot_one">
+    <image class="ad_3" mode="widthFix" src="https://hr-1256143910.cos.ap-shanghai.myqcloud.com/index/ad_3.png"></image>
+    <view class="hot_three_list" wx:for="{{hotThreeList}}" wx:key="index">
+      <image mode="widthFix" src="{{item.imgUrl}}"></image>
+    </view>
+  </view>
+
+</view> -->
+
+<view class="home-container">
+  <view class="content">
+    <block wx:for="{{pageDetail}}" wx:key="index">
+      <view class="part-item-title" wx:if="{{item.showTitle}}">{{item.title}}</view>
+
+      <block wx:if="{{item.showCount===1&&item.pageType!='SearchView'&&item.subPagesDto.length>1}}">
+        <view class="banner-warpper" style="height:100%">
+          <swiper circular indicator-dots="{{item.subPagesDto.length>1?true:false }}" indicator-color="#e8e8e8" indicator-active-color="#464646" autoplay="{{item.autoCarousel}}" data-title="{{item.title}}" style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]+ 280):(allSwiperHeight['swiperHeight_'+item.code]+80)}}rpx;">
+            <swiper-item wx:key="index" wx:for="{{item.subPagesDto}}" wx:for-item="subPagesDto">
+
+              <image bindload="getSwiperH" src="{{subPagesDto.image}}" data-url="{{subPagesDto.linkPage}}" mode="widthFix" bindtap="goDetail" data-code="{{item.code}}" data-title="{{subPagesDto.title}}" data-showCount="{{subPagesDto.showCount}}" data-pindex="{{idx}}"
+                data-index="{{index}}" data-hot="{{subPagesDto.pageType=='ProductView' && subPagesDto.uploadFileType=='PictureFile' && subPagesDto.productShowType == 'button'?'yes':'no'}}" />
+
+              <view class="contentBox" wx:if="{{subPagesDto.productShowType == 'button'}}">
+                <view class="title">{{subPagesDto.pictureTitle}}</view>
+                <view class="price">￥{{subPagesDto.picturePrice}}</view>
+                <view class="buyBtn">立即购买</view>
+              </view>
+
+              <video mode="widthFix" class="videoBox" src='{{subPagesDto.image}}' controls binderror="videoErrorCallback" autoplay="{{subPagesDto.autoplay}}" wx:if="{{subPagesDto.uploadFileType =='VideoFile'}}" style="height:{{allSwiperHeight['swiperHeight_'+item.code]}}rpx;"
+              />
+            </swiper-item>
+          </swiper>
+        </view>
+      </block>
+
+      <!-- banner end -->
+
+      <!-- search start -->
+      <block wx:elif="{{item.pageType==='SearchView'}}">
+        <view class="search-box-wrapper">
+          <view class="search-box" data-url="{{item.linkPage}}" data-showCount="{{item.pageType}}" data-index="{{index}}">
+            <input class="search-input" type="text" placeholder="{{placeholder}}" placeholder-class="search-input-placeholder"></input>
+            <image class="icon-search" src="/static/icon_search.png" mode="widthFix" bindtap="goDetail"></image>
+          </view>
+        </view>
+      </block>
+      <!-- search end -->
+
+      <!-- notice start -->
+      <!-- <view class="notice-box" wx:if="{{notice_flag}}">
+        <view class="notice-title">温馨提示</view>
+        <view class="notice-context">
+          尊贵的赫莲娜女孩，因目前新型冠状病毒肺炎疫情的防控，您在本店订购的产品将会延期送货，给你带来不便我们深表歉意。我们将密切跟踪疫情防控信息与进展，争取尽快为您配送。如有任何疑问，请详询线上美妆顾问。衷心祝福您和您的家人朋友平安健康，新春快乐！
+        </view>
+      </view> -->
+      <!-- notice end -->
+
+      <!-- video start -->
+      <block wx:elif="{{item.uploadFileType==='VideoFile'}}">
+        <video mode="widthFix" class="videoBox" src='{{urlVideo}}' controls binderror="videoErrorCallback" autoplay="{{item.autoplay}}">
+        </video>
+      </block>
+      <!-- video end  -->
+
+      <block wx:elif="{{item.pageType!='SearchView'&&item.showCount===1&&item.subPagesDto.length<=1&&item.uploadFileType=='PictureFile'}}">
+        <view class="list-swiper" wx:if="{{item.image}}">
+          <image src="{{item.image}}" data-url="{{item.linkPage}}" mode="widthFix" bindload="getSwiperH" bindtap="goDetail" data-showCount="{{1-1}}" data-title="{{item.title}}" data-index="{{index}}" data-hot="{{item.pageType=='ProductView' && item.uploadFileType=='PictureFile' && item.productShowType == 'button'?'yes':'no'}}"
+          />
+        </view>
+      </block>
+
+      <block wx:elif="{{item.showCount===1.1}}">
+        <view class="hot-part">
+          <view class="part-item">
+            <view class="fine-pick-box" style="height:100%">
+              <swiper interval="{{3000}}" duration="{{500}}" indicator-dots="{{item.subPagesDto.length>1? true:false}}" indicator-color="#e8e8e8" indicator-active-color="#464646" previous-margin="80rpx" next-margin="40rpx" circular style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]+40):(allSwiperHeight['swiperHeight_'+item.code]-110)}}rpx;">
+                <swiper-item wx:for="{{item.subPagesDto}}" wx:for-item="subPagesDto">
+                  <view class="fine-pick-box-item">
+
+                    <image src="{{subPagesDto.image}}" bindload="getSwiperH" data-url="{{subPagesDto.linkPage}}" mode="widthFix" bindtap="goDetail" data-code="{{item.code}}" data-showCount="{{subPagesDto.showCount}}" data-title="{{subPagesDto.title}}" data-index="{{index}}"
+                      data-hot="{{subPagesDto.pageType=='ProductView' && subPagesDto.uploadFileType=='PictureFile' && subPagesDto.productShowType == 'button'?'yes':'no'}}" data-code="{{item.code}}" />
+
+                    <view class="contentBox" wx:if="{{subPagesDto.productShowType == 'button'}}">
+                      <view class="title">{{subPagesDto.pictureTitle}}</view>
+                      <view class="price2">￥{{subPagesDto.picturePrice}}</view>
+                      <view class="buyBtn">立即购买</view>
+                    </view>
+
+                  </view>
+                </swiper-item>
+              </swiper>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <block wx:elif="{{item.showCount===1.5}}">
+        <view class="hot-part">
+          <view class="part-item">
+            <view class="hot-product" style="height:100%">
+              <swiper interval="{{3000}}" duration="{{500}}" indicator-dots="{{item.subPagesDto.length>1? true:false}}" indicator-color="#e8e8e8" indicator-active-color="#464646" previous-margin="120rpx" next-margin="95rpx" circular style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]+ 40):(allSwiperHeight['swiperHeight_'+item.code]-110)}}rpx;"
+                autoplay="{{item.autoCarousel}}">
+                <swiper-item wx:for="{{item.subPagesDto}}" wx:for-index="{{indexCon}}" wx:for-item="subPagesDto">
+                  <view class="hot-product-item">
+                    <view class="product-box">
+
+                      <image src="{{subPagesDto.image}}" data-code="{{item.code}}" bindload="getSwiperH" data-url="{{subPagesDto.linkPage}}" mode="widthFix" bindtap="goDetail" data-title="{{itsubPagesDtoem.title}}" data-showCount="{{subPagesDto.showCount}}" data-index="{{index}}"
+                        data-hot="{{subPagesDto.pageType=='ProductView' && subPagesDto.uploadFileType=='PictureFile' && subPagesDto.productShowType == 'button'?'yes':'no'}}" />
+
+                      <view class="contentBox" wx:if="{{subPagesDto.productShowType == 'button'}}">
+                        <view class="title">{{subPagesDto.pictureTitle}}</view>
+                        <view class="price2">￥{{subPagesDto.picturePrice}}</view>
+                        <view class="buyBtn">立即购买</view>
+                      </view>
+
+                    </view>
+                  </view>
+                </swiper-item>
+              </swiper>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <block wx:elif="{{item.showCount===2}}">
+        <view class="hot-part">
+          <view class="theme-swiper" style="height:100%">
+
+            <swiper interval="{{3000}}" duration="{{500}}" indicator-dots="{{item.subPagesDto.length>1 ? true:false}}" indicator-color="#e8e8e8" indicator-active-color="#464646" circular style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]-110):(allSwiperHeight['swiperHeight_'+item.code])}}rpx;"
+              autoplay="{{item.autoCarousel}}">
+
+              <swiper-item wx:for="{{item.subPagesDto}}" wx:for-item="subPagesDto">
+
+                <view class="theme-product" style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]-110):(allSwiperHeight['swiperHeight_'+item.code])}}rpx;">
+
+                  <view class="theme-product-item" wx:for="{{subPagesDto}}" wx:for-item="items" wx:for-index="{{indexCon1}}" style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]-110):(allSwiperHeight['swiperHeight_'+item.code])}}rpx;">
+
+                    <!-- 有标题、价格 -->
+                    <view class="prouct-img" style="height:{{dataList[idx]?(allSwiperHeight['swiperHeight_'+item.code]-110):(allSwiperHeight['swiperHeight_'+item.code])}}rpx;" wx:if="{{items.productShowType == 'button'}}">
+
+                      <image src="{{items.image}}" data-code="{{item.code}}" bindload="getSwiperH" data-url="{{items.linkPage}}" mode="widthFix" bindtap="goDetail" data-showCount="{{items.showCount}}" data-title="{{items.title}}" data-hot="{{items.pageType=='ProductView' && items.uploadFileType=='PictureFile' && items.productShowType == 'button'?'yes':'no'}}"
+                        data-index="{{index}}"></image>
+
+                      <view class="contentBox">
+                        <view class="title">{{items.pictureTitle}}</view>
+                        <view class="price2">￥{{items.picturePrice}}</view>
+                        <view class="buyBtn">立即购买</view>
+                      </view>
+                    </view>
+
+                    <!-- 无标题、价格 -->
+                    <view wx:if="{{items.productShowType != 'button'}}">
+                      <image src="{{items.image}}" data-code="{{item.code}}" bindload="getSwiperH" data-url="{{items.linkPage}}" mode="widthFix" bindtap="goDetail" data-showCount="{{items.showCount}}" data-title="{{items.title}}" data-hot="{{items.pageType=='ProductView' && items.uploadFileType=='PictureFile' && items.productShowType == 'button'?'yes':'no'}}"
+                        data-index="{{index}}"></image>
+                    </view>
+
+                  </view>
+                </view>
+              </swiper-item>
+            </swiper>
+          </view>
+        </view>
+      </block>
+
+
+    </block>
+  </view>
+</view>

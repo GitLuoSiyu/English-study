@@ -1,0 +1,28 @@
+/**app.wxss**/
+@import "./common/css/animate.wxss";
+@import "./common/css/icon.wxss";
+@import "./common/css/toa.wxss";
+@import "./common/css/common.wxss";
+
+page {
+  font-family: 'PingFang SC';
+}
+
+button::after {
+  border: none;
+  background-color: transparent;
+}
+
+image {
+  height: auto;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 200rpx 0;
+  box-sizing: border-box;
+}

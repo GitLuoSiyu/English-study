@@ -1,0 +1,25 @@
+<!--pages/vip/policy/policy.wxml-->
+<view class="userList">
+  <view class='userLi'>
+    <navigator url='./privacy/privacy' hover-class='none'>
+      <image class='userLiImage' src='./../../../static/gift_icon.png'></image>
+      隐私政策
+      <image class='orderNext' src='./../../../static/u_4.png'></image>
+    </navigator>
+
+  </view>
+  <view class='userLi'>
+    <navigator url='./useprivacy/useprivacy' hover-class='none'>
+      <image class='userLiImage image1' src='./../../../static/u_6.png'></image>
+      使用条款
+      <image class='orderNext' src='./../../../static/u_4.png'></image>
+    </navigator>
+  </view>
+  <view class='userLi'>
+    <navigator url='./returnpolicy/returnpolicy' hover-class='none'>
+      <image class='userLiImage image4' src='./../../../static/u_9.png'></image>
+      退换货政策
+      <image class='orderNext' src='./../../../static/u_4.png'></image>
+    </navigator>
+  </view>
+</view>

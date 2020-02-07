@@ -1,0 +1,7 @@
+<view class="productItem" bindtap='goDetail'>
+  <view class="main-img">
+    <image src="{{commodity.productImg}}"></image>
+  </view>
+  <view class="name">{{commodity.name}}</view>
+  <view class="price">￥{{commodity.productSkuDTO[0].platformPrice}}</view>
+</view>

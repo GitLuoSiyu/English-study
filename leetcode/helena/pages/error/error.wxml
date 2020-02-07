@@ -1,0 +1,5 @@
+<!--pages/error/error.wxml-->
+<view class='error' bindtap='toIndex'>
+  <image src='./../..//static/error.png'></image>
+  <view>页面出错啦，点击重新加载</view>
+</view>

@@ -1,0 +1,77 @@
+/* pages/vip/bindVip/bindVip.wxss */
+.bg {
+	height: 100%;
+}
+.title {
+	display: inline-block;
+	width: 100%;
+	text-align: center;
+	vertical-align: middle;
+}
+.form_box {
+	position: relative;
+	top: 40%;
+	width: 86%;
+	margin: 0 auto;
+}
+
+.input-user {
+	background-color: #e7e7e7;
+  margin: 20rpx auto;
+  margin-top: 40rpx;
+}
+.input-tele {
+	background-color: #e7e7e7;
+  margin: 20rpx auto;
+	height: 60upx;
+}
+.qrcode_box {
+	display: flex;
+	justify-content: space-between;
+	margin: 20upx auto;
+	height: 60upx;
+	font-size: 26upx;
+}
+.input-qr {
+	background-color: #e7e7e7;
+	width: 200upx;
+	height: 60upx;
+	padding: 6upx;
+	font-size: 26upx;
+	padding-left: 10upx;
+}
+.qr-button {
+  font-size: 28rpx;
+	text-align: center;
+}
+.info {
+	display: flex;
+	justify-content: space-between;
+	margin: 10upx auto;
+	width: 400upx;
+	font-size: 24upx;
+}
+.info_context {
+	font-size: 26rpx;
+	word-wrap: break-word;
+}
+.yinsi {
+	color: blue;
+	font-weight: 600;
+}
+.commit_button {
+  margin: 40rpx auto;
+	height: 30px;
+	line-height: 30px;
+	font-size: 15px;
+	font-weight: normal;
+	width: 54%;
+	background-color: #4d3900;
+}
+.footer_warning {
+  font-size: 28rpx;
+	color: #666;
+	width: 100%;
+	text-align: center;
+	margin: 20rpx auto;
+}
